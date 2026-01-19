@@ -962,7 +962,11 @@
     
     const container = document.getElementById('canvas-container');
     
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true, 
+      alpha: false,
+      powerPreference: 'high-performance'
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x030303);
@@ -1419,6 +1423,7 @@
     
     // Raycaster for logo hover/click detection
     const logoRaycaster = new THREE.Raycaster();
+    const logoMouseVec = new THREE.Vector2(); // Reusable vector for raycasting
     
     const gltfLoader = new GLTFLoader();
     
@@ -1687,14 +1692,14 @@
     
     // Logo interaction events - hover based rotation
     document.addEventListener('mousemove', (e) => {
-      if (!heroLogo) return;
+      if (!heroLogo || isLoadingMode) return;
       
-      // Check hover state
-      const mouse = new THREE.Vector2(
+      // Check hover state - reuse vector to avoid garbage collection
+      logoMouseVec.set(
         (e.clientX / window.innerWidth) * 2 - 1,
         -(e.clientY / window.innerHeight) * 2 + 1
       );
-      logoRaycaster.setFromCamera(mouse, camera);
+      logoRaycaster.setFromCamera(logoMouseVec, camera);
       const intersects = logoRaycaster.intersectObject(heroLogo, true);
       const wasHovering = logoInteraction.isHovering;
       logoInteraction.isHovering = intersects.length > 0;
@@ -1724,13 +1729,14 @@
     
     // DNA interaction events - hover based rotation (horizontal only)
     document.addEventListener('mousemove', (e) => {
-      if (!dnaHelix || !dnaHelix.visible) return;
+      if (!dnaHelix || !dnaHelix.visible || isLoadingMode) return;
       
-      const mouse = new THREE.Vector2(
+      // Reuse vector to avoid garbage collection
+      dnaMouseVec.set(
         (e.clientX / window.innerWidth) * 2 - 1,
         -(e.clientY / window.innerHeight) * 2 + 1
       );
-      dnaRaycaster.setFromCamera(mouse, camera);
+      dnaRaycaster.setFromCamera(dnaMouseVec, camera);
       const intersects = dnaRaycaster.intersectObject(dnaHelix, true);
       dnaInteraction.isHovering = intersects.length > 0;
       
@@ -1891,6 +1897,7 @@
       currentAutoSpeed: 0.005
     };
     const dnaRaycaster = new THREE.Raycaster();
+    const dnaMouseVec = new THREE.Vector2(); // Reusable vector for raycasting
     
     gltfLoader.load('assets/dna.glb',
       (gltf) => {
@@ -3792,9 +3799,11 @@
       updateFPS();
       time += 0.016;
       
-      // Update holo shader
-      holoUniforms.uTime.value = time;
-      holoUniforms.uMouse.value.set(STATE.mouse.x * 0.5 + 0.5, STATE.mouse.y * 0.5 + 0.5);
+      // Update holo shader - skip during loading for performance
+      if (!isLoadingMode) {
+        holoUniforms.uTime.value = time;
+        holoUniforms.uMouse.value.set(STATE.mouse.x * 0.5 + 0.5, STATE.mouse.y * 0.5 + 0.5);
+      }
       
       // Update background - skip during loading for performance
       if (!isLoadingMode) {
