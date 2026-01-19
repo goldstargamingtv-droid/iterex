@@ -1,0 +1,4054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Iterex — Iterate. Execute. Ship.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- GSAP -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --bg: #0a0a0a;
+      --white: #ffffff;
+      --gray-300: #a0a0a0;
+      --gray-500: #606060;
+      --gray-700: #2a2a2a;
+    }
+    
+    html, body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Syne', sans-serif;
+      overscroll-behavior: none;
+      cursor: none; /* FIX #8: Hide default cursor */
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+    
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       CURSOR
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    .cursor {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10000;
+      transform: translate(-50%, -50%);
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(150, 150, 150, 0.5);
+      transition: transform 0.1s ease, font-size 0.2s ease, color 0.2s ease;
+      will-change: transform;
+      white-space: nowrap;
+    }
+    
+    .cursor.hover {
+      font-size: 18px;
+      color: rgba(150, 150, 150, 0.7);
+    }
+    
+    .cursor.clicking {
+      transform: translate(-50%, -50%) scale(0.8);
+    }
+    
+    .cursor-trail {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 
+        0 0 2px #fff,
+        0 0 4px #fff,
+        0 0 8px #fff,
+        0 0 16px #fff,
+        0 0 32px rgba(255, 255, 255, 0.8);
+      transform: translate(-50%, -50%);
+      will-change: transform;
+      white-space: nowrap;
+    }
+    
+    .cursor-dot {
+      display: none;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       CANVAS
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       NAV
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 24px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      mix-blend-mode: difference;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0;
+      filter: blur(10px);
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      opacity: 0;
+      filter: blur(10px);
+    }
+    
+    .nav-links a {
+      color: var(--gray-300);
+      text-decoration: none;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      transition: color 0.3s;
+      cursor: none;
+    }
+    
+    .nav-links a:hover {
+      color: var(--white);
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTIONS - Each section is 100vh and will be PINNED
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    .panel {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      z-index: 10;
+    }
+    
+    .panel-content {
+      position: relative;
+      z-index: 2;
+      padding: 0 48px;
+      max-width: 550px;
+    }
+    
+    .panel-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    
+    .panel h1, .panel h2 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    
+    .panel h1 {
+      font-size: clamp(48px, 7vw, 72px);
+    }
+    
+    .panel h1 span {
+      display: block;
+      color: var(--gray-500);
+    }
+    
+    .panel p {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: #c0c0c0;
+      line-height: 1.9;
+      max-width: 400px;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    
+    .about-secondary {
+      margin-top: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #999999;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       FOUNDER CARD
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    .founder-card {
+      position: absolute;
+      left: 18%;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      z-index: 20;
+    }
+    
+    .founder-image {
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 40px rgba(100, 150, 255, 0.15);
+    }
+    
+    .founder-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .founder-info {
+      text-align: center;
+    }
+    
+    .founder-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 0.5px;
+    }
+    
+    .founder-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+    
+    .founder-quote {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-300);
+      font-style: italic;
+      margin-top: 12px;
+      white-space: nowrap;
+    }
+    
+    /* Right-aligned panels */
+    .panel.right {
+      justify-content: flex-end;
+    }
+    
+    .panel.right .panel-content {
+      text-align: right;
+    }
+    
+    .panel.center {
+      justify-content: center;
+      text-align: center;
+    }
+    
+    .panel.center .panel-content {
+      max-width: 600px;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       EXTENSIONS LIST
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    .ext-list {
+      margin-top: 32px;
+    }
+    
+    .ext-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--gray-700);
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+    
+    .ext-item:last-child {
+      border-bottom: none;
+    }
+    
+    .ext-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-500);
+    }
+    
+    .ext-name {
+      font-size: 16px;
+      font-weight: 600;
+      flex: 1;
+    }
+    
+    .ext-desc {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      color: var(--gray-500);
+      max-width: 140px;
+      text-align: right;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       WORK GRID
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    #extensions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+    }
+    
+    #extensions .work-content {
+      flex: 0 0 auto;
+    }
+    
+    .work-grid {
+      display: flex;
+      gap: 32px;
+      margin-right: 48px;
+    }
+    
+    .work-item {
+      position: relative;
+      width: 320px;
+      text-decoration: none;
+      opacity: 0;
+      transform: translateY(40px);
+      cursor: none;
+    }
+    
+    .work-image {
+      width: 100%;
+      aspect-ratio: 2/1;
+      overflow: hidden;
+      border-radius: 4px;
+      background: var(--gray-700);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .work-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease, filter 0.5s ease;
+    }
+    
+    .work-item:hover .work-image img {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+    
+    .work-image img.img-zoomed {
+      transform: scale(1.01);
+    }
+    
+    .work-item:hover .work-image img.img-zoomed {
+      transform: scale(1.06);
+    }
+    
+    .work-info {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .work-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--white);
+    }
+    
+    .work-type {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       CTA BUTTON
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    .cta-btn {
+      display: inline-block;
+      margin-top: 32px;
+      padding: 16px 40px;
+      background: var(--white);
+      color: var(--bg);
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: transform 0.3s ease;
+      cursor: none;
+    }
+    
+    /* FIX #10: Removed !important */
+    .cta-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       PROGRESS INDICATOR
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    .progress {
+      position: fixed;
+      right: 32px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 0;
+      filter: blur(10px);
+    }
+    
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+      border: 1px solid var(--gray-500);
+      border-radius: 50%;
+      transition: all 0.4s ease;
+      cursor: none;
+    }
+    
+    .progress-dot.active {
+      background: var(--white);
+      border-color: var(--white);
+      transform: scale(1.3);
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       LOADER
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    .loader {
+      position: fixed;
+      inset: 0;
+      background: transparent;
+      z-index: 20000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    .loader.hidden {
+      display: none;
+    }
+    
+    /* Circuit traces - hidden, now drawn in canvas for warp */
+    .hud-circuit {
+      display: none;
+    }
+    .hud-tl { top: 0; left: 0; }
+    .hud-tr { top: 0; right: 0; }
+    .hud-bl { bottom: 0; left: 0; }
+    .hud-br { bottom: 0; right: 0; }
+    
+    /* Center content */
+    .loader-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 160px;
+    }
+    
+    /* Loading bar */
+    .loader-bar {
+      display: none; /* Now drawn in canvas for warp */
+    }
+    
+    .loader-fill {
+      height: 100%;
+      width: 0%;
+      background: rgba(255, 255, 255, 0.7);
+      transition: width 0.2s;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    }
+    
+    /* Brand with waveform */
+    .loader-brand {
+      display: none; /* Now drawn in canvas for warp */
+    }
+    
+    .loader-text {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 10px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .loader-wave {
+      width: 50px;
+      height: 16px;
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .panel-content { padding: 0 24px; }
+      .progress { right: 16px; }
+      .panel.right { justify-content: flex-start; }
+      .panel.right .panel-content { text-align: left; }
+      .cursor, .cursor-dot { display: none; }
+      body { cursor: auto; }
+      .corner-bl, .corner-br { display: none; }
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       CORNER ELEMENTS - Subtle tech details
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    .corner-bl {
+      position: fixed;
+      bottom: 32px;
+      left: 40px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.3);
+      z-index: 100;
+      opacity: 0;
+      filter: blur(10px);
+    }
+    
+    .corner-br {
+      position: fixed;
+      bottom: 32px;
+      right: 40px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.35);
+      z-index: 100;
+      text-align: right;
+      opacity: 0;
+      filter: blur(10px);
+    }
+    
+    .tech-readout {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .tech-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    
+    .tech-label {
+      color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .tech-value {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: #7054f2;
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 0.4; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+    
+    .tech-line {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: scan-line 3s ease-in-out infinite;
+    }
+    
+    @keyframes scan-line {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.7; }
+    }
+  </style>
+  <script>
+    // Immediate scroll lock - runs before body renders
+    document.documentElement.style.overflow = 'hidden';
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.style.overflow = 'hidden';
+    });
+  </script>
+</head>
+<body>
+  
+  <!-- LOADER - HUD with extending circuit traces from corners -->
+  <div class="loader">
+    <!-- TOP LEFT - Long extending circuit -->
+    <svg class="hud-circuit hud-tl" viewBox="0 0 300 300" fill="none">
+      <path d="M0 40 L40 40 L60 60 L60 120 L80 140 L80 200" stroke="white" stroke-width="0.7" opacity="0.2"/>
+      <path d="M40 0 L40 30 L60 50 L120 50 L140 70 L200 70" stroke="white" stroke-width="0.7" opacity="0.18"/>
+      <path d="M0 80 L30 80 L50 100 L50 150" stroke="white" stroke-width="0.5" opacity="0.12"/>
+      <path d="M80 0 L80 25 L100 45 L150 45" stroke="white" stroke-width="0.5" opacity="0.12"/>
+      <path d="M60 60 L90 60 L110 80" stroke="white" stroke-width="0.4" opacity="0.1"/>
+      <path d="M60 120 L40 120 L40 160" stroke="white" stroke-width="0.4" opacity="0.08"/>
+      <circle cx="40" cy="40" r="2" fill="white" opacity="0.4"/>
+      <circle cx="60" cy="60" r="2.5" fill="white" opacity="0.35"/>
+      <circle cx="60" cy="120" r="2" fill="white" opacity="0.3"/>
+      <circle cx="80" cy="140" r="1.5" fill="white" opacity="0.25"/>
+      <circle cx="80" cy="200" r="2" fill="white" opacity="0.2"/>
+      <circle cx="120" cy="50" r="2" fill="white" opacity="0.3"/>
+      <circle cx="140" cy="70" r="1.5" fill="white" opacity="0.25"/>
+      <circle cx="200" cy="70" r="2" fill="white" opacity="0.15"/>
+      <circle cx="50" cy="100" r="1.5" fill="white" opacity="0.2"/>
+      <circle cx="110" cy="80" r="1" fill="white" opacity="0.15"/>
+      <circle cx="150" cy="45" r="1.5" fill="white" opacity="0.12"/>
+      <circle cx="25" cy="25" r="1" fill="white" opacity="0.25"/>
+      <circle cx="100" cy="30" r="0.8" fill="white" opacity="0.15"/>
+      <circle cx="30" cy="140" r="0.8" fill="white" opacity="0.12"/>
+      <circle cx="170" cy="55" r="0.6" fill="white" opacity="0.1"/>
+    </svg>
+    
+    <!-- TOP RIGHT - Long extending circuit -->
+    <svg class="hud-circuit hud-tr" viewBox="0 0 300 300" fill="none">
+      <path d="M300 40 L260 40 L240 60 L240 120 L220 140 L220 200" stroke="white" stroke-width="0.7" opacity="0.2"/>
+      <path d="M260 0 L260 30 L240 50 L180 50 L160 70 L100 70" stroke="white" stroke-width="0.7" opacity="0.18"/>
+      <path d="M300 80 L270 80 L250 100 L250 150" stroke="white" stroke-width="0.5" opacity="0.12"/>
+      <path d="M220 0 L220 25 L200 45 L150 45" stroke="white" stroke-width="0.5" opacity="0.12"/>
+      <path d="M240 60 L210 60 L190 80" stroke="white" stroke-width="0.4" opacity="0.1"/>
+      <circle cx="260" cy="40" r="2" fill="white" opacity="0.4"/>
+      <circle cx="240" cy="60" r="2.5" fill="white" opacity="0.35"/>
+      <circle cx="240" cy="120" r="2" fill="white" opacity="0.3"/>
+      <circle cx="220" cy="140" r="1.5" fill="white" opacity="0.25"/>
+      <circle cx="220" cy="200" r="2" fill="white" opacity="0.2"/>
+      <circle cx="180" cy="50" r="2" fill="white" opacity="0.3"/>
+      <circle cx="160" cy="70" r="1.5" fill="white" opacity="0.25"/>
+      <circle cx="100" cy="70" r="2" fill="white" opacity="0.15"/>
+      <circle cx="250" cy="100" r="1.5" fill="white" opacity="0.2"/>
+      <circle cx="190" cy="80" r="1" fill="white" opacity="0.15"/>
+      <circle cx="275" cy="25" r="1" fill="white" opacity="0.25"/>
+      <circle cx="200" cy="30" r="0.8" fill="white" opacity="0.15"/>
+      <circle cx="130" cy="55" r="0.6" fill="white" opacity="0.1"/>
+    </svg>
+    
+    <!-- BOTTOM LEFT - Long extending circuit -->
+    <svg class="hud-circuit hud-bl" viewBox="0 0 300 300" fill="none">
+      <path d="M0 260 L40 260 L60 240 L60 180 L80 160 L80 100" stroke="white" stroke-width="0.7" opacity="0.2"/>
+      <path d="M40 300 L40 270 L60 250 L120 250 L140 230 L200 230" stroke="white" stroke-width="0.7" opacity="0.18"/>
+      <path d="M0 220 L30 220 L50 200 L50 150" stroke="white" stroke-width="0.5" opacity="0.12"/>
+      <path d="M80 300 L80 275 L100 255 L150 255" stroke="white" stroke-width="0.5" opacity="0.12"/>
+      <path d="M60 240 L90 240 L110 220" stroke="white" stroke-width="0.4" opacity="0.1"/>
+      <circle cx="40" cy="260" r="2" fill="white" opacity="0.4"/>
+      <circle cx="60" cy="240" r="2.5" fill="white" opacity="0.35"/>
+      <circle cx="60" cy="180" r="2" fill="white" opacity="0.3"/>
+      <circle cx="80" cy="160" r="1.5" fill="white" opacity="0.25"/>
+      <circle cx="80" cy="100" r="2" fill="white" opacity="0.2"/>
+      <circle cx="120" cy="250" r="2" fill="white" opacity="0.3"/>
+      <circle cx="140" cy="230" r="1.5" fill="white" opacity="0.25"/>
+      <circle cx="200" cy="230" r="2" fill="white" opacity="0.15"/>
+      <circle cx="50" cy="200" r="1.5" fill="white" opacity="0.2"/>
+      <circle cx="110" cy="220" r="1" fill="white" opacity="0.15"/>
+      <circle cx="25" cy="275" r="1" fill="white" opacity="0.25"/>
+      <circle cx="100" cy="270" r="0.8" fill="white" opacity="0.15"/>
+      <circle cx="170" cy="245" r="0.6" fill="white" opacity="0.1"/>
+    </svg>
+    
+    <!-- BOTTOM RIGHT - Long extending circuit -->
+    <svg class="hud-circuit hud-br" viewBox="0 0 300 300" fill="none">
+      <path d="M300 260 L260 260 L240 240 L240 180 L220 160 L220 100" stroke="white" stroke-width="0.7" opacity="0.2"/>
+      <path d="M260 300 L260 270 L240 250 L180 250 L160 230 L100 230" stroke="white" stroke-width="0.7" opacity="0.18"/>
+      <path d="M300 220 L270 220 L250 200 L250 150" stroke="white" stroke-width="0.5" opacity="0.12"/>
+      <path d="M220 300 L220 275 L200 255 L150 255" stroke="white" stroke-width="0.5" opacity="0.12"/>
+      <path d="M240 240 L210 240 L190 220" stroke="white" stroke-width="0.4" opacity="0.1"/>
+      <circle cx="260" cy="260" r="2" fill="white" opacity="0.4"/>
+      <circle cx="240" cy="240" r="2.5" fill="white" opacity="0.35"/>
+      <circle cx="240" cy="180" r="2" fill="white" opacity="0.3"/>
+      <circle cx="220" cy="160" r="1.5" fill="white" opacity="0.25"/>
+      <circle cx="220" cy="100" r="2" fill="white" opacity="0.2"/>
+      <circle cx="180" cy="250" r="2" fill="white" opacity="0.3"/>
+      <circle cx="160" cy="230" r="1.5" fill="white" opacity="0.25"/>
+      <circle cx="100" cy="230" r="2" fill="white" opacity="0.15"/>
+      <circle cx="250" cy="200" r="1.5" fill="white" opacity="0.2"/>
+      <circle cx="190" cy="220" r="1" fill="white" opacity="0.15"/>
+      <circle cx="275" cy="275" r="1" fill="white" opacity="0.25"/>
+      <circle cx="200" cy="270" r="0.8" fill="white" opacity="0.15"/>
+      <circle cx="130" cy="245" r="0.6" fill="white" opacity="0.1"/>
+    </svg>
+    
+    <!-- Center content -->
+    <div class="loader-content">
+      <div class="loader-bar">
+        <div class="loader-fill"></div>
+      </div>
+      
+      <div class="loader-brand">
+        <svg class="loader-wave" viewBox="0 0 50 16" fill="none">
+          <path d="M0 8 L12 8 L16 3 L20 13 L24 3 L28 13 L32 8 L50 8" stroke="white" stroke-width="0.8" opacity="0.3"/>
+        </svg>
+        <span class="loader-text">ITEREX</span>
+        <svg class="loader-wave" viewBox="0 0 50 16" fill="none">
+          <path d="M0 8 L18 8 L22 3 L26 13 L30 3 L34 13 L38 8 L50 8" stroke="white" stroke-width="0.8" opacity="0.3"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  
+  <!-- CURSOR -->
+  <div class="cursor" id="cursor">_</div>
+  <div class="cursor-trail" id="cursorTrail1"></div>
+  <div class="cursor-trail" id="cursorTrail2"></div>
+  
+  <!-- 3D CANVAS -->
+  <div id="canvas-container"></div>
+  
+  <!-- PROGRESS -->
+  <div class="progress">
+    <div class="progress-dot active" data-index="0"></div>
+    <div class="progress-dot" data-index="1"></div>
+    <div class="progress-dot" data-index="2"></div>
+    <div class="progress-dot" data-index="3"></div>
+    <div class="progress-dot" data-index="4"></div>
+  </div>
+  
+  <!-- CORNER ELEMENTS -->
+  <div class="corner-bl">ITEREX.DEV © 2025</div>
+  <div class="corner-br">
+    <div class="tech-readout">
+      <div class="tech-row">
+        <span class="tech-label">STATUS</span>
+        <span class="tech-value">READY</span>
+        <div class="status-dot"></div>
+      </div>
+      <div class="tech-line"></div>
+      <div class="tech-row">
+        <span class="tech-label">SYS</span>
+        <span class="tech-value">V1.0.25</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- NAV -->
+  <nav>
+    <div class="logo">
+      <span>Iterex</span>
+    </div>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#extensions">Work</a>
+      <a href="#templates">Process</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════
+       PANELS — Each one will be PINNED during scroll
+  ═══════════════════════════════════════════════════════════════════ -->
+  
+  <!-- HERO -->
+  <section class="panel" id="hero">
+    <div class="panel-content">
+      <div class="panel-tag">AI-Accelerated Development</div>
+      <h1>Iterate.<br>Execute.<br><span>Ship.</span></h1>
+      <p>Premium digital experiences crafted through relentless iteration. Your vision, realized in days—not months.</p>
+    </div>
+  </section>
+  
+  <!-- ABOUT -->
+  <section class="panel right" id="about">
+    <div class="founder-card">
+      <div class="founder-image">
+        <img src="assets/headshot.webp" alt="Tyler Nicklin">
+      </div>
+      <div class="founder-info">
+        <div class="founder-name">Tyler Nicklin</div>
+        <div class="founder-title">Founder / AI Creative Director</div>
+        <div class="founder-quote">"Every pixel earns its place."</div>
+      </div>
+    </div>
+    <div class="panel-content">
+      <div class="panel-tag">[ 001 / About ]</div>
+      <h2>Human vision.<br>AI execution.</h2>
+      <p>We combine creative direction with AI-accelerated development to build digital experiences that feel impossible. Hundreds of iterations — until it's undeniably right.</p>
+      <p class="about-secondary">Born from frustration with traditional workflows, ITEREX exists to remove the barriers between bold ideas and flawless execution. Our human team sets the creative north star; AI handles the heavy lifting. The result: faster launches, lower costs, and work that stands out in a sea of sameness.</p>
+    </div>
+  </section>
+  
+  <!-- WORK (was Extensions) -->
+  <section class="panel" id="extensions">
+    <div class="panel-content work-content">
+      <div class="panel-tag">[ 002 / Work ]</div>
+      <h2>Selected<br>projects.</h2>
+      <p>Custom web development, brand identity, and digital experiences — shipped fast, built to last.</p>
+    </div>
+    <div class="work-grid">
+      <a href="https://mocapwork.com" class="work-item" target="_blank">
+        <div class="work-image">
+          <img src="assets/mocap.webp" alt="MocapWork" class="img-zoomed">
+        </div>
+        <div class="work-info">
+          <span class="work-title">MocapWork</span>
+          <span class="work-type">Motion Capture Platform · Web Design & Development</span>
+        </div>
+      </a>
+      <a href="https://thefactory.gg" class="work-item" target="_blank">
+        <div class="work-image">
+          <img src="assets/fac.webp" alt="TheFactory">
+        </div>
+        <div class="work-info">
+          <span class="work-title">TheFactory</span>
+          <span class="work-type">Esports & Gaming Studio · Brand & Web Development</span>
+        </div>
+      </a>
+    </div>
+  </section>
+  
+  <!-- PROCESS -->
+  <section class="panel right" id="templates">
+    <div class="panel-content">
+      <div class="panel-tag">[ 003 / Process ]</div>
+      <h2>How we<br>build.</h2>
+      <p>Discovery. Design. Develop. Deploy. We move fast through iterative cycles — refining until every detail is right. You stay in the loop, we handle the heavy lifting.</p>
+    </div>
+  </section>
+  
+  <!-- CTA -->
+  <!-- FIX #7: Proper mailto instead of Cloudflare protected email -->
+  <section class="panel center" id="contact">
+    <div class="panel-content">
+      <div class="panel-tag">[ 004 / Contact ]</div>
+      <h2>Let's build<br>something.</h2>
+      <p>Ready to ship your next project at impossible speed?</p>
+      <a href="/cdn-cgi/l/email-protection#ee868b828281ae879a8b9c8b96c08a8b98" class="cta-btn">Get In Touch</a>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       THREE.JS + SCROLL SYSTEM
+  ═══════════════════════════════════════════════════════════════════ -->
+  
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+    // ═══════════════════════════════════════════════════════════════════
+    // GLOBAL STATE
+    // ═══════════════════════════════════════════════════════════════════
+    
+    let scrollLocked = true;
+    const preventScroll = (e) => { 
+      if (scrollLocked) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('wheel', preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+    window.addEventListener('keydown', (e) => {
+      if (scrollLocked && [32, 33, 34, 35, 36, 37, 38, 39, 40].includes(e.keyCode)) e.preventDefault();
+    });
+    
+    const STATE = {
+      progress: 0,
+      section: 0,
+      mouse: { x: 0, y: 0 },
+      loaded: 0,
+      total: 8,
+      isScrolling: false,
+      isAnimating: false,
+      scrollTimeout: null,  // For Lenis scroll detection
+      // Scroll velocity for glow effect
+      scrollY: 0,
+      lastScrollY: 0,
+      scrollVelocity: 0,
+      glowSpeed: 1.0,        // Current glow speed multiplier
+      glowSpeedTarget: 1.0,  // Target glow speed (lerps toward this)
+      glowLinger: 0          // How long to keep boosted speed after scrolling stops
+    };
+    
+    const MODELS = {};
+    
+    // FIX #1: Store base Y positions for floating animation
+    const MODEL_BASE_Y = {};
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // THREE.JS SETUP
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const container = document.getElementById('canvas-container');
+    
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x030303);
+    renderer.toneMapping = THREE.NoToneMapping;
+    renderer.toneMappingExposure = 1;
+    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+    container.appendChild(renderer.domElement);
+    
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x030303, 8, 30);
+    
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 6);
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // LIGHTS
+    // ═══════════════════════════════════════════════════════════════════
+    
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    keyLight.position.set(5, 5, 5);
+    scene.add(keyLight);
+    
+    const blueLight = new THREE.PointLight(0x4466ff, 3, 15);
+    blueLight.position.set(-6, 2, 4);
+    scene.add(blueLight);
+    
+    const pinkLight = new THREE.PointLight(0xff4488, 3, 15);
+    pinkLight.position.set(6, -2, 4);
+    scene.add(pinkLight);
+    
+    const greenLight = new THREE.PointLight(0x44ff88, 1.5, 12);
+    greenLight.position.set(0, -4, 6);
+    scene.add(greenLight);
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // BACKGROUND LAYERS — Modern, Subtle Depth
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // --- BACKGROUND PLANE WITH VIGNETTE (matches loader aesthetic) ---
+    const bgPlaneGeometry = new THREE.PlaneGeometry(300, 200);
+    const bgPlaneMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        varying vec2 vUv;
+        
+        // Noise function for grain
+        float random(vec2 st) {
+          return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+        }
+        
+        void main() {
+          vec2 center = vUv - 0.5;
+          float dist = length(center);
+          
+          // Base color - slightly off-black
+          vec3 color = vec3(0.04, 0.04, 0.045);
+          
+          // Vignette - darken edges
+          float vignette = 1.0 - smoothstep(0.2, 0.9, dist * 1.4);
+          color *= vignette * 0.9 + 0.1;
+          
+          // Subtle animated grain
+          float grain = random(vUv + uTime * 0.01) * 0.03;
+          color += grain - 0.015;
+          
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `,
+      depthWrite: false
+    });
+    
+    const bgPlane = new THREE.Mesh(bgPlaneGeometry, bgPlaneMaterial);
+    bgPlane.position.z = -60;
+    scene.add(bgPlane);
+    
+    // --- SPHERICAL GRID (Perfect squares with curved lines like Alche) ---
+    const perspGridMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+        uMouse: { value: new THREE.Vector2(0, 0) }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec2 vWorldXY;
+        void main() {
+          vUv = uv;
+          vec4 worldPos = modelMatrix * vec4(position, 1.0);
+          vWorldXY = worldPos.xy;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform vec2 uResolution;
+        uniform vec2 uMouse;
+        varying vec2 vUv;
+        varying vec2 vWorldXY;
+        
+        // Hash function for random filled squares
+        float hash(vec2 p) {
+          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+        }
+        
+        void main() {
+          // World position for grid (keeps squares square)
+          // Offset by mouse for parallax effect - slower than objects for depth
+          vec2 worldPos = vWorldXY + uMouse * 0.15;
+          
+          // Fade at edges (used by all layers)
+          float fade = 1.0 - smoothstep(0.35, 0.8, length(vUv - 0.5));
+          
+          // ═══════════════════════════════════════════════════════════════
+          // SHARED CURVE DISTORTION - Apply to all grid layers
+          // ═══════════════════════════════════════════════════════════════
+          float curveStrength = 7.0;
+          vec2 fromCenter = (vUv - 0.5) * 2.0;
+          
+          // Squeeze factor - at edges, squeeze toward center
+          float ySquish = 1.0 - abs(fromCenter.y) * abs(fromCenter.y) * curveStrength * 0.4;
+          float xSquish = 1.0 - abs(fromCenter.x) * abs(fromCenter.x) * curveStrength * 0.4;
+          ySquish = max(ySquish, 0.1);
+          xSquish = max(xSquish, 0.1);
+          
+          // ═══════════════════════════════════════════════════════════════
+          // LARGE ACCENT SQUARES - Scattered filled cells for texture
+          // ═══════════════════════════════════════════════════════════════
+          float largeCellSize = 3.0;  // Much bigger than grid
+          vec2 largeCellPos = worldPos / largeCellSize;
+          
+          // Apply same curve distortion
+          float largeVPos = largeCellPos.x * ySquish;
+          float largeHPos = largeCellPos.y * xSquish;
+          vec2 curvedLargeCell = vec2(largeVPos, largeHPos);
+          
+          vec2 largeCell = floor(curvedLargeCell);
+          vec2 largeCellUV = fract(curvedLargeCell);
+          
+          // Random fill - only ~15% of cells get filled
+          float fillRandom = hash(largeCell);
+          float isFilled = step(0.85, fillRandom);
+          
+          // Soft square (not hard edges)
+          vec2 fromCellCenter = abs(largeCellUV - 0.5);
+          float squareDist = max(fromCellCenter.x, fromCellCenter.y);
+          float squareMask = 1.0 - smoothstep(0.3, 0.45, squareDist);
+          
+          float largeSquares = isFilled * squareMask;
+          
+          // ═══════════════════════════════════════════════════════════════
+          // EXTRA LARGE SQUARES - Even bigger, but NOT overlapping large ones
+          // ═══════════════════════════════════════════════════════════════
+          float xlCellSize = 4.5;  // 1.5x bigger than large squares
+          vec2 xlCellPos = worldPos / xlCellSize;
+          
+          // Apply curve distortion
+          float xlVPos = xlCellPos.x * ySquish;
+          float xlHPos = xlCellPos.y * xSquish;
+          vec2 curvedXLCell = vec2(xlVPos, xlHPos);
+          
+          vec2 xlCell = floor(curvedXLCell);
+          vec2 xlCellUV = fract(curvedXLCell);
+          
+          // Random fill - ~12% of cells (sparser than large)
+          float xlFillRandom = hash(xlCell + 100.0);  // Offset to get different pattern
+          float xlIsFilled = step(0.88, xlFillRandom);
+          
+          // Soft square
+          vec2 xlFromCellCenter = abs(xlCellUV - 0.5);
+          float xlSquareDist = max(xlFromCellCenter.x, xlFromCellCenter.y);
+          float xlSquareMask = 1.0 - smoothstep(0.3, 0.45, xlSquareDist);
+          
+          // Only show XL square if NO large square is present at this pixel
+          float xlSquares = xlIsFilled * xlSquareMask * (1.0 - largeSquares);
+          
+          // ═══════════════════════════════════════════════════════════════
+          // DOT PATTERN - Tiny dots for texture depth (behind grid)
+          // ═══════════════════════════════════════════════════════════════
+          float dotSpacing = 0.15;  // Smaller = more dots
+          vec2 dotCell = worldPos / dotSpacing;
+          vec2 dotUV = fract(dotCell) - 0.5;
+          float dotDist = length(dotUV);
+          float dotSize = 0.4;  // Size of each dot
+          float dots = 1.0 - smoothstep(dotSize - 0.02, dotSize, dotDist);
+          
+          // ═══════════════════════════════════════════════════════════════
+          // GRID LINES - Main visible grid
+          // ═══════════════════════════════════════════════════════════════
+          float cellSize = 0.6;
+          vec2 cellPos = worldPos / cellSize;
+          
+          // Apply squeeze - vertical lines squeeze based on Y, horizontal based on X
+          float vLinePos = cellPos.x * ySquish;
+          float hLinePos = cellPos.y * xSquish;
+          
+          // Draw lines
+          float lineWidth = 0.034;
+          float vLine = abs(fract(vLinePos) - 0.5);
+          float hLine = abs(fract(hLinePos) - 0.5);
+          
+          float vertical = 1.0 - smoothstep(lineWidth, lineWidth + 0.01, vLine);
+          float horizontal = 1.0 - smoothstep(lineWidth, lineWidth + 0.01, hLine);
+          
+          float grid = max(horizontal, vertical);
+          
+          // ═══════════════════════════════════════════════════════════════
+          // COMBINE ALL LAYERS (back to front, additive stacking)
+          // ═══════════════════════════════════════════════════════════════
+          vec3 color = vec3(1.0);
+          
+          // Layer 0 (FARTHEST BACK): Extra large squares
+          float xlSquareAlpha = xlSquares * fade * 0.02;
+          
+          // Layer 1: Large squares
+          float largeSquareAlpha = largeSquares * fade * 0.06;
+          
+          // Layer 2: Dot texture
+          float dotAlpha = dots * fade * 0.02;
+          
+          // Layer 3 (FRONT): Grid lines - most visible
+          float gridAlpha = grid * fade * 0.03;
+          
+          // Additive blend - back layers show through, front layers on top
+          float alpha = xlSquareAlpha + largeSquareAlpha + dotAlpha + gridAlpha;
+          
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
+      transparent: true,
+      depthWrite: false
+    });
+    
+    const perspGrid = new THREE.Mesh(
+      new THREE.PlaneGeometry(120, 120),
+      perspGridMaterial
+    );
+    perspGrid.position.z = -20;
+    scene.add(perspGrid);
+    
+    // --- GRADIENT ORB GLOWS (soft, modern) ---
+    const orbGeometry = new THREE.PlaneGeometry(30, 30);
+    
+    const createGradientOrb = (color, position, scale) => {
+      const orbMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          uColor: { value: new THREE.Color(color) },
+          uTime: { value: 0 }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 uColor;
+          uniform float uTime;
+          varying vec2 vUv;
+          
+          void main() {
+            vec2 center = vUv - 0.5;
+            float dist = length(center);
+            
+            // Soft radial gradient
+            float alpha = smoothstep(0.5, 0.0, dist) * 0.15;
+            
+            // Subtle pulse
+            alpha *= 0.8 + sin(uTime * 0.5) * 0.2;
+            
+            gl_FragColor = vec4(uColor, alpha);
+          }
+        `,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+      
+      const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+      orb.position.set(position.x, position.y, position.z);
+      orb.scale.setScalar(scale);
+      orb.userData.material = orbMaterial;
+      return orb;
+    };
+    
+    // BACKGROUND ELEMENTS REMOVED FOR CLEAN LOOK
+    const orbs = [];
+    // orbs.push(createGradientOrb(0x4466ff, { x: -8, y: 3, z: -15 }, 2));
+    // orbs.push(createGradientOrb(0xff4488, { x: 10, y: -2, z: -20 }, 2.5));
+    // orbs.push(createGradientOrb(0x44ffaa, { x: 0, y: -5, z: -25 }, 1.8));
+    // orbs.push(createGradientOrb(0x8844ff, { x: 15, y: 5, z: -30 }, 3));
+    // orbs.forEach(orb => scene.add(orb));
+    
+    // --- GRID REMOVED FOR CLEAN LOOK ---
+    const gridMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        varying float vDist;
+        void main() {
+          vUv = uv;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vDist = -mvPosition.z;
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        varying vec2 vUv;
+        varying float vDist;
+        
+        void main() {
+          // Very subtle grid
+          vec2 grid = abs(fract(vUv * 30.0 - 0.5) - 0.5) / fwidth(vUv * 30.0);
+          float line = min(grid.x, grid.y);
+          float gridAlpha = 1.0 - min(line, 1.0);
+          
+          // Distance fade
+          float fade = smoothstep(60.0, 10.0, vDist);
+          
+          // Very subtle - just hints of structure
+          float alpha = gridAlpha * fade * 0.06;
+          
+          gl_FragColor = vec4(0.4, 0.5, 0.8, alpha);
+        }
+      `,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    
+    const gridFloor = new THREE.Mesh(
+      new THREE.PlaneGeometry(80, 80, 40, 40),
+      gridMaterial
+    );
+    gridFloor.rotation.x = -Math.PI / 2;
+    gridFloor.position.y = -4;
+    gridFloor.position.z = -15;
+    // scene.add(gridFloor);  // REMOVED
+    
+    // --- TEXT PLANE REMOVED FOR CLEAN LOOK ---
+    /*
+    const textCanvas = document.createElement('canvas');
+    textCanvas.width = 2048;
+    textCanvas.height = 512;
+    const ctx = textCanvas.getContext('2d');
+    ctx.fillStyle = 'rgba(0,0,0,0)';
+    ctx.fillRect(0, 0, textCanvas.width, textCanvas.height);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 280px Syne, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('ITEREX', textCanvas.width / 2, textCanvas.height / 2);
+    
+    const textTexture = new THREE.CanvasTexture(textCanvas);
+    textTexture.needsUpdate = true;
+    
+    const textMaterial = new THREE.MeshBasicMaterial({
+      map: textTexture,
+      transparent: true,
+      depthWrite: false
+    });
+    
+    const textPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(16, 4),
+      textMaterial
+    );
+    textPlane.position.set(0, 0, -2);
+    scene.add(textPlane);
+    */
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // HOLOGRAPHIC SHADER MATERIAL
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const holoUniforms = { uTime: { value: 0 }, uMouse: { value: new THREE.Vector2(0.5, 0.5) } };
+    
+    const holoMat = () => new THREE.ShaderMaterial({
+      uniforms: holoUniforms,
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          vNormal = normalize(normalMatrix * normal);
+          vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        varying vec2 vUv;
+        uniform float uTime;
+        uniform vec2 uMouse;
+        void main() {
+          vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+          float fresnel = pow(1.0 - abs(dot(viewDir, vNormal)), 1.5);
+          float angle = dot(vNormal, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
+          float viewAngle = dot(viewDir, vec3(1.0, 0.0, 0.0)) * 0.5 + 0.5;
+          float timeShift = uTime * 1.00;
+          vec3 color1 = vec3(0.76, 0.44, 0.71);
+          vec3 color2 = vec3(0.00, 0.78, 1.00);
+          vec3 color3 = vec3(0.40, 0.30, 1.00);
+          vec3 color4 = vec3(0.96, 1.00, 0.20);
+          float t1 = sin(angle * 6.28 + timeShift + viewAngle * 3.0) * 0.5 + 0.5;
+          float t2 = sin(angle * 6.28 + timeShift + 2.09 + viewAngle * 2.0) * 0.5 + 0.5;
+          float t3 = cos(viewAngle * 6.28 + timeShift * 0.5) * 0.5 + 0.5;
+          vec3 holoColor = mix(color1, color2, t1);
+          holoColor = mix(holoColor, color3, t2 * 1.00);
+          holoColor = mix(holoColor, color4, t3 * 0.00);
+          vec3 finalColor = holoColor * (fresnel * 0.80 + 1.00);
+          finalColor += vec3(1.00, 0.98, 0.20) * pow(fresnel, 6.0) * 2.00;
+          float alpha = fresnel * 1.00 + 0.00;
+          gl_FragColor = vec4(finalColor, alpha);
+        }
+      `,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // HERO LOGO - Center of screen, spinning + interactive
+    // ═══════════════════════════════════════════════════════════════════
+    
+    let heroLogo = null;
+    
+    // Logo interaction state
+    const logoInteraction = {
+      isHovering: false,
+      lastMouseX: 0,
+      lastMouseY: 0,
+      velocityY: 0,
+      velocityX: 0,
+      autoRotateSpeed: 0.008,
+      currentAutoSpeed: 0.008
+    };
+    
+    // Raycaster for logo hover/click detection
+    const logoRaycaster = new THREE.Raycaster();
+    
+    const gltfLoader = new GLTFLoader();
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // BIG ITEREX TEXT - Behind the spinning logo
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const heroTextCanvas = document.createElement('canvas');
+    heroTextCanvas.width = 1024;
+    heroTextCanvas.height = 256;
+    const heroTextCtx = heroTextCanvas.getContext('2d');
+    heroTextCtx.fillStyle = 'rgba(0, 0, 0, 0)';
+    heroTextCtx.fillRect(0, 0, heroTextCanvas.width, heroTextCanvas.height);
+    heroTextCtx.filter = 'blur(3px)';
+    heroTextCtx.font = '700 180px Syne, sans-serif';
+    heroTextCtx.fillStyle = '#ffffff';
+    heroTextCtx.textAlign = 'center';
+    heroTextCtx.textBaseline = 'middle';
+    heroTextCtx.fillText('ITEREX', heroTextCanvas.width / 2, heroTextCanvas.height / 2);
+    heroTextCtx.filter = 'none';
+    
+    const heroTextTexture = new THREE.CanvasTexture(heroTextCanvas);
+    heroTextTexture.needsUpdate = true;
+    
+    const heroTextMaterial = new THREE.MeshBasicMaterial({
+      map: heroTextTexture,
+      transparent: true,
+      depthWrite: false
+    });
+    
+    const heroTextPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(20, 5),
+      heroTextMaterial
+    );
+    heroTextPlane.position.set(0, 0, -8);
+    heroTextPlane.renderOrder = 0;  // Render behind DNA/neurons
+    scene.add(heroTextPlane);
+    
+    // Track scroll offset for parallax combination
+    const heroScrollOffset = { y: 0, textY: 0 };
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // REFRACTION RENDER TARGET - Capture background for logo distortion
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const refractionRT = new THREE.WebGLRenderTarget(
+      window.innerWidth,
+      window.innerHeight,
+      { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter }
+    );
+    
+    // Refraction shader for logo - warps background like glass
+    const refractionUniforms = {
+      uTime: holoUniforms.uTime,
+      uBackground: { value: refractionRT.texture },
+      uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+      uRefractionStrength: { value: 0.15 },
+      uChromaticAberration: { value: 0.02 }
+    };
+    
+    const refractionMat = () => new THREE.ShaderMaterial({
+      uniforms: refractionUniforms,
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        varying vec4 vScreenPos;
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          vNormal = normalize(normalMatrix * normal);
+          vec4 worldPos = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPos.xyz;
+          vec4 clipPos = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          vScreenPos = clipPos;
+          gl_Position = clipPos;
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        varying vec4 vScreenPos;
+        varying vec2 vUv;
+        uniform float uTime;
+        uniform sampler2D uBackground;
+        uniform vec2 uResolution;
+        uniform float uRefractionStrength;
+        uniform float uChromaticAberration;
+        
+        // Noise functions
+        float hash(vec2 p) {
+          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+        }
+        
+        float noise(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          float a = hash(i);
+          float b = hash(i + vec2(1.0, 0.0));
+          float c = hash(i + vec2(0.0, 1.0));
+          float d = hash(i + vec2(1.0, 1.0));
+          return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+        }
+        
+        void main() {
+          // Screen UV from clip space
+          vec2 screenUV = (vScreenPos.xy / vScreenPos.w) * 0.5 + 0.5;
+          
+          vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+          vec3 normal = normalize(vNormal);
+          
+          // Refraction offset based on normal
+          vec2 refractOffset = normal.xy * uRefractionStrength;
+          
+          // Chromatic aberration - separate RGB channels
+          float aberr = uChromaticAberration;
+          vec2 uvR = screenUV + refractOffset * (1.0 + aberr);
+          vec2 uvG = screenUV + refractOffset;
+          vec2 uvB = screenUV + refractOffset * (1.0 - aberr);
+          
+          float r = texture2D(uBackground, uvR).r;
+          float g = texture2D(uBackground, uvG).g;
+          float b = texture2D(uBackground, uvB).b;
+          vec3 refractedColor = vec3(r, g, b);
+          
+          // Fresnel for edge glow
+          float fresnel = pow(1.0 - abs(dot(viewDir, normal)), 1.5);
+          
+          // Noise pattern on surface
+          vec2 noiseUV = vWorldPosition.xy * 8.0 + vWorldPosition.z * 2.0;
+          float noisePattern = noise(noiseUV + uTime * 0.1);
+          
+          // Holo colors
+          float angle = dot(normal, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
+          float viewAngle = dot(viewDir, vec3(1.0, 0.0, 0.0)) * 0.5 + 0.5;
+          float timeShift = uTime * 1.0;
+          
+          vec3 color1 = vec3(0.76, 0.44, 0.71);
+          vec3 color2 = vec3(0.00, 0.78, 1.00);
+          vec3 color3 = vec3(0.40, 0.30, 1.00);
+          
+          float t1 = sin(angle * 6.28 + timeShift + viewAngle * 3.0) * 0.5 + 0.5;
+          float t2 = sin(angle * 6.28 + timeShift + 2.09 + viewAngle * 2.0) * 0.5 + 0.5;
+          
+          vec3 holoColor = mix(color1, color2, t1);
+          holoColor = mix(holoColor, color3, t2);
+          
+          // Apply noise to holo color
+          holoColor *= 0.8 + noisePattern * 0.4;
+          
+          // Edge glow
+          vec3 edgeGlow = vec3(1.0, 0.98, 0.2) * pow(fresnel, 6.0) * 2.0;
+          
+          // Blend refraction with holo effect
+          vec3 finalColor = refractedColor * 0.7 + holoColor * fresnel * 0.8;
+          finalColor += edgeGlow;
+          
+          // Alpha based on fresnel
+          float alpha = 0.85 + fresnel * 0.15;
+          
+          gl_FragColor = vec4(finalColor, alpha);
+        }
+      `,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    
+    gltfLoader.load('assets/logo.glb',
+      (gltf) => {
+        heroLogo = gltf.scene;
+        heroLogo.traverse((child) => {
+          if (child.isMesh) {
+            child.material = refractionMat();
+          }
+        });
+        heroLogo.scale.setScalar(3);
+        heroLogo.position.set(0, 0, -5);
+        heroLogo.renderOrder = 0;  // Render behind DNA/neurons
+        heroLogo.traverse((child) => {
+          if (child.isMesh) child.renderOrder = 0;
+        });
+        scene.add(heroLogo);
+        MODELS.logo = heroLogo;  // Add to MODELS for section transitions
+        
+        // ═══════════════════════════════════════════════════════════════
+        // AMBIENT GLOW - Animated color wave radiating from center
+        // ═══════════════════════════════════════════════════════════════
+        const glowMaterial = new THREE.ShaderMaterial({
+          uniforms: {
+            uTime: { value: 0 }
+          },
+          vertexShader: `
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `,
+          fragmentShader: `
+            uniform float uTime;
+            varying vec2 vUv;
+            
+            void main() {
+              // Distance from center
+              vec2 center = vUv - 0.5;
+              float dist = length(center);
+              
+              // Colors
+              vec3 purple = vec3(0.44, 0.33, 0.95);  // #7054f2
+              vec3 cyan = vec3(0.0, 0.78, 1.0);
+              vec3 pink = vec3(0.7, 0.4, 0.78);
+              vec3 blue = vec3(0.24, 0.47, 0.7);
+              
+              // Wave rotating through colors based on distance + time
+              float wave = dist * 8.0 - uTime * 0.2;
+              float t = fract(wave);
+              
+              // Cycle through colors
+              vec3 color;
+              float segment = mod(wave, 4.0);
+              if (segment < 1.0) {
+                color = mix(purple, cyan, t);
+              } else if (segment < 2.0) {
+                color = mix(cyan, pink, t);
+              } else if (segment < 3.0) {
+                color = mix(pink, blue, t);
+              } else {
+                color = mix(blue, purple, t);
+              }
+              
+              // Fade out from center
+              float alpha = smoothstep(0.5, 0.0, dist) * 0.35;
+              
+              gl_FragColor = vec4(color, alpha);
+            }
+          `,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        });
+        
+        const logoGlow = new THREE.Mesh(
+          new THREE.PlaneGeometry(17, 17),
+          glowMaterial
+        );
+        logoGlow.position.set(0, 0, -6.5);  // Behind logo
+        scene.add(logoGlow);
+        
+        // Store reference for animation
+        heroLogo.userData.glow = logoGlow;
+        heroLogo.userData.glowMaterial = glowMaterial;
+        
+        console.log('Hero logo loaded with refraction + animated glow!');
+      },
+      undefined,
+      (error) => {
+        console.warn('Logo not loaded:', error.message);
+      }
+    );
+    
+    // Logo interaction events - hover based rotation
+    document.addEventListener('mousemove', (e) => {
+      if (!heroLogo) return;
+      
+      // Check hover state
+      const mouse = new THREE.Vector2(
+        (e.clientX / window.innerWidth) * 2 - 1,
+        -(e.clientY / window.innerHeight) * 2 + 1
+      );
+      logoRaycaster.setFromCamera(mouse, camera);
+      const intersects = logoRaycaster.intersectObject(heroLogo, true);
+      const wasHovering = logoInteraction.isHovering;
+      logoInteraction.isHovering = intersects.length > 0;
+      
+      // If hovering over logo, calculate target velocity from mouse movement
+      if (logoInteraction.isHovering) {
+        const deltaX = e.clientX - logoInteraction.lastMouseX;
+        const deltaY = e.clientY - logoInteraction.lastMouseY;
+        
+        // Target velocities - same sensitivity for both axes
+        const targetVelY = deltaX * 0.002;
+        const targetVelX = deltaY * 0.002;
+        
+        // Lerp toward target with friction (can't spin crazy fast)
+        logoInteraction.velocityY += (targetVelY - logoInteraction.velocityY) * 0.3;
+        logoInteraction.velocityX += (targetVelX - logoInteraction.velocityX) * 0.3;
+        
+        // Clamp max velocity
+        const maxVel = 0.08;
+        logoInteraction.velocityY = Math.max(-maxVel, Math.min(maxVel, logoInteraction.velocityY));
+        logoInteraction.velocityX = Math.max(-maxVel, Math.min(maxVel, logoInteraction.velocityX));
+      }
+      
+      logoInteraction.lastMouseX = e.clientX;
+      logoInteraction.lastMouseY = e.clientY;
+    });
+    
+    // DNA interaction events - hover based rotation (horizontal only)
+    document.addEventListener('mousemove', (e) => {
+      if (!dnaHelix || !dnaHelix.visible) return;
+      
+      const mouse = new THREE.Vector2(
+        (e.clientX / window.innerWidth) * 2 - 1,
+        -(e.clientY / window.innerHeight) * 2 + 1
+      );
+      dnaRaycaster.setFromCamera(mouse, camera);
+      const intersects = dnaRaycaster.intersectObject(dnaHelix, true);
+      dnaInteraction.isHovering = intersects.length > 0;
+      
+      // If hovering, calculate velocity from horizontal mouse movement only
+      if (dnaInteraction.isHovering) {
+        const deltaX = e.clientX - dnaInteraction.lastMouseX;
+        const targetVelY = deltaX * 0.003;
+        dnaInteraction.velocityY += (targetVelY - dnaInteraction.velocityY) * 0.3;
+        const maxVel = 0.1;
+        dnaInteraction.velocityY = Math.max(-maxVel, Math.min(maxVel, dnaInteraction.velocityY));
+      }
+      
+      dnaInteraction.lastMouseX = e.clientX;
+    });
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // FLOATING BALLS - Tiny holo orbs drifting around
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const floatingBalls = [];
+    const ballCount = 17;  // 13 original + 4 larger accent balls
+    
+    // Fixed positions for balls - first 7 smaller, next 6 bigger, last 4 large accent orbs
+    const ballPositions = [
+      // Smaller balls
+      { x: -8, y: -3, z: -6, scale: 0.06 },
+      { x: 10, y: 4, z: -8, scale: 0.05 },
+      { x: -6, y: 5, z: -12, scale: 0.07 },
+      { x: 8, y: -4, z: -10, scale: 0.04 },
+      { x: -11, y: 2, z: -15, scale: 0.06 },
+      { x: 5, y: -2, z: -5, scale: 0.05 },
+      { x: -3, y: 6, z: -18, scale: 0.07 },
+      // Bigger balls
+      { x: 12, y: -5, z: -7, scale: 0.18 },
+      { x: -10, y: -4, z: -9, scale: 0.22 },
+      { x: 7, y: 3, z: -14, scale: 0.16 },
+      { x: -5, y: -6, z: -11, scale: 0.20 },
+      { x: 9, y: 5, z: -16, scale: 0.17 },
+      { x: -12, y: 4, z: -13, scale: 0.19 },
+      // Large accent orbs - more color, closer
+      { x: -7, y: -2, z: -3, scale: 0.35 },   // Left side, close
+      { x: 8, y: 3, z: -4, scale: 0.30 },     // Right side, close
+      { x: -4, y: 5, z: -6, scale: 0.28 },    // Upper left
+      { x: 6, y: -4, z: -5, scale: 0.32 }     // Lower right
+    ];
+    
+    gltfLoader.load('assets/ball.glb',
+      (gltf) => {
+        for (let i = 0; i < ballCount; i++) {
+          const ball = gltf.scene.clone();
+          ball.traverse((child) => {
+            if (child.isMesh) {
+              child.material = holoMat();
+            }
+          });
+          
+          const pos = ballPositions[i];
+          ball.scale.setScalar(pos.scale);
+          ball.position.set(pos.x, pos.y, pos.z);
+          
+          // Store animation params - Z movement for depth
+          ball.userData = {
+            baseX: pos.x,
+            baseY: pos.y,
+            baseZ: pos.z,
+            speedZ: 0.1 + (i * 0.002),
+            ampZ: 1.5 + (i * 0.3),
+            phase: i * 0.9,
+            rotSpeed: 0.2 + (i * 0.05)
+          };
+          
+          scene.add(ball);
+          floatingBalls.push(ball);
+        }
+        console.log('Floating balls loaded!');
+      },
+      undefined,
+      (error) => {
+        console.warn('Ball not loaded:', error.message);
+      }
+    );
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // ABOUT SECTION - Floating neurons (scattered around screen)
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const floatingNeurons = [];
+    const neuronPositions = [
+      // Small neurons
+      { x: -11, y: -5, z: -8, scale: 0.45 },
+      { x: 9, y: 4, z: -10, scale: 0.38 },
+      // Medium neurons  
+      { x: -11, y: 2, z: -6, scale: 0.70 },
+      { x: 7, y: -4, z: -7, scale: 0.63 },
+      // Large neurons
+      { x: -5, y: 4, z: -4, scale: 1.1 },
+      // Near DNA - 2 small
+      { x: -1.8, y: -3, z: -5, scale: 0.35 },   // Small, bottom left of DNA
+      { x: 4, y: 3.5, z: -5, scale: 0.40 }   // Small, upper right of DNA
+    ];
+    
+    gltfLoader.load('assets/neuron.glb',
+      (gltf) => {
+        for (let i = 0; i < neuronPositions.length; i++) {
+          const neuron = gltf.scene.clone();
+          neuron.traverse((child) => {
+            if (child.isMesh) {
+              child.material = holoMat();
+            }
+          });
+          
+          const pos = neuronPositions[i];
+          neuron.scale.setScalar(0.01);  // Start tiny
+          neuron.position.set(pos.x, pos.y, -30);  // Start far back
+          
+          // Start hidden (deep in scene)
+          neuron.visible = false;
+          
+          // Store animation params
+          neuron.userData = {
+            baseX: pos.x,
+            baseY: pos.y,
+            baseZ: pos.z,
+            baseScale: pos.scale,
+            speedZ: 0.08 + (i * 0.015),
+            ampZ: 1.2 + (i * 0.2),
+            phase: i * 1.2,
+            rotSpeed: 0.15 + (i * 0.03)
+          };
+          
+          neuron.renderOrder = 10;  // Render on top of logo/text
+          neuron.traverse((child) => {
+            child.renderOrder = 10;
+          });
+          scene.add(neuron);
+          floatingNeurons.push(neuron);
+        }
+        console.log('Floating neurons loaded for About section!');
+      },
+      undefined,
+      (error) => {
+        console.warn('Neuron not loaded:', error.message);
+      }
+    );
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // DNA HELIX - Meshy-generated centerpiece for About section
+    // ═══════════════════════════════════════════════════════════════════
+    
+    let dnaHelix = null;
+    
+    // DNA interaction state - horizontal only
+    const dnaInteraction = {
+      isHovering: false,
+      lastMouseX: 0,
+      velocityY: 0,
+      autoRotateSpeed: 0.005,
+      currentAutoSpeed: 0.005
+    };
+    const dnaRaycaster = new THREE.Raycaster();
+    
+    gltfLoader.load('assets/dna.glb',
+      (gltf) => {
+        dnaHelix = gltf.scene;
+        dnaHelix.traverse((child) => {
+          if (child.isMesh) {
+            child.material = holoMat();
+          }
+        });
+        
+        // DNA helix setup
+        dnaHelix.scale.setScalar(4.0);
+        dnaHelix.position.set(12, -10, -2);  // Start position for bezier entry
+        dnaHelix.rotation.x = 0.3;
+        dnaHelix.rotation.z = 0.175;  // 10 degree tilt
+        dnaHelix.visible = false;
+        dnaHelix.renderOrder = 10;  // Render on top of logo/text
+        dnaHelix.traverse((child) => {
+          child.renderOrder = 10;
+        });
+        
+        scene.add(dnaHelix);
+        console.log('DNA Helix loaded for About section!');
+      },
+      undefined,
+      (error) => {
+        console.warn('DNA not loaded:', error.message);
+      }
+    );
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // LOADER SCENE - Brain gets rendered here, then warped by shader
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const loaderScene = new THREE.Scene();
+    // No background color - let the shader plane handle it
+    
+    const loaderCamera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+    loaderCamera.position.z = 3;
+    
+    let loaderBrain = null;
+    let brainGlow = null;
+    
+    // Mouse tracking for brain rotation
+    const brainMouse = { x: 0, y: 0 };
+    const brainTarget = { x: 0, y: 0 };
+    const brainCurrent = { x: 0, y: 0 };
+    const brainMaxRotation = 0.4; // Max rotation in radians (~23 degrees)
+    const brainFriction = 0.04; // Lower = more friction/slower
+    
+    // Track mouse for brain
+    document.addEventListener('mousemove', (e) => {
+      brainMouse.x = (e.clientX / window.innerWidth) * 2 - 1;  // -1 to 1
+      brainMouse.y = (e.clientY / window.innerHeight) * 2 - 1; // -1 to 1
+    });
+    
+    // Create glow texture
+    const glowCanvas = document.createElement('canvas');
+    glowCanvas.width = 256;
+    glowCanvas.height = 256;
+    const glowCtx = glowCanvas.getContext('2d');
+    const glowGrad = glowCtx.createRadialGradient(128, 128, 0, 128, 128, 128);
+    glowGrad.addColorStop(0, 'rgba(80, 180, 220, 0.25)');
+    glowGrad.addColorStop(0.3, 'rgba(60, 140, 180, 0.12)');
+    glowGrad.addColorStop(0.6, 'rgba(40, 100, 140, 0.04)');
+    glowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    glowCtx.fillStyle = glowGrad;
+    glowCtx.fillRect(0, 0, 256, 256);
+    const glowTexture = new THREE.CanvasTexture(glowCanvas);
+    
+    gltfLoader.load('assets/brain.glb', 
+      // Success
+      (gltf) => {
+        loaderBrain = gltf.scene;
+        
+        // Use same holoMat as balls for consistent look
+        loaderBrain.traverse((child) => {
+          if (child.isMesh) {
+            child.material = holoMat();
+          }
+        });
+        
+        // Position above center (where loading bar will be below)
+        loaderBrain.scale.setScalar(0.35);
+        loaderBrain.position.set(0, 0.3, 0);
+        
+        // Add glow plane behind brain
+        const glowGeom = new THREE.PlaneGeometry(2.5, 2.5);
+        const glowMat = new THREE.MeshBasicMaterial({
+          map: glowTexture,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          opacity: 0.8
+        });
+        brainGlow = new THREE.Mesh(glowGeom, glowMat);
+        brainGlow.position.set(0, 0.3, -0.3);
+        loaderScene.add(brainGlow);
+        
+        loaderScene.add(loaderBrain);
+        
+        console.log('Brain loaded for loader scene!');
+      },
+      // Progress
+      undefined,
+      // Error - just continue without brain
+      (error) => {
+        console.warn('Brain model not loaded, continuing without it:', error.message);
+      }
+    );
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // POST-PROCESSING
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.15, 0.4, 0.9);
+    
+    // ─────────────────────────────────────────────────────────────────────
+    // WATER DROP WAVE — Two-texture approach
+    // tDiffuse = hero scene (revealed inside wave)
+    // tLoader = loader screen (warped outside wave, pushed by wave edge)
+    // ─────────────────────────────────────────────────────────────────────
+    const PortalWarpShader = {
+      uniforms: {
+        tDiffuse: { value: null },         // Hero scene (from RenderPass)
+        tLoader: { value: null },          // Loader texture (static capture)
+        uWavePos: { value: -0.4 },          // Wave position (starts negative, grows into view)
+        uStrength: { value: 3.5 },         // Bulge intensity
+        uChroma: { value: 0.1 },           // Chromatic aberration (lingers)
+        uPinch: { value: 1.5 },            // Initial pinch/twist to center
+        uAspect: { value: window.innerWidth / window.innerHeight }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform sampler2D tLoader;
+        uniform float uWavePos;
+        uniform float uStrength;
+        uniform float uChroma;
+        uniform float uPinch;
+        uniform float uAspect;
+        varying vec2 vUv;
+        
+        void main() {
+          vec2 center = vec2(0.5, 0.5);
+          
+          // Aspect-corrected coordinates
+          vec2 uv = vUv - center;
+          uv.x *= uAspect;
+          
+          float dist = length(uv);
+          float angle = atan(uv.y, uv.x);
+          
+          // ═══════════════════════════════════════════════════════════════
+          // PINCH EFFECT — Pulls content TO center at the very start
+          // ═══════════════════════════════════════════════════════════════
+          
+          float pinchEffect = uPinch * smoothstep(0.8, 0.0, dist) * smoothstep(0.0, 0.5, uWavePos);
+          
+          // ═══════════════════════════════════════════════════════════════
+          // TRAVELING WAVE — Bulge concentrated at the wave edge
+          // ═══════════════════════════════════════════════════════════════
+          
+          float toWave = dist - uWavePos;
+          
+          float bulgeWidth = 0.35;
+          float bulge = exp(-toWave * toWave / (2.0 * bulgeWidth * bulgeWidth));
+          bulge *= uStrength;
+          bulge *= smoothstep(0.4, -0.1, toWave);
+          
+          // ═══════════════════════════════════════════════════════════════
+          // LOADER UV — Text should STRETCH OUTWARD riding the wave
+          // Sample from center → text appears at wave edge, stretched out
+          // ═══════════════════════════════════════════════════════════════
+          
+          // The magic: sample loader from (dist - wavePos) 
+          // At wave edge (dist=wavePos), this samples from 0 (center where text is)
+          // So text appears to ride the wave outward!
+          float loaderPullback = uWavePos * 0.9; // How much to pull toward center
+          float waveInfluence = smoothstep(uWavePos + 0.3, uWavePos - 0.1, dist);
+          float loaderSampleDist = dist - loaderPullback * waveInfluence;
+          
+          // Add bulge distortion on top
+          loaderSampleDist = loaderSampleDist + pinchEffect * 0.2 - bulge * 0.2;
+          loaderSampleDist = max(loaderSampleDist, 0.001);
+          
+          vec2 loaderUV = vec2(cos(angle), sin(angle)) * loaderSampleDist;
+          loaderUV.x /= uAspect;
+          loaderUV += center;
+          
+          // Chromatic aberration on loader (heavy at wave edge)
+          float aberrAtWave = exp(-toWave * toWave / (2.0 * 0.15 * 0.15));
+          float aberr = aberrAtWave * 0.06 * uChroma;
+          
+          vec2 loaderUvR = vec2(cos(angle), sin(angle)) * (loaderSampleDist + aberr);
+          loaderUvR.x /= uAspect;
+          loaderUvR += center;
+          
+          vec2 loaderUvB = vec2(cos(angle), sin(angle)) * (loaderSampleDist - aberr);
+          loaderUvB.x /= uAspect;
+          loaderUvB += center;
+          
+          float loaderR = texture2D(tLoader, loaderUvR).r;
+          float loaderG = texture2D(tLoader, loaderUV).g;
+          float loaderB = texture2D(tLoader, loaderUvB).b;
+          vec3 loaderColor = vec3(loaderR, loaderG, loaderB);
+          
+          // ═══════════════════════════════════════════════════════════════
+          // HERO UV — Subtle distortion at edge, clean in center
+          // Inside the wave, we see the hero being revealed
+          // ═══════════════════════════════════════════════════════════════
+          
+          float heroDistort = bulge * 0.1;
+          float heroSampleDist = dist - heroDistort;
+          heroSampleDist = max(heroSampleDist, 0.001);
+          
+          vec2 heroUV = vec2(cos(angle), sin(angle)) * heroSampleDist;
+          heroUV.x /= uAspect;
+          heroUV += center;
+          
+          // Subtle chromatic aberration on hero (lingers after wave passes)
+          float heroAberrBehind = smoothstep(0.0, -1.5, toWave) * 0.3;
+          float heroAberr = (aberrAtWave * 0.5 + heroAberrBehind) * 0.03 * uChroma;
+          
+          vec2 heroUvR = vec2(cos(angle), sin(angle)) * (heroSampleDist + heroAberr);
+          heroUvR.x /= uAspect;
+          heroUvR += center;
+          
+          vec2 heroUvB = vec2(cos(angle), sin(angle)) * (heroSampleDist - heroAberr);
+          heroUvB.x /= uAspect;
+          heroUvB += center;
+          
+          float heroR = texture2D(tDiffuse, heroUvR).r;
+          float heroG = texture2D(tDiffuse, heroUV).g;
+          float heroB = texture2D(tDiffuse, heroUvB).b;
+          vec3 heroColor = vec3(heroR, heroG, heroB);
+          
+          // ═══════════════════════════════════════════════════════════════
+          // MIX — INSIDE wave = hero, OUTSIDE wave = loader (warped)
+          // No edge glow - clean transition
+          // ═══════════════════════════════════════════════════════════════
+          
+          float revealEdge = uWavePos;
+          float edgeSoftness = 0.05 + uWavePos * 0.1;
+          float reveal = smoothstep(revealEdge + edgeSoftness, revealEdge - edgeSoftness, dist);
+          
+          // OUTSIDE wave (reveal=0) → loader | INSIDE wave (reveal=1) → hero
+          vec3 finalColor = mix(loaderColor, heroColor, reveal);
+          
+          gl_FragColor = vec4(finalColor, 1.0);
+        }
+      `
+    };
+    
+    const warpPass = new ShaderPass(PortalWarpShader);
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // LOADER TEXTURE — Full-screen capture matching DOM loader
+    // This becomes tLoader in the shader, gets warped at wave edge
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Create full-screen loader using canvas - reduced resolution for performance
+    const loaderCanvas = document.createElement('canvas');
+    const updateLoaderCanvasSize = () => {
+      // Cap at 1.5x native to reduce texture upload cost during loading
+      const scale = Math.min(window.devicePixelRatio, 1.5);
+      loaderCanvas.width = window.innerWidth * scale;
+      loaderCanvas.height = window.innerHeight * scale;
+    };
+    updateLoaderCanvasSize();
+    const loaderCtx = loaderCanvas.getContext('2d');
+    
+    // Load logo image - NO LONGER USED, keeping for reference
+    const loaderLogo = new Image();
+    let logoLoaded = false;
+    loaderLogo.onload = () => { 
+      logoLoaded = true; 
+    };
+    // loaderLogo.src = 'logo.png';  // Disabled - using 3D brain instead
+    
+    let loaderProgress = 0;
+    
+    // Pre-generate noise texture once (not every frame!)
+    const noiseCanvas = document.createElement('canvas');
+    noiseCanvas.width = 256;
+    noiseCanvas.height = 256;
+    const noiseCtx = noiseCanvas.getContext('2d');
+    const noiseData = noiseCtx.createImageData(256, 256);
+    for (let i = 0; i < noiseData.data.length; i += 4) {
+      const v = Math.random() * 20;
+      noiseData.data[i] = v;
+      noiseData.data[i + 1] = v;
+      noiseData.data[i + 2] = v;
+      noiseData.data[i + 3] = 30; // Low alpha for subtle effect
+    }
+    noiseCtx.putImageData(noiseData, 0, 0);
+    
+    // Offscreen canvas for static background (drawn once)
+    let bgCache = null;
+    let bgCacheW = 0, bgCacheH = 0;
+    
+    function createBgCache(w, h) {
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      const cx = w / 2;
+      const cy = h / 2;
+      
+      // ═══════════════════════════════════════════════════════════════
+      // LAYER 1: Slightly off-black base (so vignette has room to work)
+      // ═══════════════════════════════════════════════════════════════
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, w, h);
+      
+      // ═══════════════════════════════════════════════════════════════
+      // LAYER 2: Smooth vignette (9 stops for gradual fade)
+      // ═══════════════════════════════════════════════════════════════
+      const maxDim = Math.sqrt(w * w + h * h) / 2;
+      const vignette = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxDim);
+      vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      vignette.addColorStop(0.2, 'rgba(0, 0, 0, 0)');
+      vignette.addColorStop(0.4, 'rgba(0, 0, 0, 0.05)');
+      vignette.addColorStop(0.5, 'rgba(0, 0, 0, 0.1)');
+      vignette.addColorStop(0.6, 'rgba(0, 0, 0, 0.2)');
+      vignette.addColorStop(0.7, 'rgba(0, 0, 0, 0.35)');
+      vignette.addColorStop(0.8, 'rgba(0, 0, 0, 0.5)');
+      vignette.addColorStop(0.9, 'rgba(0, 0, 0, 0.7)');
+      vignette.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, w, h);
+      
+      // ═══════════════════════════════════════════════════════════════
+      // LAYER 3: Fine grain texture (subtle film grain)
+      // ═══════════════════════════════════════════════════════════════
+      const imageData = ctx.getImageData(0, 0, w, h);
+      const data = imageData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const noise = (Math.random() - 0.5) * 12; // Reduced from 25
+        data[i] = Math.min(255, Math.max(0, data[i] + noise));
+        data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise));
+        data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise));
+      }
+      ctx.putImageData(imageData, 0, 0);
+      
+      // ═══════════════════════════════════════════════════════════════
+      // LAYER 4: Corner glows (soft light leaks)
+      // ═══════════════════════════════════════════════════════════════
+      const glows = [
+        { x: 0, y: 0, color: '60, 80, 120' },
+        { x: w, y: 0, color: '80, 60, 100' },
+        { x: 0, y: h, color: '50, 70, 90' },
+        { x: w, y: h, color: '70, 50, 80' },
+      ];
+      const glowRadius = Math.max(w, h) * 0.35;
+      
+      glows.forEach(g => {
+        const glow = ctx.createRadialGradient(g.x, g.y, 0, g.x, g.y, glowRadius);
+        glow.addColorStop(0, `rgba(${g.color}, 0.1)`);
+        glow.addColorStop(0.3, `rgba(${g.color}, 0.05)`);
+        glow.addColorStop(0.6, `rgba(${g.color}, 0.02)`);
+        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, w, h);
+      });
+      
+      // ═══════════════════════════════════════════════════════════════
+      // LAYER 5: Scanlines (subtle CRT feel)
+      // ═══════════════════════════════════════════════════════════════
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+      for (let y = 0; y < h; y += 3) {
+        ctx.fillRect(0, y, w, 1);
+      }
+      
+      return canvas;
+    }
+    
+    function drawLoaderGraphics(progress) {
+      loaderProgress = progress;
+      const ctx = loaderCtx;
+      const w = loaderCanvas.width;
+      const h = loaderCanvas.height;
+      const scale = Math.min(window.devicePixelRatio, 1.5);
+      const cx = w / 2;
+      const cy = h / 2;
+      
+      // Create/update cache if needed
+      if (!bgCache || bgCacheW !== w || bgCacheH !== h) {
+        bgCache = createBgCache(w, h);
+        bgCacheW = w;
+        bgCacheH = h;
+      }
+      
+      // Draw cached background
+      ctx.drawImage(bgCache, 0, 0);
+      
+      // ═══════════════════════════════════════════════════════════════
+      // ORGANIC ELEMENTS AROUND LOADER (human, imperfect, scattered)
+      // ═══════════════════════════════════════════════════════════════
+      
+      const textY = cy + 60 * scale;
+      
+      // Scattered motes around the loader area (asymmetric, organic placement)
+      const motes = [
+        // Upper left cluster (loose)
+        { x: cx - 180 * scale, y: cy - 120 * scale, size: 1.5, opacity: 0.15 },
+        { x: cx - 195 * scale, y: cy - 105 * scale, size: 2.5, opacity: 0.08 },
+        { x: cx - 160 * scale, y: cy - 140 * scale, size: 1, opacity: 0.12 },
+        // Upper right (sparser)
+        { x: cx + 170 * scale, y: cy - 110 * scale, size: 2, opacity: 0.1 },
+        { x: cx + 200 * scale, y: cy - 85 * scale, size: 1.2, opacity: 0.06 },
+        // Lower scattered
+        { x: cx - 140 * scale, y: cy + 150 * scale, size: 1.8, opacity: 0.09 },
+        { x: cx + 155 * scale, y: cy + 135 * scale, size: 2.2, opacity: 0.07 },
+        { x: cx + 120 * scale, y: cy + 165 * scale, size: 1.3, opacity: 0.11 },
+        // Mid sides (asymmetric)
+        { x: cx - 220 * scale, y: cy + 20 * scale, size: 1.6, opacity: 0.08 },
+        { x: cx + 235 * scale, y: cy - 30 * scale, size: 2, opacity: 0.05 },
+        // Near text (subtle accents)
+        { x: cx - 95 * scale, y: textY - 25 * scale, size: 1, opacity: 0.1 },
+        { x: cx + 110 * scale, y: textY + 18 * scale, size: 1.2, opacity: 0.08 },
+      ];
+      
+      motes.forEach(m => {
+        ctx.fillStyle = `rgba(255, 255, 255, ${m.opacity})`;
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, m.size * scale, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      
+      // Loose imperfect arc fragments (centered around whole composition)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.lineWidth = 1 * scale;
+      ctx.lineCap = 'round';
+      
+      // Arc fragment 1 (left side, wrapping brain to bar area)
+      ctx.beginPath();
+      ctx.arc(cx, cy + 30 * scale, 145 * scale, Math.PI * 0.85, Math.PI * 1.15);
+      ctx.stroke();
+      
+      // Arc fragment 2 (right side, slightly different radius)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
+      ctx.beginPath();
+      ctx.arc(cx, cy + 25 * scale, 150 * scale, Math.PI * 1.9, Math.PI * 0.15);
+      ctx.stroke();
+      
+      // Arc fragment 3 (top, subtle)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
+      ctx.beginPath();
+      ctx.arc(cx - 5 * scale, cy + 20 * scale, 155 * scale, Math.PI * 1.35, Math.PI * 1.55);
+      ctx.stroke();
+      
+      // Small tick marks (mirrored on both sides)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.lineWidth = 1 * scale;
+      
+      // Left of text - two horizontal marks
+      const leftMarkX = cx - 85 * scale;
+      ctx.beginPath();
+      ctx.moveTo(leftMarkX, textY - 3 * scale);
+      ctx.lineTo(leftMarkX - 12 * scale, textY - 3 * scale);
+      ctx.stroke();
+      
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      ctx.beginPath();
+      ctx.moveTo(leftMarkX - 3 * scale, textY + 5 * scale);
+      ctx.lineTo(leftMarkX - 18 * scale, textY + 5 * scale);
+      ctx.stroke();
+      
+      // Right of text - mirrored two horizontal marks
+      const rightMarkX = cx + 80 * scale;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.beginPath();
+      ctx.moveTo(rightMarkX, textY - 3 * scale);
+      ctx.lineTo(rightMarkX + 12 * scale, textY - 3 * scale);
+      ctx.stroke();
+      
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      ctx.beginPath();
+      ctx.moveTo(rightMarkX + 3 * scale, textY + 5 * scale);
+      ctx.lineTo(rightMarkX + 18 * scale, textY + 5 * scale);
+      ctx.stroke();
+      
+      // Small ITEREX text
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.font = `700 ${16 * scale}px Syne, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.letterSpacing = `${10 * scale}px`;
+      ctx.fillText('ITEREX', cx, textY);
+      
+      // Loading bar - techy segmented data blocks
+      const barWidth = 200 * scale;
+      const barHeight = 6 * scale;
+      const barX = cx - barWidth/2;
+      const barY = cy + 110 * scale;
+      
+      // Number of segments
+      const numSegments = 20;
+      const segmentWidth = (barWidth - (numSegments - 1) * 2 * scale) / numSegments;
+      const filledSegments = Math.floor(progress * numSegments);
+      const partialFill = (progress * numSegments) % 1;
+      
+      // Draw segments
+      for (let i = 0; i < numSegments; i++) {
+        const segX = barX + i * (segmentWidth + 2 * scale);
+        
+        if (i < filledSegments) {
+          // Filled segment - varying brightness for data feel
+          const brightness = 0.7 + (((i * 7) % 10) / 10) * 0.3;
+          ctx.fillStyle = `rgba(255, 255, 255, ${brightness})`;
+          ctx.fillRect(segX, barY, segmentWidth, barHeight);
+        } else if (i === filledSegments) {
+          // Partial fill segment (current)
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+          ctx.fillRect(segX, barY, segmentWidth * partialFill, barHeight);
+          // Background of partial
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+          ctx.fillRect(segX + segmentWidth * partialFill, barY, segmentWidth * (1 - partialFill), barHeight);
+        } else {
+          // Empty segment
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+          ctx.fillRect(segX, barY, segmentWidth, barHeight);
+        }
+      }
+      
+      // Percentage counter
+      const percent = Math.floor(progress * 100);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.font = `400 ${10 * scale}px monospace`;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${percent.toString().padStart(3, '0')}%`, barX - 8 * scale, barY + barHeight / 2);
+      
+      // Data indicator on right
+      ctx.textAlign = 'left';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.fillText('SYS', barX + barWidth + 8 * scale, barY + barHeight / 2);
+      
+      // Small blinking node (simulated with progress-based flicker)
+      const blink = Math.sin(progress * Math.PI * 20) > 0.3;
+      if (blink && progress < 1) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.beginPath();
+        ctx.arc(barX + barWidth + 35 * scale, barY + barHeight / 2, 2 * scale, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
+      // Small accent below bar (asymmetric)
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.beginPath();
+      ctx.arc(barX + barWidth * 0.3, barY + 18 * scale, 1.5 * scale, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    drawLoaderGraphics(1); // Draw complete loader
+    
+    const loaderTexture = new THREE.CanvasTexture(loaderCanvas);
+    loaderTexture.minFilter = THREE.LinearFilter;
+    loaderTexture.magFilter = THREE.LinearFilter;
+    loaderTexture.colorSpace = THREE.LinearSRGBColorSpace;
+    loaderTexture.needsUpdate = true;
+    
+    // Background quad in loaderScene - sized to fill entire viewport
+    // Calculate size based on camera FOV and distance to fill screen exactly
+    const bgDistance = 7;  // Distance from camera (at z=3) to quad (at z=-7) = 10
+    const bgHeight = 2 * Math.tan((50 * Math.PI / 180) / 2) * (3 + bgDistance) * 1.1;  // Add 10% margin
+    const bgWidth = bgHeight * (window.innerWidth / window.innerHeight);
+    
+    // Canvas content quad (circuits, text, loading bar)
+    const bgQuadGeom = new THREE.PlaneGeometry(bgWidth, bgHeight);
+    const bgQuadMat = new THREE.MeshBasicMaterial({ map: loaderTexture });
+    const bgQuad = new THREE.Mesh(bgQuadGeom, bgQuadMat);
+    bgQuad.position.z = -bgDistance;
+    loaderScene.add(bgQuad);
+    
+    // Render target for combined loader (brain + text/bar)
+    const loaderRT = new THREE.WebGLRenderTarget(
+      window.innerWidth * Math.min(window.devicePixelRatio, 2),
+      window.innerHeight * Math.min(window.devicePixelRatio, 2)
+    );
+    
+    // Function to render loader scene to texture
+    // Track if loader rendering is still needed
+    let loaderNeedsRedraw = true;
+    let loaderRenderNeeded = true;
+    
+    function renderLoaderToTexture() {
+      // Skip entirely if loader is no longer visible
+      if (!loaderRenderNeeded) return;
+      
+      // Only redraw canvas if needed (during loading animation)
+      if (loaderNeedsRedraw) {
+        drawLoaderGraphics(loaderProgress);
+        loaderTexture.needsUpdate = true;
+      }
+      
+      // Render brain + background to render target
+      renderer.setRenderTarget(loaderRT);
+      renderer.render(loaderScene, loaderCamera);
+      renderer.setRenderTarget(null);
+      
+      warpPass.uniforms.tLoader.value = loaderRT.texture;
+    }
+    
+    // Initialize tLoader
+    warpPass.uniforms.tLoader = { value: loaderRT.texture };
+    
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    composer.addPass(warpPass);
+    composer.addPass(bloomPass);
+    
+    // SHADER WARMUP - render one frame with composer to pre-compile shaders
+    // This prevents lag spike when warp first kicks in
+    console.log('[PERF] Warming up shaders...');
+    composer.render();
+    console.log('[PERF] Shader warmup complete');
+    
+    // Loading mode flag - when true, render loaderScene directly
+    let isLoadingMode = true;
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // LOADING & WARP INTRO
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const loaderEl = document.querySelector('.loader');
+    
+    // Warp animation function
+    let warpTriggered = false;
+    function triggerWarpIntro() {
+      if (warpTriggered) {
+        return;
+      }
+      warpTriggered = true;
+      console.log('[PERF] Warp starting - FPS before:', currentFPS);
+      
+      // Stop redrawing canvas - loading is done
+      loaderNeedsRedraw = false;
+      
+      // Switch from loading mode to warp mode
+      isLoadingMode = false;
+      // Capture the loader screen to texture BEFORE hiding DOM loader
+      renderLoaderToTexture();
+      
+      // STOP rendering loader NOW - we have our snapshot
+      loaderRenderNeeded = false;
+      
+      // Now hide DOM loader - shader will show captured loader texture
+      loaderEl.classList.add('hidden');
+      
+      const tl = gsap.timeline({
+        onComplete: () => {
+          // Ensure hero content stays visible
+          gsap.set('#hero .panel-tag', { opacity: 1, y: 0 });
+          gsap.set('#hero h1', { opacity: 1, y: 0 });
+          gsap.set('#hero p', { opacity: 1, y: 0 });
+          gsap.set('#hero .panel-content', { opacity: 1, y: 0 });
+        }
+      });
+      
+      // Unlock scroll at 3s into the warp (while still animating)
+      tl.call(() => {
+        scrollLocked = false;
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        window.scrollTo(0, 0);
+        ScrollTrigger.refresh();
+        initScrollAnimations();
+      }, null, 3);
+      
+      // ═══════════════════════════════════════════════════════════════
+      // WATER DROP WAVE — Slow expansion, long settle, lingering chroma
+      // Like a rock hitting water - rebound bulge travels outward
+      // ═══════════════════════════════════════════════════════════════
+      
+      // PINCH — Quick "impact" at the very start (suck to center then release)
+      tl.to(warpPass.uniforms.uPinch, {
+        value: 0,
+        duration: 0.8,
+        ease: 'power2.out'
+      }, 0);
+      
+      // Wave expands outward — SLOW, with long ease-out tail
+      tl.to(warpPass.uniforms.uWavePos, {
+        value: 2.5,
+        duration: 4.5,
+        ease: 'power2.out'  // Fast start, loooong slow finish
+      }, 0);
+      
+      // Bulge strength fades — even SLOWER so distortion lingers
+      tl.to(warpPass.uniforms.uStrength, {
+        value: 0,
+        duration: 5.5,
+        ease: 'power1.out'  // Very gradual fade
+      }, 0);
+      
+      // Chromatic aberration lingers the LONGEST — that blue/red fringe
+      tl.to(warpPass.uniforms.uChroma, {
+        value: 0,
+        duration: 6.5,
+        ease: 'power1.out'
+      }, 0.5);  // Starts fading a bit later
+      
+      // Content reveals — appear during warp, not after
+      
+      // Nav and progress dots blur-in cinematically
+      tl.to('.logo', { opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power2.out' }, 1.5);
+      tl.to('.nav-links', { opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power2.out' }, 1.5);
+      tl.to('.progress', { opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power2.out' }, 1.7);
+      tl.to('.corner-bl', { opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power2.out' }, 1.9);
+      tl.to('.corner-br', { opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power2.out' }, 2.0);
+      
+      // Hero content
+      tl.to('#hero .panel-tag', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 1.5);
+      tl.to('#hero h1', { opacity: 1, y: 0, duration: 1.0, ease: 'power2.out' }, 1.7);
+      tl.to('#hero p', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 1.9);
+    }
+    
+    // Animate loader bar, then trigger warp
+    const loadTime = 3000;  // ← Loader fills in 3 seconds
+    
+    // Track last drawn progress to avoid unnecessary redraws
+    let lastDrawnProgress = -1;
+    
+    gsap.to({ progress: 0 }, {
+      progress: 1,
+      duration: loadTime / 1000,
+      ease: 'power1.inOut',
+      onUpdate: function() {
+        const p = this.targets()[0].progress;
+        
+        // Only redraw if visual change (segment or percentage changed)
+        // 20 segments + 100 percentages = redraw every ~0.5% change
+        const visualProgress = Math.floor(p * 200);
+        if (visualProgress !== lastDrawnProgress) {
+          lastDrawnProgress = visualProgress;
+          drawLoaderGraphics(p);
+          loaderTexture.needsUpdate = true;
+        }
+      },
+      onComplete: () => {
+        triggerWarpIntro();
+      }
+    });
+    // ═══════════════════════════════════════════════════════════════════
+    // SECTION SNAP SCROLLER — Threshold-based sticky snapping
+    // ═══════════════════════════════════════════════════════════════════
+    
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+    gsap.ticker.lagSmoothing(0);
+    ScrollTrigger.config({ autoRefreshEvents: 'resize,load' }); // Exclude visibilitychange
+    
+    // Prevent scroll jumping on browser tab switch (Opera GX fix)
+    let savedScrollY = 0;
+    let tabSwitching = false;
+    
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        savedScrollY = window.scrollY;
+        tabSwitching = true;
+        gsap.ticker.sleep();
+        gsap.killTweensOf(window);
+      } else {
+        gsap.killTweensOf(window);
+        gsap.ticker.wake();
+        // Restore scroll position multiple times to fight browser restoration
+        window.scrollTo(0, savedScrollY);
+        requestAnimationFrame(() => window.scrollTo(0, savedScrollY));
+        setTimeout(() => {
+          window.scrollTo(0, savedScrollY);
+          tabSwitching = false;
+        }, 500);
+      }
+    });
+    
+    window.addEventListener('blur', () => {
+      savedScrollY = window.scrollY;
+      tabSwitching = true;
+      gsap.killTweensOf(window);
+    });
+    
+    window.addEventListener('focus', () => {
+      gsap.killTweensOf(window);
+      window.scrollTo(0, savedScrollY);
+      requestAnimationFrame(() => window.scrollTo(0, savedScrollY));
+      setTimeout(() => {
+        window.scrollTo(0, savedScrollY);
+        tabSwitching = false;
+      }, 500);
+    });
+    
+    // Block scroll events during tab switching (Opera GX fix)
+    window.addEventListener('scroll', () => {
+      if (tabSwitching && Math.abs(window.scrollY - savedScrollY) > 10) {
+        window.scrollTo(0, savedScrollY);
+      }
+    }, { passive: true });
+    
+    class SectionScroller {
+      constructor() {
+        this.currentSection = 0;
+        this.totalSections = 5;
+        this.intent = 0;
+        this.isAnimating = false;
+        this.isActive = false; // Don't respond until activated
+        
+        // Tuning — adjusted for precise wheel detection
+        this.threshold = 0.1;        // Sweet spot
+        this.intentDecay = 0.85;     // Faster decay for snappier feel
+        this.transitionDuration = 1;
+        this.decayPause = 100;       // Shorter pause before decay
+        
+        this.lastWheelTime = 0;
+        this.scrollTimeout = null;
+        this.wheelBuffer = 0;        // Buffer for accumulating small deltas
+        this.init();
+        
+        // Activate after short delay to ignore any queued events
+        setTimeout(() => {
+          this.isActive = true;
+        }, 100);
+        
+        // Pause when tab loses focus, resume after delay when it regains focus
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            this.isActive = false;
+            this.intent = 0;
+          } else {
+            // Delay reactivation to ignore any spurious events on tab focus
+            this.intent = 0;
+            this.isAnimating = false;
+            setTimeout(() => {
+              this.isActive = true;
+            }, 300);
+          }
+        });
+        
+        // Also handle window focus/blur for clicking on the tab itself
+        window.addEventListener('blur', () => {
+          this.isActive = false;
+          this.intent = 0;
+        });
+        window.addEventListener('focus', () => {
+          this.intent = 0;
+          this.isAnimating = false;
+          setTimeout(() => {
+            this.isActive = true;
+          }, 300);
+        });
+      }
+      
+      init() {
+        window.addEventListener('wheel', e => {
+          e.preventDefault();
+          if (!this.isActive || this.isAnimating || tabSwitching) return;
+          
+          this.lastWheelTime = Date.now();
+          STATE.isScrolling = true;
+          
+          clearTimeout(this.scrollTimeout);
+          this.scrollTimeout = setTimeout(() => {
+            STATE.isScrolling = false;
+          }, 150);
+          
+          // Normalize wheel delta — different mice/trackpads give wildly different values
+          // Most mice: ~100-120 per notch, trackpads: much smaller continuous values
+          let delta = e.deltaY;
+          
+          // Normalize to roughly -1 to 1 per "notch"
+          // deltaMode: 0 = pixels, 1 = lines, 2 = pages
+          if (e.deltaMode === 1) {
+            delta *= 30;  // Lines to pixels approximation
+          } else if (e.deltaMode === 2) {
+            delta *= 800; // Pages to pixels
+          }
+          
+          // Normalize large deltas (100+ typical for mouse wheel notch)
+          // Small deltas (trackpad) accumulate in buffer
+          const normalizedDelta = delta / 100;
+          
+          // Add to intent with sensitivity curve
+          // Small scrolls are amplified, large scrolls are capped
+          const contribution = Math.sign(normalizedDelta) * Math.min(Math.abs(normalizedDelta) * 0.15, 0.2);
+          this.intent += contribution;
+          
+          // Clamp intent to prevent over-accumulation
+          this.intent = Math.max(-0.5, Math.min(0.5, this.intent));
+          
+          this.checkThreshold();
+        }, { passive: false });
+        
+        let touchY = 0;
+        window.addEventListener('touchstart', e => {
+          touchY = e.touches[0].clientY;
+          this.intent = 0;
+        }, { passive: false });
+        
+        window.addEventListener('touchmove', e => {
+          e.preventDefault();
+          if (!this.isActive || this.isAnimating || tabSwitching) return;
+          STATE.isScrolling = true;
+          const delta = touchY - e.touches[0].clientY;
+          touchY = e.touches[0].clientY;
+          this.intent += delta * 0.003;
+          this.intent = Math.max(-0.5, Math.min(0.5, this.intent));
+          this.checkThreshold();
+        }, { passive: false });
+        
+        window.addEventListener('touchend', () => {
+          STATE.isScrolling = false;
+          if (!this.isAnimating && Math.abs(this.intent) < this.threshold) {
+            this.intent = 0;
+          }
+        });
+        
+        this.decayLoop();
+      }
+      
+      checkThreshold() {
+        if (!this.isActive || this.isAnimating || tabSwitching) return;
+        
+        const scrollPos = window.scrollY;
+        const maxScroll = document.body.scrollHeight - window.innerHeight;
+        const sectionHeight = maxScroll / (this.totalSections - 1);
+        this.currentSection = Math.round(scrollPos / sectionHeight);
+        this.currentSection = Math.max(0, Math.min(this.currentSection, this.totalSections - 1));
+        
+        if (this.currentSection === 0 && this.intent < 0) {
+          this.intent = 0;
+          return;
+        }
+        if (this.currentSection === this.totalSections - 1 && this.intent > 0) {
+          this.intent = 0;
+          return;
+        }
+        
+        if (this.intent > this.threshold && this.currentSection < this.totalSections - 1) {
+          this.goToSection(this.currentSection + 1);
+        } else if (this.intent < -this.threshold && this.currentSection > 0) {
+          this.goToSection(this.currentSection - 1);
+        }
+      }
+      
+      goToSection(index) {
+        if (this.isAnimating || index === this.currentSection || tabSwitching) return;
+        if (index < 0 || index >= this.totalSections) return;
+        
+        this.isAnimating = true;
+        this.intent = 0;
+        STATE.isScrolling = true;
+        STATE.isAnimating = true;
+        
+        const from = this.currentSection;
+        const to = index;
+        const targetScroll = (index / (this.totalSections - 1)) * 
+          (document.body.scrollHeight - window.innerHeight);
+        
+        const duration = this.transitionDuration;
+        const ease = 'power2.inOut';
+        
+        // Animate scroll
+        gsap.to(window, {
+          scrollTo: { y: targetScroll, autoKill: false },
+          duration: duration,
+          ease: ease,
+          onComplete: () => {
+            this.currentSection = index;
+            this.isAnimating = false;
+            STATE.isScrolling = false;
+            STATE.isAnimating = false;
+          }
+        });
+        
+        // ─────────────────────────────────────────────────────────────────
+        // DIRECT TEXT ANIMATIONS — Fade out current, fade in next
+        // ─────────────────────────────────────────────────────────────────
+        
+        const sections = ['#hero', '#about', '#extensions', '#templates', '#contact'];
+        const fromSection = sections[from];
+        const toSection = sections[to];
+        
+        // Kill any existing tweens on these elements first
+        gsap.killTweensOf(`${fromSection} .panel-content`);
+        gsap.killTweensOf(`${fromSection} .panel-tag`);
+        gsap.killTweensOf(`${fromSection} h1`);
+        gsap.killTweensOf(`${fromSection} h2`);
+        gsap.killTweensOf(`${fromSection} p`);
+        
+        // Fade out current section text
+        gsap.to(`${fromSection} .panel-content`, { opacity: 0, y: -30, duration: duration * 0.4, ease: 'power2.in', overwrite: true });
+        
+        // Fade in next section text
+        gsap.set(`${toSection} .panel-content`, { opacity: 0, y: 30 });
+        gsap.to(`${toSection} .panel-content`, { opacity: 1, y: 0, duration: duration * 0.5, delay: duration * 0.4, ease: 'power2.out', overwrite: true });
+        
+        // Animate individual elements for polish
+        gsap.to(`${toSection} .panel-tag`, { opacity: 1, y: 0, duration: 0.6, delay: duration * 0.4, ease: 'power2.out', overwrite: true });
+        if (to === 0) {
+          gsap.to(`${toSection} h1`, { opacity: 1, y: 0, duration: 0.8, delay: duration * 0.45, ease: 'power2.out', overwrite: true });
+        } else {
+          gsap.to(`${toSection} h2`, { opacity: 1, y: 0, duration: 0.8, delay: duration * 0.45, ease: 'power2.out', overwrite: true });
+        }
+        gsap.to(`${toSection} p`, { opacity: 1, y: 0, duration: 0.6, delay: duration * 0.5, ease: 'power2.out', overwrite: true });
+        
+        if (to === 2) {
+          gsap.to('.work-item', { opacity: 1, y: 0, duration: 0.8, delay: duration * 0.45, ease: 'power2.out', overwrite: true });
+        }
+        if (to === 4) {
+          gsap.to(`${toSection} .cta-btn`, { opacity: 1, y: 0, duration: 0.6, delay: duration * 0.55, ease: 'power2.out', overwrite: true });
+        }
+        
+        // ─────────────────────────────────────────────────────────────────
+        // DIRECT MODEL ANIMATIONS — Synced with scroll for smooth feel
+        // ─────────────────────────────────────────────────────────────────
+        
+        const extModels = ['wand', 'bolt', 'shield', 'eyedrop'];
+        const templateModels = ['phone', 'tablet', 'laptop'];
+        const extPositions = [
+          { x: -3.5, y: 1.2, z: 0 },
+          { x: -2.5, y: -0.8, z: 1 },
+          { x: -4, y: 0.2, z: -1 },
+          { x: -3, y: -1.5, z: 0.5 }
+        ];
+        const templatePositions = [
+          { x: 4, y: 0.3, z: 2 },
+          { x: 2.5, y: 0, z: -1 },
+          { x: 4.5, y: -0.8, z: 0 }
+        ];
+        
+        // Hero (0) <-> About (1)
+        if (MODELS.logo) {
+          if (from === 0 && to === 1) {
+            // Logo flies up to navbar position (right of ITEREX text)
+            MODEL_BASE_Y.logo = 1.30;
+            // Immediately stop spin and face forward
+            gsap.killTweensOf(MODELS.logo.rotation);
+            MODELS.logo.rotation.set(0, 0, 0);
+            gsap.to(MODELS.logo.position, { x: -2.5, y: 1.30, z: 3, duration, ease });
+            gsap.to(MODELS.logo.scale, { x: 0.1, y: 0.1, z: 0.1, duration, ease });
+          } else if (from === 1 && to === 0) {
+            // Logo returns to hero center (slight delay)
+            gsap.delayedCall(0.5, () => { MODEL_BASE_Y.logo = 0; });
+            gsap.to(MODELS.logo.position, { x: 0, y: 0, z: -5, duration, ease, delay: 0.5 });
+            gsap.to(MODELS.logo.rotation, { x: 0, y: 0, z: 0, duration, ease, delay: 0.5 });
+            gsap.to(MODELS.logo.scale, { x: 3, y: 3, z: 3, duration, ease, delay: 0.5 });
+          }
+        }
+        
+        // About (1) -> Extensions (2): Logo stays in navbar
+        if (from === 1 && to === 2) {
+          // Logo already in navbar, no change needed
+        }
+        
+        // Extensions (2) -> About (1): Logo stays in navbar
+        if (from === 2 && to === 1) {
+          // Logo already in navbar, no change needed
+        }
+        
+        // Extensions (2) -> Templates (3): Logo stays in navbar
+        if (from === 2 && to === 3) {
+          // Logo already in navbar, no change needed
+        }
+        
+        // Templates (3) -> Extensions (2): Logo stays in navbar
+        if (from === 3 && to === 2) {
+          // Logo already in navbar, no change needed
+        }
+        
+        // Templates (3) -> Contact (4): Logo stays in navbar
+        if (from === 3 && to === 4) {
+          // Logo already in navbar, no change needed
+        }
+        
+        // Contact (4) -> Templates (3): Logo stays in navbar
+        if (from === 4 && to === 3) {
+          // Logo already in navbar, no change needed
+        }
+      }
+      
+      decayLoop() {
+        requestAnimationFrame(() => this.decayLoop());
+        if (tabSwitching) return;
+        const timeSinceWheel = Date.now() - this.lastWheelTime;
+        if (timeSinceWheel < this.decayPause) return;
+        if (!this.isAnimating && Math.abs(this.intent) > 0.001) {
+          this.intent *= this.intentDecay;
+        }
+      }
+    }
+    
+    let scroller = null;
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // SCROLL ANIMATIONS
+    // ═══════════════════════════════════════════════════════════════════
+    
+    function initScrollAnimations() {
+      // Create scroller now that we're ready
+      scroller = new SectionScroller();
+      
+      gsap.registerPlugin(ScrollTrigger);
+      
+      const dots = document.querySelectorAll('.progress-dot');
+      const extModels = ['wand', 'bolt', 'shield', 'eyedrop'];
+      const templateModels = ['phone', 'tablet', 'laptop'];
+      
+      // ─────────────────────────────────────────────────────────────────
+      // RESET FUNCTIONS
+      // ─────────────────────────────────────────────────────────────────
+      
+      function resetLogo() {
+        if (!MODELS.logo) return;
+        MODELS.logo.visible = true;
+        MODELS.logo.position.set(0, 0, -5);
+        MODELS.logo.rotation.set(0, 0, 0);
+        MODELS.logo.scale.setScalar(3);
+        MODEL_BASE_Y.logo = 0;
+      }
+      
+      function resetExtModels() {
+        extModels.forEach(name => {
+          const m = MODELS[name];
+          if (m) {
+            m.visible = false;
+            m.position.set(8, 0, 0);
+            m.rotation.set(0, 2, 0);
+            MODEL_BASE_Y[name] = 0;
+          }
+        });
+      }
+      
+      function resetTemplateModels() {
+        templateModels.forEach(name => {
+          const m = MODELS[name];
+          if (m) {
+            m.visible = false;
+            m.position.set(10, 0, 0);
+            m.rotation.set(0, 1.5, 0);
+            MODEL_BASE_Y[name] = 0;
+          }
+        });
+      }
+      
+      // FIX #6: Now actually used
+      function resetCamera() {
+        camera.position.set(0, 0, 6);
+        camera.lookAt(0, 0, 0);
+      }
+      
+      // FIX #12: Handle both h1 and h2
+      function resetPanelContent(id) {
+        gsap.set(`${id} .panel-tag`, { opacity: 0, y: 30 });
+        if (id === '#hero') {
+          gsap.set(`${id} h1`, { opacity: 0, y: 50 });
+        } else {
+          gsap.set(`${id} h2`, { opacity: 0, y: 50 });
+        }
+        gsap.set(`${id} p`, { opacity: 0, y: 40 });
+        gsap.set(`${id} .panel-content`, { opacity: 1 });
+        if (id === '#contact') gsap.set(`${id} .cta-btn`, { opacity: 0, y: 30 });
+      }
+      
+      // ─────────────────────────────────────────────────────────────────
+      // PANEL 0: HERO — animations handled by warp intro, skip here
+      // ─────────────────────────────────────────────────────────────────
+      
+      // Track last content opacity to avoid gsap.set spam (FIX #11)
+      let lastHeroOpacity = 1;
+      
+      // Store initial positions for hero 3D elements
+      const heroElementsBase = {
+        logoY: 0,
+        logoZ: -5,
+        textY: 0,
+        textZ: -8
+      };
+      
+      let dnaTriggered = false;
+      let lastHeroProgress = 0;
+      
+      ScrollTrigger.create({
+        trigger: '#hero',
+        start: 'top top',
+        end: '+=100%',
+        pin: true,
+        scrub: true,
+        onUpdate: self => {
+          const p = self.progress;
+          const scrollingDown = p > lastHeroProgress;
+          
+          // ═══════════════════════════════════════════════════════════════
+          // CINEMATIC HERO ELEMENTS EXIT - Move up and out on scroll
+          // ═══════════════════════════════════════════════════════════════
+          
+          // Hero logo - stay in place, warp transition handles movement to navbar
+          if (heroLogo && STATE.section === 0) {
+            // Just track scroll for rotation, don't move position
+            heroLogo.userData.scrollRotY = p * 1.5;
+          }
+          
+          // ITEREX text - store scroll offset for render loop
+          heroScrollOffset.textY = p * 8;
+          heroTextPlane.position.z = heroElementsBase.textZ + p * 2;
+          
+          // Floating balls animate up with varied speeds for depth
+          floatingBalls.forEach((ball, i) => {
+            const d = ball.userData;
+            const speedMultiplier = 1 + (i * 0.15);
+            d.scrollOffsetY = p * 10 * speedMultiplier;
+          });
+          
+          // Trigger DNA early - at 60% through Hero scroll (only when scrolling DOWN)
+          if (p > 0.6 && scrollingDown && !dnaTriggered && dnaHelix) {
+            dnaTriggered = true;
+            dnaHelix.visible = true;
+            
+            const pathPoints = [
+              new THREE.Vector3(8, -4, 2),      // START CLOSER - already near visible
+              new THREE.Vector3(5, -2, 4),
+              new THREE.Vector3(2, -0.5, 2),
+              new THREE.Vector3(0, -0.35, -4)    // End: center
+            ];
+            const scalePoints = [5.0, 5.5, 5.0, 4.5];
+            const curve = new THREE.CatmullRomCurve3(pathPoints);
+            
+            dnaHelix.position.copy(pathPoints[0]);
+            dnaHelix.scale.setScalar(scalePoints[0]);
+            
+            const progress = { t: 0 };
+            gsap.to(progress, {
+              t: 1,
+              duration: 1.2,  // Faster
+              ease: 'power2.out',
+              onUpdate: () => {
+                const point = curve.getPoint(progress.t);
+                dnaHelix.position.copy(point);
+                
+                const scaleT = progress.t * (scalePoints.length - 1);
+                const scaleIndex = Math.floor(scaleT);
+                const scaleFrac = scaleT - scaleIndex;
+                const s0 = scalePoints[Math.min(scaleIndex, scalePoints.length - 1)];
+                const s1 = scalePoints[Math.min(scaleIndex + 1, scalePoints.length - 1)];
+                dnaHelix.scale.setScalar(s0 + (s1 - s0) * scaleFrac);
+                
+                dnaHelix.rotation.y += 0.005;
+              }
+            });
+          }
+          
+          lastHeroProgress = p;
+        },
+        onEnter: () => {
+          setActiveSection(0);
+          resetExtModels();
+          resetTemplateModels();
+        },
+        onEnterBack: () => {
+          setActiveSection(0);
+          if (MODELS.logo) MODELS.logo.visible = true;
+          resetExtModels();
+          resetTemplateModels();
+          dnaTriggered = false;  // Reset so DNA can trigger again on next scroll down
+          lastHeroProgress = 1;  // Start high so scrolling up doesn't trigger DNA
+        }
+      });
+      
+      // ─────────────────────────────────────────────────────────────────
+      // PANEL 1: ABOUT
+      // ─────────────────────────────────────────────────────────────────
+      
+      let lastAboutOpacity = 1;
+      
+      ScrollTrigger.create({
+        trigger: '#about',
+        start: 'top top',
+        end: '+=100%',
+        pin: true,
+        scrub: true,
+        onEnter: () => {
+          setActiveSection(1);
+          
+          // Logo animation handled by warp transition
+          
+          gsap.to('#about .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
+          gsap.to('#about h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
+          gsap.to('#about p:first-of-type', { opacity: 1, y: 0, duration: 0.6, delay: 0.2 });
+          gsap.to('#about .about-secondary', { opacity: 1, y: 0, duration: 0.6, delay: 0.55 });
+          
+          // Founder card - match text timing
+          gsap.to('.founder-card', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
+          
+          // Animate neurons in from deep in scene
+          floatingNeurons.forEach((neuron, i) => {
+            neuron.visible = true;
+            neuron.position.x = neuron.userData.baseX;
+            neuron.position.y = neuron.userData.baseY;
+            neuron.position.z = -30;
+            neuron.scale.setScalar(0.01);
+            gsap.to(neuron.position, {
+              z: neuron.userData.baseZ,
+              duration: 0.8,
+              delay: i * 0.05,
+              ease: 'power2.out'
+            });
+            gsap.to(neuron.scale, {
+              x: neuron.userData.baseScale,
+              y: neuron.userData.baseScale,
+              z: neuron.userData.baseScale,
+              duration: 0.8,
+              delay: i * 0.05,
+              ease: 'power2.out'
+            });
+          });
+        },
+        onUpdate: self => {
+          const p = self.progress;
+        },
+        onLeave: () => {
+          // Animate neurons flying toward camera
+          floatingNeurons.forEach((neuron, i) => {
+            gsap.to(neuron.position, {
+              z: 15,
+              duration: 0.4,
+              delay: i * 0.02,
+              ease: 'power2.in',
+              onComplete: () => { neuron.visible = false; }
+            });
+            gsap.to(neuron.scale, {
+              x: neuron.userData.baseScale * 3,
+              y: neuron.userData.baseScale * 3,
+              z: neuron.userData.baseScale * 3,
+              duration: 0.4,
+              delay: i * 0.02,
+              ease: 'power2.in'
+            });
+          });
+          
+          // DNA exits along curved path to top-left (quick exit)
+          if (dnaHelix) {
+            const pathPoints = [
+              new THREE.Vector3(0, -0.35, -4),   // Start: center
+              new THREE.Vector3(-4, 2, 2),       // Quick arc
+              new THREE.Vector3(-10, 6, 0),      // Continue out
+              new THREE.Vector3(-18, 12, -10)    // End: far off screen
+            ];
+            const scalePoints = [4.5, 5.0, 5.5, 4.5];
+            const curve = new THREE.CatmullRomCurve3(pathPoints);
+            
+            const progress = { t: 0 };
+            gsap.to(progress, {
+              t: 1,
+              duration: 0.8,
+              ease: 'power2.in',
+              onUpdate: () => {
+                const point = curve.getPoint(progress.t);
+                dnaHelix.position.copy(point);
+                
+                const scaleT = progress.t * (scalePoints.length - 1);
+                const scaleIndex = Math.floor(scaleT);
+                const scaleFrac = scaleT - scaleIndex;
+                const s0 = scalePoints[Math.min(scaleIndex, scalePoints.length - 1)];
+                const s1 = scalePoints[Math.min(scaleIndex + 1, scalePoints.length - 1)];
+                dnaHelix.scale.setScalar(s0 + (s1 - s0) * scaleFrac);
+                
+                dnaHelix.rotation.y += 0.005;  // Continue spinning upright
+              },
+              onComplete: () => { dnaHelix.visible = false; }
+            });
+          }
+        },
+        onLeaveBack: () => {
+          // Logo animation handled by warp transition
+          
+          // Founder card fades out (match text)
+          gsap.to('.founder-card', { opacity: 0, y: 40, duration: 0.4 });
+          
+          // Reset text content
+          resetPanelContent('#about');
+          lastAboutOpacity = 1;
+          
+          // Neurons fly toward camera when going back to hero
+          floatingNeurons.forEach((neuron, i) => {
+            gsap.to(neuron.position, {
+              z: 15,
+              duration: 0.4,
+              delay: i * 0.02,
+              ease: 'power2.in',
+              onComplete: () => { neuron.visible = false; }
+            });
+            gsap.to(neuron.scale, {
+              x: neuron.userData.baseScale * 3,
+              y: neuron.userData.baseScale * 3,
+              z: neuron.userData.baseScale * 3,
+              duration: 0.4,
+              delay: i * 0.02,
+              ease: 'power2.in'
+            });
+          });
+          
+          // DNA exits back to bottom-right along curved path
+          if (dnaHelix) {
+            const pathPoints = [
+              new THREE.Vector3(0, -0.35, -4),
+              new THREE.Vector3(2, -2, 2),
+              new THREE.Vector3(5, -4, 5),
+              new THREE.Vector3(10, -7, 2),
+              new THREE.Vector3(15, -10, -8)
+            ];
+            const scalePoints = [4.5, 5.0, 6.5, 5.5, 4.5];
+            const curve = new THREE.CatmullRomCurve3(pathPoints);
+            
+            const progress = { t: 0 };
+            gsap.to(progress, {
+              t: 1,
+              duration: 1.0,
+              ease: 'power2.inOut',
+              onUpdate: () => {
+                const point = curve.getPoint(progress.t);
+                dnaHelix.position.copy(point);
+                
+                const scaleT = progress.t * (scalePoints.length - 1);
+                const scaleIndex = Math.floor(scaleT);
+                const scaleFrac = scaleT - scaleIndex;
+                const s0 = scalePoints[Math.min(scaleIndex, scalePoints.length - 1)];
+                const s1 = scalePoints[Math.min(scaleIndex + 1, scalePoints.length - 1)];
+                dnaHelix.scale.setScalar(s0 + (s1 - s0) * scaleFrac);
+                
+                dnaHelix.rotation.y += 0.005;  // Continue spinning upright
+              },
+              onComplete: () => { dnaHelix.visible = false; }
+            });
+          }
+        },
+        onEnterBack: () => {
+          setActiveSection(1);
+          resetExtModels();
+          
+          // Logo position handled by warp transition
+          
+          gsap.to('#about .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
+          gsap.to('#about h2', { opacity: 1, y: 0, duration: 0.4 });
+          gsap.to('#about p:first-of-type', { opacity: 1, y: 0, duration: 0.4 });
+          gsap.to('#about .about-secondary', { opacity: 1, y: 0, duration: 0.4, delay: 0.1 });
+          
+          // Founder card - match text timing
+          gsap.to('.founder-card', { opacity: 1, y: 0, duration: 0.4 });
+          
+          // DNA enters first (from top-left) - only if not already triggered by Extensions
+          if (dnaHelix && !dnaHelix.visible) {
+            dnaHelix.visible = true;
+            
+            const pathPoints = [
+              new THREE.Vector3(-8, 4, 2),      // START CLOSER - already near visible
+              new THREE.Vector3(-5, 2, 4),
+              new THREE.Vector3(-2, 0.5, 2),
+              new THREE.Vector3(0, -0.35, -4)   // End: center
+            ];
+            const scalePoints = [5.0, 5.5, 5.0, 4.5];
+            const curve = new THREE.CatmullRomCurve3(pathPoints);
+            
+            dnaHelix.position.copy(pathPoints[0]);
+            dnaHelix.scale.setScalar(scalePoints[0]);
+            
+            const progress = { t: 0 };
+            gsap.to(progress, {
+              t: 1,
+              duration: 1.2,
+              ease: 'power2.out',
+              onUpdate: () => {
+                const point = curve.getPoint(progress.t);
+                dnaHelix.position.copy(point);
+                
+                const scaleT = progress.t * (scalePoints.length - 1);
+                const scaleIndex = Math.floor(scaleT);
+                const scaleFrac = scaleT - scaleIndex;
+                const s0 = scalePoints[Math.min(scaleIndex, scalePoints.length - 1)];
+                const s1 = scalePoints[Math.min(scaleIndex + 1, scalePoints.length - 1)];
+                dnaHelix.scale.setScalar(s0 + (s1 - s0) * scaleFrac);
+                
+                dnaHelix.rotation.y += 0.005;
+              }
+            });
+          }
+          
+          // Bring neurons back from deep in scene
+          floatingNeurons.forEach((neuron, i) => {
+            neuron.visible = true;
+            neuron.position.x = neuron.userData.baseX;
+            neuron.position.y = neuron.userData.baseY;
+            neuron.position.z = -30;
+            neuron.scale.setScalar(0.01);
+            gsap.to(neuron.position, {
+              z: neuron.userData.baseZ,
+              duration: 0.6,
+              delay: i * 0.03,
+              ease: 'power2.out'
+            });
+            gsap.to(neuron.scale, {
+              x: neuron.userData.baseScale,
+              y: neuron.userData.baseScale,
+              z: neuron.userData.baseScale,
+              duration: 0.6,
+              delay: i * 0.03,
+              ease: 'power2.out'
+            });
+          });
+        }
+      });
+      
+      // ─────────────────────────────────────────────────────────────────
+      // PANEL 2: EXTENSIONS
+      // ─────────────────────────────────────────────────────────────────
+      
+      const extPositions = [
+        { x: -3.5, y: 1.2, z: 0 },
+        { x: -2.5, y: -0.8, z: 1 },
+        { x: -4, y: 0.2, z: -1 },
+        { x: -3, y: -1.5, z: 0.5 }
+      ];
+      
+      let lastExtOpacity = 1;
+      let dnaEntryBackStarted = false;  // For scrolling back up
+      let extLastProgress = 0;  // Track scroll direction
+      
+      ScrollTrigger.create({
+        trigger: '#extensions',
+        start: 'top top',
+        end: '+=150%',
+        pin: true,
+        scrub: true,
+        onEnter: () => {
+          setActiveSection(2);
+          // Logo stays in navbar
+          resetExtModels();
+          gsap.set('.work-item', { opacity: 0, y: 40 });
+          gsap.to('#extensions .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
+          gsap.to('#extensions h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
+          gsap.to('#extensions p', { opacity: 1, y: 0, duration: 0.6, delay: 0.2 });
+          gsap.to('.work-item', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
+          dnaEntryBackStarted = false;
+          extLastProgress = 0;
+        },
+        onUpdate: self => {
+          const p = self.progress;
+          
+          // Trigger DNA early when scrolling BACK UP (progress decreasing below 0.3)
+          const scrollingUp = p < extLastProgress;
+          if (scrollingUp && p < 0.3 && !dnaEntryBackStarted && dnaHelix && !dnaHelix.visible) {
+            dnaEntryBackStarted = true;
+            dnaHelix.visible = true;
+            
+            const pathPoints = [
+              new THREE.Vector3(-8, 4, 2),      // START CLOSER
+              new THREE.Vector3(-5, 2, 4),
+              new THREE.Vector3(-2, 0.5, 2),
+              new THREE.Vector3(0, -0.35, -4)
+            ];
+            const scalePoints = [5.0, 5.5, 5.0, 4.5];
+            const curve = new THREE.CatmullRomCurve3(pathPoints);
+            
+            dnaHelix.position.copy(pathPoints[0]);
+            dnaHelix.scale.setScalar(scalePoints[0]);
+            
+            const progress = { t: 0 };
+            gsap.to(progress, {
+              t: 1,
+              duration: 1.2,
+              ease: 'power2.out',
+              onUpdate: () => {
+                const point = curve.getPoint(progress.t);
+                dnaHelix.position.copy(point);
+                
+                const scaleT = progress.t * (scalePoints.length - 1);
+                const scaleIndex = Math.floor(scaleT);
+                const scaleFrac = scaleT - scaleIndex;
+                const s0 = scalePoints[Math.min(scaleIndex, scalePoints.length - 1)];
+                const s1 = scalePoints[Math.min(scaleIndex + 1, scalePoints.length - 1)];
+                dnaHelix.scale.setScalar(s0 + (s1 - s0) * scaleFrac);
+                
+                dnaHelix.rotation.y += 0.005;
+              }
+            });
+          }
+          
+          // Reset flag when scrolling down past threshold
+          if (p > 0.5) {
+            dnaEntryBackStarted = false;
+          }
+          
+          extLastProgress = p;
+          
+          extModels.forEach((name, i) => {
+            const m = MODELS[name];
+            if (!m) return;
+            
+            const startAt = i * 0.15;
+            if (p >= startAt) {
+              m.visible = true;
+              const localP = Math.min((p - startAt) / 0.3, 1);
+              const ease = 1 - Math.pow(1 - localP, 3);
+              const target = extPositions[i];
+              m.position.x = 8 - (8 - target.x) * ease;
+              MODEL_BASE_Y[name] = target.y;
+              m.position.y = target.y;
+              m.position.z = target.z;
+              m.rotation.y = (1 - ease) * 2;
+            } else {
+              m.visible = false;
+            }
+          });
+        },
+        onLeave: () => {
+          extModels.forEach(name => { if (MODELS[name]) MODELS[name].visible = false; });
+        },
+        onLeaveBack: () => {
+          // Work items fade out (slide up)
+          gsap.to('.work-item', { opacity: 0, y: -40, duration: 0.4 });
+          
+          resetPanelContent('#extensions');
+          resetExtModels();
+          // Logo stays in navbar
+          lastExtOpacity = 1;
+        },
+        onEnterBack: () => {
+          setActiveSection(2);
+          // Logo stays in navbar
+          resetTemplateModels();
+          extModels.forEach((name, i) => {
+            const m = MODELS[name];
+            if (m) {
+              m.visible = true;
+              m.position.set(extPositions[i].x, extPositions[i].y, extPositions[i].z);
+              MODEL_BASE_Y[name] = extPositions[i].y;
+              m.rotation.y = 0;
+            }
+          });
+          gsap.to('#extensions .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
+          gsap.to('#extensions h2', { opacity: 1, y: 0, duration: 0.4 });
+          gsap.to('#extensions p', { opacity: 1, y: 0, duration: 0.4 });
+          gsap.set('.work-item', { opacity: 0, y: 40 });
+          gsap.to('.work-item', { opacity: 1, y: 0, duration: 0.4 });
+        }
+      });
+      
+      // ─────────────────────────────────────────────────────────────────
+      // PANEL 3: TEMPLATES
+      // ─────────────────────────────────────────────────────────────────
+      
+      const templatePositions = [
+        { x: 4, y: 0.3, z: 2, rx: 0.05, ry: -0.4 },
+        { x: 2.5, y: 0, z: -1, rx: -0.05, ry: -0.3 },
+        { x: 4.5, y: -0.8, z: 0, rx: 0.15, ry: -0.5 }
+      ];
+      
+      let lastTemplateOpacity = 1;
+      
+      ScrollTrigger.create({
+        trigger: '#templates',
+        start: 'top top',
+        end: '+=150%',
+        pin: true,
+        scrub: true,
+        onEnter: () => {
+          setActiveSection(3);
+          resetExtModels();
+          resetTemplateModels();
+          gsap.to('#templates .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
+          gsap.to('#templates h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
+          gsap.to('#templates p', { opacity: 1, y: 0, duration: 0.6, delay: 0.2 });
+        },
+        onUpdate: self => {
+          const p = self.progress;
+          
+          templateModels.forEach((name, i) => {
+            const m = MODELS[name];
+            if (!m) return;
+            
+            const startAt = i * 0.2;
+            if (p >= startAt) {
+              m.visible = true;
+              const localP = Math.min((p - startAt) / 0.35, 1);
+              const ease = 1 - Math.pow(1 - localP, 3);
+              const t = templatePositions[i];
+              m.position.x = 10 - (10 - t.x) * ease;
+              MODEL_BASE_Y[name] = t.y;
+              m.position.y = t.y;
+              m.position.z = t.z;
+              m.rotation.x = t.rx;
+              m.rotation.y = t.ry + (1 - ease) * 1.5;
+            } else {
+              m.visible = false;
+            }
+          });
+        },
+        onLeave: () => {
+          templateModels.forEach(name => { if (MODELS[name]) MODELS[name].visible = false; });
+        },
+        onLeaveBack: () => {
+          resetPanelContent('#templates');
+          resetTemplateModels();
+          lastTemplateOpacity = 1;
+        },
+        onEnterBack: () => {
+          setActiveSection(3);
+          // Logo stays in navbar
+          // Restore template models to final positions
+          templateModels.forEach((name, i) => {
+            const m = MODELS[name];
+            if (m) {
+              const t = templatePositions[i];
+              m.visible = true;
+              m.position.set(t.x, t.y, t.z);
+              MODEL_BASE_Y[name] = t.y;
+              m.rotation.set(t.rx, t.ry, 0);
+            }
+          });
+          gsap.to('#templates .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
+          gsap.to('#templates h2', { opacity: 1, y: 0, duration: 0.4 });
+          gsap.to('#templates p', { opacity: 1, y: 0, duration: 0.4 });
+        }
+      });
+      
+      // ─────────────────────────────────────────────────────────────────
+      // PANEL 4: CONTACT
+      // ─────────────────────────────────────────────────────────────────
+      
+      ScrollTrigger.create({
+        trigger: '#contact',
+        start: 'top top',
+        end: '+=80%',
+        pin: true,
+        scrub: true,
+        onEnter: () => {
+          setActiveSection(4);
+          resetTemplateModels();
+          // Logo stays in navbar
+          gsap.to('#contact .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
+          gsap.to('#contact h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
+          gsap.to('#contact p', { opacity: 1, y: 0, duration: 0.6, delay: 0.2 });
+          gsap.to('#contact .cta-btn', { opacity: 1, y: 0, duration: 0.6, delay: 0.5 });
+        },
+        onUpdate: self => {
+          // Logo stays static in navbar, no rotation
+        },
+        onLeaveBack: () => {
+          resetPanelContent('#contact');
+          // Logo stays in navbar
+        },
+        onEnterBack: () => {
+          setActiveSection(4);
+          // Logo stays in navbar
+          gsap.to('#contact .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
+          gsap.to('#contact h2', { opacity: 1, y: 0, duration: 0.4 });
+          gsap.to('#contact p', { opacity: 1, y: 0, duration: 0.4 });
+          gsap.to('#contact .cta-btn', { opacity: 1, y: 0, duration: 0.4 });
+        }
+      });
+      
+      // ─────────────────────────────────────────────────────────────────
+      // SECTION INDICATOR
+      // ─────────────────────────────────────────────────────────────────
+      
+      function setActiveSection(i) {
+        STATE.section = i;
+        dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
+      }
+      
+      // ─────────────────────────────────────────────────────────────────
+      // NAV CLICK HANDLERS - Use GSAP scrollTo for pinned sections
+      // ─────────────────────────────────────────────────────────────────
+      
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = link.getAttribute('href');
+          gsap.to(window, {
+            duration: 1,
+            scrollTo: { y: target, autoKill: false },
+            ease: 'power2.inOut'
+          });
+        });
+      });
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // CURSOR
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const cursor = document.getElementById('cursor');
+    const trails = [
+      document.getElementById('cursorTrail1'),
+      document.getElementById('cursorTrail2')
+    ];
+    
+    // ASCII cursor characters
+    const chars = ['_', '▊', '◈', '◇', '⬡', '▪', '◉', '⬢'];
+    const hoverChars = ['▶', '●', '◆', '⬢', '★'];
+    const glitchChars = ['#', '@', '!', '%', '&', '*', '█', '▓'];
+    
+    let tx = 0, ty = 0;
+    let cx = 0, cy = 0;
+    let isHovering = false;
+    let currentCharIndex = 0;
+    let glitchInterval = null;
+    let trailPositions = [{x: 0, y: 0}, {x: 0, y: 0}];
+    
+    // Rotate through characters
+    setInterval(() => {
+      if (!isHovering) {
+        currentCharIndex = (currentCharIndex + 1) % chars.length;
+        cursor.textContent = chars[currentCharIndex];
+      }
+    }, 150);
+    
+    document.addEventListener('mousemove', e => {
+      tx = e.clientX;
+      ty = e.clientY;
+      STATE.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      STATE.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    }, { passive: true });
+    
+    // Click effect
+    document.addEventListener('mousedown', () => {
+      cursor.classList.add('clicking');
+      cursor.textContent = '×';
+    });
+    
+    document.addEventListener('mouseup', () => {
+      cursor.classList.remove('clicking');
+    });
+    
+    // Hover effects with glitch
+    function startGlitch() {
+      isHovering = true;
+      cursor.classList.add('hover');
+      
+      let glitchCount = 0;
+      glitchInterval = setInterval(() => {
+        if (glitchCount < 5) {
+          cursor.textContent = glitchChars[Math.floor(Math.random() * glitchChars.length)];
+          glitchCount++;
+        } else {
+          cursor.textContent = hoverChars[Math.floor(Math.random() * hoverChars.length)];
+        }
+      }, 50);
+    }
+    
+    function stopGlitch() {
+      isHovering = false;
+      cursor.classList.remove('hover');
+      if (glitchInterval) {
+        clearInterval(glitchInterval);
+        glitchInterval = null;
+      }
+    }
+    
+    document.querySelectorAll('a, button, .cta-btn, .nav-links span, .work-item, .progress-dot').forEach(el => {
+      el.addEventListener('mouseenter', startGlitch);
+      el.addEventListener('mouseleave', stopGlitch);
+    });
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // PERFORMANCE MONITORING
+    // ═══════════════════════════════════════════════════════════════════
+    let frameCount = 0;
+    let lastFPSTime = performance.now();
+    let currentFPS = 60;
+    
+    function updateFPS() {
+      frameCount++;
+      const now = performance.now();
+      if (now - lastFPSTime >= 1000) {
+        currentFPS = frameCount;
+        frameCount = 0;
+        lastFPSTime = now;
+        if (currentFPS < 50) {
+          console.warn(`[PERF] Low FPS: ${currentFPS}`);
+        }
+      }
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // ANIMATION LOOP
+    // ═══════════════════════════════════════════════════════════════════
+    
+    let time = 0;
+    let loggedComposerStart = false;
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      updateFPS();
+      time += 0.016;
+      
+      // Update holo shader
+      holoUniforms.uTime.value = time;
+      holoUniforms.uMouse.value.set(STATE.mouse.x * 0.5 + 0.5, STATE.mouse.y * 0.5 + 0.5);
+      
+      // Update background - skip during loading for performance
+      if (!isLoadingMode) {
+        perspGridMaterial.uniforms.uTime.value = time;
+        perspGridMaterial.uniforms.uMouse.value.lerp(new THREE.Vector2(STATE.mouse.x, STATE.mouse.y), 0.04);
+        bgPlaneMaterial.uniforms.uTime.value = time;
+      }
+      
+      // Rotate loader brain - mouse following with friction + subtle ambient motion
+      if (loaderBrain) {
+        // Calculate target rotation from mouse (clamped to max)
+        brainTarget.x = Math.max(-brainMaxRotation, Math.min(brainMaxRotation, -brainMouse.y * 0.4));
+        brainTarget.y = Math.max(-brainMaxRotation, Math.min(brainMaxRotation, brainMouse.x * 0.5));
+        
+        // Lerp current toward target with friction
+        brainCurrent.x += (brainTarget.x - brainCurrent.x) * brainFriction;
+        brainCurrent.y += (brainTarget.y - brainCurrent.y) * brainFriction;
+        
+        // Apply rotation + subtle ambient motion layered on top
+        loaderBrain.rotation.x = -brainCurrent.x + Math.sin(time * 0.3) * 0.05;
+        loaderBrain.rotation.y = brainCurrent.y + Math.sin(time * 0.5) * 0.08;
+      }
+      
+      // Subtle glow pulse
+      if (brainGlow) {
+        brainGlow.material.opacity = 0.8 + Math.sin(time * 2) * 0.2;
+      }
+      
+      // Render background to refraction texture (hide logo first)
+      // Skip during loading - not visible anyway
+      if (!isLoadingMode && heroLogo) {
+        // Hide logo and glow for background capture
+        heroLogo.visible = false;
+        if (heroLogo.userData.glow) heroLogo.userData.glow.visible = false;
+        
+        renderer.setRenderTarget(refractionRT);
+        renderer.render(scene, camera);
+        renderer.setRenderTarget(null);
+        
+        // Restore visibility
+        heroLogo.visible = true;
+        if (heroLogo.userData.glow) heroLogo.userData.glow.visible = true;
+      }
+      
+      // Hero logo rotation - hover spin or auto-rotate
+      // Skip during loading - not visible
+      // Only spin in Hero section
+      if (!isLoadingMode && heroLogo && STATE.section === 0) {
+        if (logoInteraction.isHovering) {
+          // Hovering - apply mouse velocity directly
+          heroLogo.rotation.y += logoInteraction.velocityY;
+          heroLogo.rotation.x += logoInteraction.velocityX;
+          logoInteraction.currentAutoSpeed = 0;
+        } else {
+          // Not hovering - decay momentum, ramp up auto-rotate
+          logoInteraction.velocityY *= 0.96;
+          logoInteraction.velocityX *= 0.96;
+          
+          // Smoothly return to auto-rotate speed
+          logoInteraction.currentAutoSpeed += (logoInteraction.autoRotateSpeed - logoInteraction.currentAutoSpeed) * 0.02;
+          
+          // Apply remaining momentum + auto-rotate
+          heroLogo.rotation.y += logoInteraction.velocityY + logoInteraction.currentAutoSpeed;
+          heroLogo.rotation.x += logoInteraction.velocityX;
+          
+          // Smoothly return X rotation to 0
+          heroLogo.rotation.x *= 0.97;
+        }
+      }
+      
+      // Animate the glow shader (color wave) - runs in all sections
+      if (!isLoadingMode && heroLogo && heroLogo.userData.glowMaterial) {
+        // Track scroll velocity
+        STATE.scrollY = window.scrollY;
+        STATE.scrollVelocity = Math.abs(STATE.scrollY - STATE.lastScrollY);
+        STATE.lastScrollY = STATE.scrollY;
+        
+        // If scrolling, immediately boost speed
+        if (STATE.scrollVelocity > 0.5) {
+          // Direct boost - more responsive
+          STATE.glowSpeed = Math.max(STATE.glowSpeed, 1.0 + STATE.scrollVelocity * 0.2);
+          STATE.glowSpeed = Math.min(STATE.glowSpeed, 5.0);  // Cap at 5x
+          STATE.glowLinger = 60;  // Frames to linger (about 1 second at 60fps)
+        } else if (STATE.glowLinger > 0) {
+          // Linger period - keep current speed, just count down
+          STATE.glowLinger--;
+        } else {
+          // Settle back to normal slowly
+          STATE.glowSpeed += (1.0 - STATE.glowSpeed) * 0.02;
+        }
+        
+        // Apply speed multiplier to glow time
+        heroLogo.userData.glowMaterial.uniforms.uTime.value += 0.016 * STATE.glowSpeed;
+      }
+      
+      // Hero text parallax - slower, it's behind the balls
+      // Skip during loading - not visible
+      if (!isLoadingMode) {
+        heroTextPlane.position.x += (STATE.mouse.x * 0.2 - heroTextPlane.position.x) * 0.02;
+        heroTextPlane.position.y += (heroScrollOffset.textY + STATE.mouse.y * 0.15 - heroTextPlane.position.y) * 0.03;
+      }
+      
+      // Animate floating balls - Z depth movement + parallax
+      // Skip during loading - not visible
+      if (!isLoadingMode) {
+        floatingBalls.forEach((ball) => {
+          const d = ball.userData;
+          const scrollY = d.scrollOffsetY || 0;
+          ball.position.z = d.baseZ + Math.sin(time * d.speedZ + d.phase) * d.ampZ;
+          ball.rotation.x += d.rotSpeed * 0.01;
+          ball.rotation.y += d.rotSpeed * 0.015;
+          
+          // Mouse parallax - foreground, moves more
+          ball.position.x += (d.baseX + STATE.mouse.x * 0.5 - ball.position.x) * 0.04;
+          ball.position.y += (d.baseY + scrollY + STATE.mouse.y * 0.35 - ball.position.y) * 0.06;
+        });
+        
+        // Animate floating neurons - similar to balls but for About section
+        floatingNeurons.forEach((neuron) => {
+          if (!neuron.visible) return;
+          const d = neuron.userData;
+          neuron.position.z = d.baseZ + Math.sin(time * d.speedZ + d.phase) * d.ampZ;
+          neuron.rotation.x += d.rotSpeed * 0.008;
+          neuron.rotation.y += d.rotSpeed * 0.012;
+          neuron.rotation.z += d.rotSpeed * 0.005;
+          
+          // Mouse parallax - X and Y
+          neuron.position.x += (d.baseX + STATE.mouse.x * 0.4 - neuron.position.x) * 0.05;
+          neuron.position.y += (d.baseY + STATE.mouse.y * 0.35 - neuron.position.y) * 0.05;
+        });
+        
+        // Rotate DNA helix - hover spin or auto-rotate
+        if (dnaHelix && dnaHelix.visible) {
+          if (dnaInteraction.isHovering) {
+            // Hovering - apply mouse velocity
+            dnaHelix.rotation.y += dnaInteraction.velocityY;
+            dnaInteraction.currentAutoSpeed = 0;
+          } else {
+            // Not hovering - decay momentum, ramp up auto-rotate
+            dnaInteraction.velocityY *= 0.96;
+            dnaInteraction.currentAutoSpeed += (dnaInteraction.autoRotateSpeed - dnaInteraction.currentAutoSpeed) * 0.02;
+            dnaHelix.rotation.y += dnaInteraction.velocityY + dnaInteraction.currentAutoSpeed;
+          }
+        }
+      }
+      
+      // Only render loader to texture during warp (not during loading mode)
+      // During loading, we render loaderScene directly to screen - no need for RT
+      if (!isLoadingMode) {
+        renderLoaderToTexture();
+      }
+      
+      // Mouse-reactive logo tilt removed - spin is handled above
+      
+      // FIX #1: Floating animation using base Y positions
+      // Skip during loading - models not visible
+      if (!isLoadingMode) {
+        Object.entries(MODELS).forEach(([name, m], i) => {
+          if (m && m.visible) {
+            // Never float the logo - gsap controls it completely
+            if (name === 'logo') return;
+            const baseY = MODEL_BASE_Y[name] || 0;
+            m.position.y = baseY + Math.sin(time * 1.5 + i) * 0.03;
+          }
+        });
+      }
+      
+      // Subtle light movement - skip during loading
+      if (!isLoadingMode) {
+        blueLight.position.x = -6 + Math.sin(time * 0.5) * 0.3;
+        pinkLight.position.x = 6 + Math.cos(time * 0.4) * 0.3;
+      }
+      
+      // Render based on mode
+      if (isLoadingMode) {
+        // During loading: render loaderScene directly to screen
+        renderer.render(loaderScene, loaderCamera);
+      } else {
+        // Log first time composer kicks in
+        if (!loggedComposerStart) {
+          loggedComposerStart = true;
+          console.log('[PERF] Composer render started - FPS:', currentFPS);
+        }
+        // During/after warp: use composer with warp effect
+        composer.render();
+      }
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // CURSOR LOOP - Separate from WebGL so it stays smooth during warp
+    // ═══════════════════════════════════════════════════════════════════
+    function cursorLoop() {
+      requestAnimationFrame(cursorLoop);
+      
+      // Cursor with trails
+      cx += (tx - cx) * 0.4;
+      cy += (ty - cy) * 0.4;
+      cursor.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
+      
+      // Update trails with delay
+      for (let i = 0; i < trails.length; i++) {
+        trailPositions[i].x += (tx - trailPositions[i].x) * (0.7 - i * 0.1);
+        trailPositions[i].y += (ty - trailPositions[i].y) * (0.7 - i * 0.1);
+        trails[i].style.transform = `translate(${trailPositions[i].x}px, ${trailPositions[i].y}px) translate(-50%, -50%)`;
+        trails[i].style.opacity = i === 0 ? 1 : 0.5 - (i * 0.15);
+        trails[i].textContent = chars[(currentCharIndex + i + 1) % chars.length];
+      }
+    }
+    cursorLoop();
+    
+    animate();
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // RESIZE
+    // ═══════════════════════════════════════════════════════════════════
+    
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(window.innerWidth, window.innerHeight);
+      
+      // Update refraction render target
+      refractionRT.setSize(window.innerWidth, window.innerHeight);
+      refractionUniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+      
+      // Update grid resolution
+      perspGridMaterial.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+      
+      // Resize loader camera
+      loaderCamera.aspect = window.innerWidth / window.innerHeight;
+      loaderCamera.updateProjectionMatrix();
+      
+      // Update loader canvas size
+      updateLoaderCanvasSize();
+      drawLoaderGraphics(loaderProgress);
+      loaderTexture.needsUpdate = true;
+      
+      const pixelRatio = Math.min(window.devicePixelRatio, 2);
+      loaderRT.setSize(
+        window.innerWidth * pixelRatio,
+        window.innerHeight * pixelRatio
+      );
+      
+      warpPass.uniforms.uAspect.value = window.innerWidth / window.innerHeight;
+      ScrollTrigger.refresh();
+    });
+    
+    // Failsafe loader
+    setTimeout(() => {
+      if (STATE.loaded < STATE.total) {
+        STATE.loaded = STATE.total;
+        loaderProgress = 1;
+        const fill = document.querySelector('.loader-fill');
+        if (fill) fill.style.width = '100%';
+        setTimeout(() => {
+            triggerWarpIntro();
+        }, 500);
+      }
+    }, 5000);
+    
+  </script>
+</body>
+</html>
