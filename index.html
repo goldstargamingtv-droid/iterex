@@ -911,6 +911,7 @@
   <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
     import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
     import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
     import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
@@ -1420,6 +1421,11 @@
     const logoRaycaster = new THREE.Raycaster();
     
     const gltfLoader = new GLTFLoader();
+    
+    // Set up Draco decoder for compressed models
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    gltfLoader.setDRACOLoader(dracoLoader);
     
     // ═══════════════════════════════════════════════════════════════════
     // BIG ITEREX TEXT - Behind the spinning logo
@@ -2468,9 +2474,10 @@
     loaderScene.add(bgQuad);
     
     // Render target for combined loader (brain + text/bar)
+    // Use lower resolution during loading for performance
     const loaderRT = new THREE.WebGLRenderTarget(
-      window.innerWidth * Math.min(window.devicePixelRatio, 2),
-      window.innerHeight * Math.min(window.devicePixelRatio, 2)
+      window.innerWidth * Math.min(window.devicePixelRatio, 1.5),
+      window.innerHeight * Math.min(window.devicePixelRatio, 1.5)
     );
     
     // Function to render loader scene to texture
@@ -2624,8 +2631,8 @@
         const p = this.targets()[0].progress;
         
         // Only redraw if visual change (segment or percentage changed)
-        // 20 segments + 100 percentages = redraw every ~0.5% change
-        const visualProgress = Math.floor(p * 200);
+        // 20 segments = redraw every ~5% change (reduced for performance)
+        const visualProgress = Math.floor(p * 100);
         if (visualProgress !== lastDrawnProgress) {
           lastDrawnProgress = visualProgress;
           drawLoaderGraphics(p);
@@ -3796,8 +3803,8 @@
         bgPlaneMaterial.uniforms.uTime.value = time;
       }
       
-      // Rotate loader brain - mouse following with friction + subtle ambient motion
-      if (loaderBrain) {
+      // Rotate loader brain - only during loading mode
+      if (isLoadingMode && loaderBrain) {
         // Calculate target rotation from mouse (clamped to max)
         brainTarget.x = Math.max(-brainMaxRotation, Math.min(brainMaxRotation, -brainMouse.y * 0.4));
         brainTarget.y = Math.max(-brainMaxRotation, Math.min(brainMaxRotation, brainMouse.x * 0.5));
@@ -3811,8 +3818,8 @@
         loaderBrain.rotation.y = brainCurrent.y + Math.sin(time * 0.5) * 0.08;
       }
       
-      // Subtle glow pulse
-      if (brainGlow) {
+      // Subtle glow pulse - only during loading
+      if (isLoadingMode && brainGlow) {
         brainGlow.material.opacity = 0.8 + Math.sin(time * 2) * 0.2;
       }
       
@@ -4026,7 +4033,7 @@
       drawLoaderGraphics(loaderProgress);
       loaderTexture.needsUpdate = true;
       
-      const pixelRatio = Math.min(window.devicePixelRatio, 2);
+      const pixelRatio = Math.min(window.devicePixelRatio, 1.5);
       loaderRT.setSize(
         window.innerWidth * pixelRatio,
         window.innerHeight * pixelRatio
