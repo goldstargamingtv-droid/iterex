@@ -133,6 +133,7 @@
       text-transform: uppercase;
       opacity: 0;
       filter: blur(10px);
+      cursor: none;
     }
     
     .nav-links {
@@ -218,6 +219,137 @@
       transform: translateY(40px);
     }
     
+    /* ═══════════════════════════════════════════════════════════════════
+       HERO CTAs
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      margin-top: 32px;
+      opacity: 0;
+      transform: translateY(30px);
+      position: relative;
+      z-index: 10;
+    }
+    
+    .hero-ctas .cta-btn {
+      position: relative;
+      padding: 14px 28px;
+      margin-top: 0;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: none;
+      cursor: none;
+      pointer-events: auto;
+      overflow: hidden;
+      opacity: 1;
+      transform: none;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .hero-ctas .cta-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    /* Primary CTA - Glassmorphism with holographic border */
+    .hero-ctas .cta-primary {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+    }
+    
+    .hero-ctas .cta-primary::before {
+      background: linear-gradient(
+        135deg,
+        rgba(100, 200, 255, 0.15) 0%,
+        rgba(200, 100, 255, 0.15) 50%,
+        rgba(100, 255, 200, 0.15) 100%
+      );
+    }
+    
+    .hero-ctas .cta-primary::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      background: linear-gradient(
+        135deg,
+        rgba(100, 200, 255, 0.5),
+        rgba(200, 100, 255, 0.5),
+        rgba(100, 255, 200, 0.5),
+        rgba(100, 200, 255, 0.5)
+      );
+      background-size: 300% 300%;
+      border-radius: 3px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      animation: holoBorder 4s ease infinite;
+    }
+    
+    @keyframes holoBorder {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .hero-ctas .cta-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 10px 40px rgba(100, 200, 255, 0.2),
+        0 0 20px rgba(200, 100, 255, 0.1);
+    }
+    
+    .hero-ctas .cta-primary:hover::before {
+      opacity: 1;
+    }
+    
+    .hero-ctas .cta-primary:hover::after {
+      opacity: 1;
+    }
+    
+    /* Ghost CTA - Outline only */
+    .hero-ctas .cta-ghost {
+      background: transparent;
+      color: var(--gray-300);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+    }
+    
+    .hero-ctas .cta-ghost::before {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .hero-ctas .cta-ghost:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px);
+    }
+    
+    .hero-ctas .cta-ghost:hover::before {
+      opacity: 1;
+    }
+    
+    .hero-ctas .cta-ghost .cta-arrow {
+      display: inline-block;
+      margin-left: 8px;
+      transition: transform 0.3s ease;
+    }
+    
+    .hero-ctas .cta-ghost:hover .cta-arrow {
+      transform: translateX(4px);
+    }
+    
     .about-secondary {
       margin-top: 20px;
       font-size: 11px;
@@ -294,6 +426,57 @@
     
     .panel.right .panel-content {
       text-align: right;
+    }
+    
+    /* About section glassmorphic card */
+    #about .panel-content {
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 36px 40px;
+      text-align: left;
+      max-width: 420px;
+      position: absolute;
+      right: calc(5% + 150px);
+      top: 50%;
+      transform: translateY(-50%);
+      margin-top: 0px;
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    #about .panel-content .panel-tag,
+    #about .panel-content h2,
+    #about .panel-content p {
+      text-align: left;
+    }
+    
+    /* Hero text hidden by default - CSS loads before JS, prevents flash */
+    #hero .panel-tag,
+    #hero h1,
+    #hero p,
+    #hero .hero-ctas {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(30px);
+    }
+    
+    #about .panel-content h2 {
+      font-size: clamp(28px, 3.5vw, 42px);
+      margin-bottom: 20px;
+    }
+    
+    #about .panel-content p {
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    
+    #about .panel-content .about-secondary {
+      font-size: 12px;
+      margin-top: 16px;
+      color: var(--gray-400);
     }
     
     .panel.center {
@@ -566,6 +749,16 @@
       .cursor, .cursor-dot { display: none; }
       body { cursor: auto; }
       .corner-bl, .corner-br { display: none; }
+      
+      /* Mobile: About glass card */
+      #about .panel-content {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        margin: 20px;
+        max-width: none;
+      }
     }
     
     /* ═══════════════════════════════════════════════════════════════════
@@ -650,6 +843,17 @@
     document.documentElement.style.overflow = 'hidden';
     document.addEventListener('DOMContentLoaded', () => {
       document.body.style.overflow = 'hidden';
+      
+      // Ensure hero content is hidden IMMEDIATELY on page load
+      // This prevents flash of content before loader animation
+      const heroElements = ['#hero .panel-tag', '#hero h1', '#hero p', '#hero .hero-ctas'];
+      heroElements.forEach(sel => {
+        const el = document.querySelector(sel);
+        if (el) {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(30px)';
+        }
+      });
     });
   </script>
 </head>
@@ -823,6 +1027,10 @@
       <div class="panel-tag">AI-Accelerated Development</div>
       <h1>Iterate.<br>Execute.<br><span>Ship.</span></h1>
       <p>Premium digital experiences crafted through relentless iteration. Your vision, realized in days—not months.</p>
+      <div class="hero-ctas">
+        <a href="#contact" class="cta-btn cta-primary">Let's Build</a>
+        <a href="#extensions" class="cta-btn cta-ghost">View Work <span class="cta-arrow">→</span></a>
+      </div>
     </div>
   </section>
   
@@ -918,6 +1126,74 @@
     import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
     // ═══════════════════════════════════════════════════════════════════
+    // BLUR SHADERS FOR LARGE ACCENT ORBS
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const HorizontalBlurShader = {
+      uniforms: {
+        tDiffuse: { value: null },
+        h: { value: 1.0 / 512.0 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform float h;
+        varying vec2 vUv;
+        void main() {
+          vec4 sum = vec4(0.0);
+          sum += texture2D(tDiffuse, vec2(vUv.x - 4.0 * h, vUv.y)) * 0.051;
+          sum += texture2D(tDiffuse, vec2(vUv.x - 3.0 * h, vUv.y)) * 0.0918;
+          sum += texture2D(tDiffuse, vec2(vUv.x - 2.0 * h, vUv.y)) * 0.12245;
+          sum += texture2D(tDiffuse, vec2(vUv.x - 1.0 * h, vUv.y)) * 0.1531;
+          sum += texture2D(tDiffuse, vec2(vUv.x, vUv.y)) * 0.1633;
+          sum += texture2D(tDiffuse, vec2(vUv.x + 1.0 * h, vUv.y)) * 0.1531;
+          sum += texture2D(tDiffuse, vec2(vUv.x + 2.0 * h, vUv.y)) * 0.12245;
+          sum += texture2D(tDiffuse, vec2(vUv.x + 3.0 * h, vUv.y)) * 0.0918;
+          sum += texture2D(tDiffuse, vec2(vUv.x + 4.0 * h, vUv.y)) * 0.051;
+          gl_FragColor = sum;
+        }
+      `
+    };
+    
+    const VerticalBlurShader = {
+      uniforms: {
+        tDiffuse: { value: null },
+        v: { value: 1.0 / 512.0 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform float v;
+        varying vec2 vUv;
+        void main() {
+          vec4 sum = vec4(0.0);
+          sum += texture2D(tDiffuse, vec2(vUv.x, vUv.y - 4.0 * v)) * 0.051;
+          sum += texture2D(tDiffuse, vec2(vUv.x, vUv.y - 3.0 * v)) * 0.0918;
+          sum += texture2D(tDiffuse, vec2(vUv.x, vUv.y - 2.0 * v)) * 0.12245;
+          sum += texture2D(tDiffuse, vec2(vUv.x, vUv.y - 1.0 * v)) * 0.1531;
+          sum += texture2D(tDiffuse, vec2(vUv.x, vUv.y)) * 0.1633;
+          sum += texture2D(tDiffuse, vec2(vUv.x, vUv.y + 1.0 * v)) * 0.1531;
+          sum += texture2D(tDiffuse, vec2(vUv.x, vUv.y + 2.0 * v)) * 0.12245;
+          sum += texture2D(tDiffuse, vec2(vUv.x, vUv.y + 3.0 * v)) * 0.0918;
+          sum += texture2D(tDiffuse, vec2(vUv.x, vUv.y + 4.0 * v)) * 0.051;
+          gl_FragColor = sum;
+        }
+      `
+    };
+
+    // ═══════════════════════════════════════════════════════════════════
     // GLOBAL STATE
     // ═══════════════════════════════════════════════════════════════════
     
@@ -974,12 +1250,13 @@
     renderer.toneMappingExposure = 1;
     renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     container.appendChild(renderer.domElement);
+    renderer.setClearColor(0x030303);  // Dark background
     
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x030303, 8, 30);
+    scene.fog = new THREE.Fog(0x030303, 1, 25);  // Start fog closer for extreme zoom
     
     const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 0, 6);
+    camera.position.set(0, 0, 3.5);  // Start closer for hero zoom effect
     
     // ═══════════════════════════════════════════════════════════════════
     // LIGHTS
@@ -1059,7 +1336,8 @@
       uniforms: {
         uTime: { value: 0 },
         uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-        uMouse: { value: new THREE.Vector2(0, 0) }
+        uMouse: { value: new THREE.Vector2(0, 0) },
+        uCurve: { value: 7.0 }  // Grid curve strength - animate to 0 for flat
       },
       vertexShader: `
         varying vec2 vUv;
@@ -1075,6 +1353,7 @@
         uniform float uTime;
         uniform vec2 uResolution;
         uniform vec2 uMouse;
+        uniform float uCurve;
         varying vec2 vUv;
         varying vec2 vWorldXY;
         
@@ -1094,7 +1373,7 @@
           // ═══════════════════════════════════════════════════════════════
           // SHARED CURVE DISTORTION - Apply to all grid layers
           // ═══════════════════════════════════════════════════════════════
-          float curveStrength = 7.0;
+          float curveStrength = uCurve;
           vec2 fromCenter = (vUv - 0.5) * 2.0;
           
           // Squeeze factor - at edges, squeeze toward center
@@ -1104,7 +1383,7 @@
           xSquish = max(xSquish, 0.1);
           
           // ═══════════════════════════════════════════════════════════════
-          // LARGE ACCENT SQUARES - Scattered filled cells for texture
+          // LARGE ACCENT SQUARES - Scattered filled cells that blink around
           // ═══════════════════════════════════════════════════════════════
           float largeCellSize = 3.0;  // Much bigger than grid
           vec2 largeCellPos = worldPos / largeCellSize;
@@ -1117,19 +1396,26 @@
           vec2 largeCell = floor(curvedLargeCell);
           vec2 largeCellUV = fract(curvedLargeCell);
           
-          // Random fill - only ~15% of cells get filled
-          float fillRandom = hash(largeCell);
-          float isFilled = step(0.85, fillRandom);
+          // Time-based blinking - each cell gets its own blink cycle
+          float blinkSpeed = 0.07;  // How fast squares change
+          float cellTime = floor(uTime * blinkSpeed + hash(largeCell) * 10.0);
+          float fillRandom = hash(largeCell + cellTime);
+          
+          // Fade in/out for smooth transitions
+          float blinkPhase = fract(uTime * blinkSpeed + hash(largeCell) * 10.0);
+          float blinkFade = smoothstep(0.0, 0.15, blinkPhase) * smoothstep(1.0, 0.85, blinkPhase);
+          
+          float isFilled = step(0.82, fillRandom);
           
           // Soft square (not hard edges)
           vec2 fromCellCenter = abs(largeCellUV - 0.5);
           float squareDist = max(fromCellCenter.x, fromCellCenter.y);
           float squareMask = 1.0 - smoothstep(0.3, 0.45, squareDist);
           
-          float largeSquares = isFilled * squareMask;
+          float largeSquares = isFilled * squareMask * blinkFade;
           
           // ═══════════════════════════════════════════════════════════════
-          // EXTRA LARGE SQUARES - Even bigger, but NOT overlapping large ones
+          // EXTRA LARGE SQUARES - Even bigger, also blink but slower
           // ═══════════════════════════════════════════════════════════════
           float xlCellSize = 4.5;  // 1.5x bigger than large squares
           vec2 xlCellPos = worldPos / xlCellSize;
@@ -1142,9 +1428,16 @@
           vec2 xlCell = floor(curvedXLCell);
           vec2 xlCellUV = fract(curvedXLCell);
           
-          // Random fill - ~12% of cells (sparser than large)
-          float xlFillRandom = hash(xlCell + 100.0);  // Offset to get different pattern
-          float xlIsFilled = step(0.88, xlFillRandom);
+          // Slower blink for XL squares
+          float xlBlinkSpeed = 0.035;
+          float xlCellTime = floor(uTime * xlBlinkSpeed + hash(xlCell + 50.0) * 10.0);
+          float xlFillRandom = hash(xlCell + xlCellTime + 100.0);
+          
+          // Fade in/out
+          float xlBlinkPhase = fract(uTime * xlBlinkSpeed + hash(xlCell + 50.0) * 10.0);
+          float xlBlinkFade = smoothstep(0.0, 0.2, xlBlinkPhase) * smoothstep(1.0, 0.8, xlBlinkPhase);
+          
+          float xlIsFilled = step(0.85, xlFillRandom);
           
           // Soft square
           vec2 xlFromCellCenter = abs(xlCellUV - 0.5);
@@ -1152,7 +1445,7 @@
           float xlSquareMask = 1.0 - smoothstep(0.3, 0.45, xlSquareDist);
           
           // Only show XL square if NO large square is present at this pixel
-          float xlSquares = xlIsFilled * xlSquareMask * (1.0 - largeSquares);
+          float xlSquares = xlIsFilled * xlSquareMask * xlBlinkFade * (1.0 - largeSquares);
           
           // ═══════════════════════════════════════════════════════════════
           // DOT PATTERN - Tiny dots for texture depth (behind grid)
@@ -1416,10 +1709,15 @@
       lastMouseX: 0,
       lastMouseY: 0,
       velocityY: 0,
-      velocityX: 0,
-      autoRotateSpeed: 0.008,
-      currentAutoSpeed: 0.008
+      velocityX: 0
     };
+    
+    // Logo pull effect (like brain loader) - follows mouse with friction
+    const logoMouse = { x: 0, y: 0 };
+    const logoPullTarget = { x: 0, y: 0 };
+    const logoPullCurrent = { x: 0, y: 0 };
+    const logoPullFriction = 0.03;  // Lower = more friction/slower
+    const logoPullStrength = 0.25;  // How much it tilts toward mouse
     
     // Raycaster for logo hover/click detection
     const logoRaycaster = new THREE.Raycaster();
@@ -1433,7 +1731,7 @@
     gltfLoader.setDRACOLoader(dracoLoader);
     
     // ═══════════════════════════════════════════════════════════════════
-    // BIG ITEREX TEXT - Behind the spinning logo
+    // BIG ITEREX TEXT - Behind the logo
     // ═══════════════════════════════════════════════════════════════════
     
     const heroTextCanvas = document.createElement('canvas');
@@ -1443,7 +1741,7 @@
     heroTextCtx.fillStyle = 'rgba(0, 0, 0, 0)';
     heroTextCtx.fillRect(0, 0, heroTextCanvas.width, heroTextCanvas.height);
     heroTextCtx.filter = 'blur(3px)';
-    heroTextCtx.font = '700 180px Syne, sans-serif';
+    heroTextCtx.font = '700 100px Syne, sans-serif';
     heroTextCtx.fillStyle = '#ffffff';
     heroTextCtx.textAlign = 'center';
     heroTextCtx.textBaseline = 'middle';
@@ -1690,9 +1988,18 @@
       }
     );
     
-    // Logo interaction events - hover based rotation
+    // Logo interaction events - hover based rotation + pull effect mouse tracking
     document.addEventListener('mousemove', (e) => {
-      if (!heroLogo || isLoadingMode) return;
+      // Always track mouse position for pull effect (even when not hovering)
+      if (heroLogo && !isLoadingMode && STATE.section === 0) {
+        logoMouse.x = (e.clientX / window.innerWidth) * 2 - 1;   // -1 to 1
+        logoMouse.y = (e.clientY / window.innerHeight) * 2 - 1;  // -1 to 1
+      }
+      
+      if (!heroLogo || isLoadingMode || STATE.isAnimating || STATE.isScrolling) return;
+      
+      // Only allow hover interaction in hero section
+      if (STATE.section !== 0) return;
       
       // Check hover state - reuse vector to avoid garbage collection
       logoMouseVec.set(
@@ -1762,25 +2069,25 @@
     // Fixed positions for balls - first 7 smaller, next 6 bigger, last 4 large accent orbs
     const ballPositions = [
       // Smaller balls
-      { x: -8, y: -3, z: -6, scale: 0.06 },
-      { x: 10, y: 4, z: -8, scale: 0.05 },
-      { x: -6, y: 5, z: -12, scale: 0.07 },
-      { x: 8, y: -4, z: -10, scale: 0.04 },
-      { x: -11, y: 2, z: -15, scale: 0.06 },
-      { x: 5, y: -2, z: -5, scale: 0.05 },
-      { x: -3, y: 6, z: -18, scale: 0.07 },
+      { x: -8, y: -3, z: -6, scale: 0.09 },
+      { x: 10, y: 4, z: -8, scale: 0.075 },
+      { x: -6, y: 5, z: -12, scale: 0.105 },
+      { x: 8, y: -4, z: -10, scale: 0.06 },
+      { x: -11, y: 2, z: -15, scale: 0.09 },
+      { x: 5, y: -2, z: -5, scale: 0.075 },
+      { x: -3, y: 6, z: -18, scale: 0.105 },
       // Bigger balls
-      { x: 12, y: -5, z: -7, scale: 0.18 },
-      { x: -10, y: -4, z: -9, scale: 0.22 },
-      { x: 7, y: 3, z: -14, scale: 0.16 },
-      { x: -5, y: -6, z: -11, scale: 0.20 },
-      { x: 9, y: 5, z: -16, scale: 0.17 },
-      { x: -12, y: 4, z: -13, scale: 0.19 },
+      { x: 12, y: -5, z: -7, scale: 0.27 },
+      { x: -10, y: -4, z: -9, scale: 0.33 },
+      { x: 7, y: 3, z: -14, scale: 0.24 },
+      { x: -5, y: -6, z: -11, scale: 0.30 },
+      { x: 9, y: 5, z: -16, scale: 0.255 },
+      { x: -12, y: 4, z: -13, scale: 0.285 },
       // Large accent orbs - more color, closer
-      { x: -7, y: -2, z: -3, scale: 0.35 },   // Left side, close
-      { x: 8, y: 3, z: -4, scale: 0.30 },     // Right side, close
-      { x: -4, y: 5, z: -6, scale: 0.28 },    // Upper left
-      { x: 6, y: -4, z: -5, scale: 0.32 }     // Lower right
+      { x: -7, y: -2, z: -3, scale: 0.525 },   // Left side, close
+      { x: 8, y: 3, z: -4, scale: 0.45 },     // Right side, close
+      { x: -4, y: 5, z: -6, scale: 0.42 },    // Upper left
+      { x: 6, y: -4, z: -5, scale: 0.48 }     // Lower right
     ];
     
     gltfLoader.load('assets/ball.glb',
@@ -1797,6 +2104,21 @@
           ball.scale.setScalar(pos.scale);
           ball.position.set(pos.x, pos.y, pos.z);
           
+          // Hide balls initially - will fade in with hero content
+          ball.visible = false;
+          
+          // DOF layers: small=heavy blur (layer 2), medium=light blur (layer 1), large=minimal blur (layer 3)
+          // 0-6 = small (7), 7-12 = medium (6), 13-16 = large (4)
+          let blurLayer = 3;  // Default: minimal blur (large orbs)
+          if (i < 7) {
+            blurLayer = 2;  // Small balls - heavy blur
+          } else if (i < 13) {
+            blurLayer = 1;  // Medium balls - light blur
+          }
+          
+          ball.layers.set(blurLayer);
+          ball.traverse((child) => { child.layers.set(blurLayer); });
+          
           // Store animation params - Z movement for depth
           ball.userData = {
             baseX: pos.x,
@@ -1805,7 +2127,8 @@
             speedZ: 0.1 + (i * 0.002),
             ampZ: 1.5 + (i * 0.3),
             phase: i * 0.9,
-            rotSpeed: 0.2 + (i * 0.05)
+            rotSpeed: 0.2 + (i * 0.05),
+            blurLayer: blurLayer
           };
           
           scene.add(ball);
@@ -1826,16 +2149,18 @@
     const floatingNeurons = [];
     const neuronPositions = [
       // Small neurons
-      { x: -11, y: -5, z: -8, scale: 0.45 },
-      { x: 9, y: 4, z: -10, scale: 0.38 },
+      { x: 9, y: 4, z: -10, scale: 0.6 },
+      { x: 7, y: -4, z: -7, scale: 0.55 },    // Bottom right small
       // Medium neurons  
-      { x: -11, y: 2, z: -6, scale: 0.70 },
-      { x: 7, y: -4, z: -7, scale: 0.63 },
+      { x: -11, y: 2, z: -6, scale: 1.1 },
+      { x: -9, y: -7, z: -6, scale: 0.95 },   // Below founder, partially off-screen
+      { x: 12, y: 6, z: -7, scale: 1.0 },     // Top right corner
       // Large neurons
-      { x: -5, y: 4, z: -4, scale: 1.1 },
+      { x: -5, y: 4, z: -4, scale: 1.8 },
+      { x: 11, y: -5, z: -3, scale: 1.6 },    // Bottom right, large
       // Near DNA - 2 small
-      { x: -1.8, y: -3, z: -5, scale: 0.35 },   // Small, bottom left of DNA
-      { x: 4, y: 3.5, z: -5, scale: 0.40 }   // Small, upper right of DNA
+      { x: -1.8, y: -3, z: -5, scale: 0.55 },   // Small, bottom left of DNA
+      { x: 4, y: 3.5, z: -5, scale: 0.6 }    // Small, upper right of DNA
     ];
     
     gltfLoader.load('assets/neuron.glb',
@@ -1855,6 +2180,18 @@
           // Start hidden (deep in scene)
           neuron.visible = false;
           
+          // DOF layers: small=heavy blur (layer 2), medium=light blur (layer 1), large=minimal blur (layer 3)
+          // 0,1 = small, 2,3,4 = medium, 5,6 = large, 7,8 = near-DNA small
+          let blurLayer = 2;  // Default: heavy blur (small)
+          if (i >= 2 && i <= 4) {
+            blurLayer = 1;  // Medium neurons - light blur
+          } else if (i === 5 || i === 6) {
+            blurLayer = 3;  // Large neurons - minimal blur
+          }
+          
+          neuron.layers.set(blurLayer);
+          neuron.traverse((child) => { child.layers.set(blurLayer); });
+          
           // Store animation params
           neuron.userData = {
             baseX: pos.x,
@@ -1864,7 +2201,8 @@
             speedZ: 0.08 + (i * 0.015),
             ampZ: 1.2 + (i * 0.2),
             phase: i * 1.2,
-            rotSpeed: 0.15 + (i * 0.03)
+            rotSpeed: 0.15 + (i * 0.03),
+            blurLayer: blurLayer
           };
           
           neuron.renderOrder = 10;  // Render on top of logo/text
@@ -2024,6 +2362,9 @@
       uniforms: {
         tDiffuse: { value: null },         // Hero scene (from RenderPass)
         tLoader: { value: null },          // Loader texture (static capture)
+        tBlurHeavy: { value: null },       // Heavy blur - small/distant balls
+        tBlurLight: { value: null },       // Light blur - medium balls
+        tBlurMin: { value: null },         // Minimal blur - large/close balls
         uWavePos: { value: -0.4 },          // Wave position (starts negative, grows into view)
         uStrength: { value: 3.5 },         // Bulge intensity
         uChroma: { value: 0.1 },           // Chromatic aberration (lingers)
@@ -2040,6 +2381,9 @@
       fragmentShader: `
         uniform sampler2D tDiffuse;
         uniform sampler2D tLoader;
+        uniform sampler2D tBlurHeavy;
+        uniform sampler2D tBlurLight;
+        uniform sampler2D tBlurMin;
         uniform float uWavePos;
         uniform float uStrength;
         uniform float uChroma;
@@ -2152,6 +2496,14 @@
           
           // OUTSIDE wave (reveal=0) → loader | INSIDE wave (reveal=1) → hero
           vec3 finalColor = mix(loaderColor, heroColor, reveal);
+          
+          // Composite blurred DOF layers (additive blend)
+          vec4 blurHeavy = texture2D(tBlurHeavy, vUv);  // Small/distant balls
+          vec4 blurLight = texture2D(tBlurLight, vUv);  // Medium balls
+          vec4 blurMin = texture2D(tBlurMin, vUv);      // Large/close balls
+          finalColor += blurHeavy.rgb * blurHeavy.a;
+          finalColor += blurLight.rgb * blurLight.a;
+          finalColor += blurMin.rgb * blurMin.a;
           
           gl_FragColor = vec4(finalColor, 1.0);
         }
@@ -2518,6 +2870,80 @@
     composer.addPass(warpPass);
     composer.addPass(bloomPass);
     
+    // ═══════════════════════════════════════════════════════════════════
+    // DOF BLUR COMPOSERS - Heavy blur for small balls, light blur for medium
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Heavy blur for small/distant balls (layer 2)
+    const heavyBlurRT = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      format: THREE.RGBAFormat
+    });
+    
+    const heavyBlurComposer = new EffectComposer(renderer, heavyBlurRT);
+    const heavyBlurRenderPass = new RenderPass(scene, camera);
+    heavyBlurComposer.addPass(heavyBlurRenderPass);
+    
+    // 2 passes for moderate blur (reduced from 3)
+    const hBlurHeavy1 = new ShaderPass(HorizontalBlurShader);
+    hBlurHeavy1.uniforms.h.value = 0.5 / window.innerWidth;
+    heavyBlurComposer.addPass(hBlurHeavy1);
+    
+    const vBlurHeavy1 = new ShaderPass(VerticalBlurShader);
+    vBlurHeavy1.uniforms.v.value = 0.5 / window.innerHeight;
+    heavyBlurComposer.addPass(vBlurHeavy1);
+    
+    const hBlurHeavy2 = new ShaderPass(HorizontalBlurShader);
+    hBlurHeavy2.uniforms.h.value = 0.5 / window.innerWidth;
+    heavyBlurComposer.addPass(hBlurHeavy2);
+    
+    const vBlurHeavy2 = new ShaderPass(VerticalBlurShader);
+    vBlurHeavy2.uniforms.v.value = 0.5 / window.innerHeight;
+    vBlurHeavy2.renderToScreen = false;
+    heavyBlurComposer.addPass(vBlurHeavy2);
+    
+    // Light blur for medium balls (layer 1)
+    const lightBlurRT = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      format: THREE.RGBAFormat
+    });
+    
+    const lightBlurComposer = new EffectComposer(renderer, lightBlurRT);
+    const lightBlurRenderPass = new RenderPass(scene, camera);
+    lightBlurComposer.addPass(lightBlurRenderPass);
+    
+    // 1 pass for medium balls
+    const hBlurLight = new ShaderPass(HorizontalBlurShader);
+    hBlurLight.uniforms.h.value = 0.7 / window.innerWidth;
+    lightBlurComposer.addPass(hBlurLight);
+    
+    const vBlurLight = new ShaderPass(VerticalBlurShader);
+    vBlurLight.uniforms.v.value = 0.7 / window.innerHeight;
+    vBlurLight.renderToScreen = false;
+    lightBlurComposer.addPass(vBlurLight);
+    
+    // Minimal blur for large/close balls (layer 3)
+    const minBlurRT = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      format: THREE.RGBAFormat
+    });
+    
+    const minBlurComposer = new EffectComposer(renderer, minBlurRT);
+    const minBlurRenderPass = new RenderPass(scene, camera);
+    minBlurComposer.addPass(minBlurRenderPass);
+    
+    const hBlurMin = new ShaderPass(HorizontalBlurShader);
+    hBlurMin.uniforms.h.value = 0.25 / window.innerWidth;
+    minBlurComposer.addPass(hBlurMin);
+    
+    const vBlurMin = new ShaderPass(VerticalBlurShader);
+    vBlurMin.uniforms.v.value = 0.25 / window.innerHeight;
+    vBlurMin.renderToScreen = false;
+    minBlurComposer.addPass(vBlurMin);
+    
     // SHADER WARMUP - render one frame with composer to pre-compile shaders
     // This prevents lag spike when warp first kicks in
     console.log('[PERF] Warming up shaders...');
@@ -2556,12 +2982,20 @@
       // Now hide DOM loader - shader will show captured loader texture
       loaderEl.classList.add('hidden');
       
+      // Ensure hero content starts HIDDEN before animating in
+      gsap.set('#hero .panel-tag', { opacity: 0, visibility: 'hidden', y: 30 });
+      gsap.set('#hero h1', { opacity: 0, visibility: 'hidden', y: 50 });
+      gsap.set('#hero p', { opacity: 0, visibility: 'hidden', y: 40 });
+      gsap.set('#hero .hero-ctas', { opacity: 0, visibility: 'hidden', y: 30 });
+      gsap.set('#hero .panel-content', { opacity: 1 });
+      
       const tl = gsap.timeline({
         onComplete: () => {
           // Ensure hero content stays visible
-          gsap.set('#hero .panel-tag', { opacity: 1, y: 0 });
-          gsap.set('#hero h1', { opacity: 1, y: 0 });
-          gsap.set('#hero p', { opacity: 1, y: 0 });
+          gsap.set('#hero .panel-tag', { opacity: 1, visibility: 'visible', y: 0 });
+          gsap.set('#hero h1', { opacity: 1, visibility: 'visible', y: 0 });
+          gsap.set('#hero p', { opacity: 1, visibility: 'visible', y: 0 });
+          gsap.set('#hero .hero-ctas', { opacity: 1, visibility: 'visible', y: 0 });
           gsap.set('#hero .panel-content', { opacity: 1, y: 0 });
         }
       });
@@ -2619,9 +3053,24 @@
       tl.to('.corner-br', { opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power2.out' }, 2.0);
       
       // Hero content
-      tl.to('#hero .panel-tag', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 1.5);
-      tl.to('#hero h1', { opacity: 1, y: 0, duration: 1.0, ease: 'power2.out' }, 1.7);
-      tl.to('#hero p', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 1.9);
+      tl.to('#hero .panel-tag', { opacity: 1, visibility: 'visible', y: 0, duration: 0.8, ease: 'power2.out' }, 1.5);
+      tl.to('#hero h1', { opacity: 1, visibility: 'visible', y: 0, duration: 1.0, ease: 'power2.out' }, 1.7);
+      tl.to('#hero p', { opacity: 1, visibility: 'visible', y: 0, duration: 0.8, ease: 'power2.out' }, 1.9);
+      tl.to('#hero .hero-ctas', { opacity: 1, visibility: 'visible', y: 0, duration: 0.8, ease: 'power2.out' }, 2.1);
+      
+      // Floating balls fade in with hero content
+      tl.call(() => {
+        floatingBalls.forEach((ball, i) => {
+          ball.visible = true;
+          // Stagger the appearance slightly
+          gsap.from(ball.scale, { 
+            x: 0, y: 0, z: 0, 
+            duration: 0.8, 
+            delay: i * 0.05,
+            ease: 'back.out(1.7)' 
+          });
+        });
+      }, null, 1.8);
     }
     
     // Animate loader bar, then trigger warp
@@ -2863,8 +3312,11 @@
         const targetScroll = (index / (this.totalSections - 1)) * 
           (document.body.scrollHeight - window.innerHeight);
         
-        const duration = this.transitionDuration;
-        const ease = 'power2.inOut';
+        // Scale duration based on distance - more cinematic for long jumps
+        const sectionDistance = Math.abs(to - from);
+        const baseDuration = 1.5;  // Single section jump
+        const duration = baseDuration + (sectionDistance - 1) * 0.8;  // +0.8s per additional section
+        const ease = 'power1.inOut';  // Gentler ease for smoother flow
         
         // Animate scroll
         gsap.to(window, {
@@ -2894,26 +3346,39 @@
         gsap.killTweensOf(`${fromSection} h2`);
         gsap.killTweensOf(`${fromSection} p`);
         
-        // Fade out current section text
-        gsap.to(`${fromSection} .panel-content`, { opacity: 0, y: -30, duration: duration * 0.4, ease: 'power2.in', overwrite: true });
+        // Fade out current section text - direction based on scroll direction
+        // Scrolling DOWN (to > from): text exits UP (negative y)
+        // Scrolling UP (to < from): text exits DOWN (positive y)
+        const exitY = to > from ? -30 : 30;
+        const enterY = to > from ? 30 : -30;
+        
+        gsap.to(`${fromSection} .panel-content`, { opacity: 0, y: exitY, duration: duration * 0.4, ease: 'power2.in', overwrite: true });
         
         // Fade in next section text
-        gsap.set(`${toSection} .panel-content`, { opacity: 0, y: 30 });
+        gsap.set(`${toSection} .panel-content`, { opacity: 0, y: enterY });
         gsap.to(`${toSection} .panel-content`, { opacity: 1, y: 0, duration: duration * 0.5, delay: duration * 0.4, ease: 'power2.out', overwrite: true });
         
         // Animate individual elements for polish
-        gsap.to(`${toSection} .panel-tag`, { opacity: 1, y: 0, duration: 0.6, delay: duration * 0.4, ease: 'power2.out', overwrite: true });
+        gsap.set(`${toSection} .panel-tag`, { y: enterY });
+        gsap.to(`${toSection} .panel-tag`, { opacity: 1, visibility: 'visible', y: 0, duration: 0.6, delay: duration * 0.4, ease: 'power2.out', overwrite: true });
         if (to === 0) {
-          gsap.to(`${toSection} h1`, { opacity: 1, y: 0, duration: 0.8, delay: duration * 0.45, ease: 'power2.out', overwrite: true });
+          gsap.set(`${toSection} h1`, { y: enterY * 1.3 });
+          gsap.to(`${toSection} h1`, { opacity: 1, visibility: 'visible', y: 0, duration: 0.8, delay: duration * 0.45, ease: 'power2.out', overwrite: true });
+          gsap.set(`${toSection} .hero-ctas`, { y: enterY });
+          gsap.to(`${toSection} .hero-ctas`, { opacity: 1, visibility: 'visible', y: 0, duration: 0.6, delay: duration * 0.5, ease: 'power2.out', overwrite: true });
         } else {
-          gsap.to(`${toSection} h2`, { opacity: 1, y: 0, duration: 0.8, delay: duration * 0.45, ease: 'power2.out', overwrite: true });
+          gsap.set(`${toSection} h2`, { y: enterY * 1.3 });
+          gsap.to(`${toSection} h2`, { opacity: 1, visibility: 'visible', y: 0, duration: 0.8, delay: duration * 0.45, ease: 'power2.out', overwrite: true });
         }
-        gsap.to(`${toSection} p`, { opacity: 1, y: 0, duration: 0.6, delay: duration * 0.5, ease: 'power2.out', overwrite: true });
+        gsap.set(`${toSection} p`, { y: enterY });
+        gsap.to(`${toSection} p`, { opacity: 1, visibility: 'visible', y: 0, duration: 0.6, delay: duration * 0.5, ease: 'power2.out', overwrite: true });
         
         if (to === 2) {
+          gsap.set('.work-item', { y: enterY });
           gsap.to('.work-item', { opacity: 1, y: 0, duration: 0.8, delay: duration * 0.45, ease: 'power2.out', overwrite: true });
         }
         if (to === 4) {
+          gsap.set(`${toSection} .cta-btn`, { y: enterY });
           gsap.to(`${toSection} .cta-btn`, { opacity: 1, y: 0, duration: 0.6, delay: duration * 0.55, ease: 'power2.out', overwrite: true });
         }
         
@@ -2935,23 +3400,82 @@
           { x: 4.5, y: -0.8, z: 0 }
         ];
         
-        // Hero (0) <-> About (1)
+        // Hero (0) <-> Any other section
         if (MODELS.logo) {
-          if (from === 0 && to === 1) {
-            // Logo flies up to navbar position (right of ITEREX text)
+          // Logo animation should be quick regardless of scroll distance
+          const logoDuration = 1.2;  // Fixed duration for logo - always 1.2s
+          const logoEase = 'power2.inOut';
+          
+          if (from === 0 && to > 0) {
+            // Logo flies up to navbar position from Hero to ANY section
             MODEL_BASE_Y.logo = 1.30;
-            // Immediately stop spin and face forward
+            // Kill any existing tweens and smoothly rotate to forward-facing
             gsap.killTweensOf(MODELS.logo.rotation);
-            MODELS.logo.rotation.set(0, 0, 0);
-            gsap.to(MODELS.logo.position, { x: -2.5, y: 1.30, z: 3, duration, ease });
-            gsap.to(MODELS.logo.scale, { x: 0.1, y: 0.1, z: 0.1, duration, ease });
-          } else if (from === 1 && to === 0) {
-            // Logo returns to hero center (slight delay)
-            gsap.delayedCall(0.5, () => { MODEL_BASE_Y.logo = 0; });
-            gsap.to(MODELS.logo.position, { x: 0, y: 0, z: -5, duration, ease, delay: 0.5 });
-            gsap.to(MODELS.logo.rotation, { x: 0, y: 0, z: 0, duration, ease, delay: 0.5 });
-            gsap.to(MODELS.logo.scale, { x: 3, y: 3, z: 3, duration, ease, delay: 0.5 });
+            gsap.to(MODELS.logo.rotation, { x: 0, y: 0, z: 0, duration: logoDuration * 0.4, ease: logoEase });
+            gsap.to(MODELS.logo.position, { x: -2.5, y: 1.30, z: 6, duration: logoDuration, ease: logoEase });
+            gsap.to(MODELS.logo.scale, { x: 0.1, y: 0.1, z: 0.1, duration: logoDuration, ease: logoEase });
+            // Reset ALL interaction state including pull effect
+            logoInteraction.isHovering = false;
+            logoInteraction.velocityX = 0;
+            logoInteraction.velocityY = 0;
+            logoPullTarget.x = 0;
+            logoPullTarget.y = 0;
+            logoPullCurrent.x = 0;
+            logoPullCurrent.y = 0;
+          } else if (from > 0 && to === 0) {
+            // Logo returns to hero center - slower, more cinematic
+            const returnDuration = 2.2;  // Slower return for cinematic feel
+            const returnEase = 'power2.inOut';
+            // Delay = total scroll duration minus logo animation duration
+            const returnDelay = Math.max(0.2, duration - returnDuration);
+            gsap.delayedCall(returnDelay, () => { MODEL_BASE_Y.logo = 0; });
+            gsap.to(MODELS.logo.position, { x: 0, y: 0, z: -5, duration: returnDuration, ease: returnEase, delay: returnDelay });
+            gsap.to(MODELS.logo.rotation, { x: 0, y: 0, z: 0, duration: returnDuration * 0.6, ease: returnEase, delay: returnDelay });
+            gsap.to(MODELS.logo.scale, { x: 3, y: 3, z: 3, duration: returnDuration, ease: returnEase, delay: returnDelay });
           }
+        }
+        
+        // Background zoom - dolly camera for real zoom effect
+        // Kill existing tweens to prevent conflicts
+        gsap.killTweensOf(camera.position);
+        gsap.killTweensOf(perspGridMaterial.uniforms.uCurve);
+        gsap.killTweensOf(bgPlane.scale);
+        
+        if (from === 0 && to > 0 && to !== 4) {
+          // Leaving hero to non-Contact section - dolly camera back (zoom out)
+          gsap.to(camera.position, { z: 9, duration: duration * 1.2, ease: 'power1.inOut' });
+        } else if (from === 0 && to === 4) {
+          // Hero directly to Contact - zoom in and flatten
+          gsap.to(camera.position, { z: 0.5, duration: duration * 1.2, ease: 'power1.inOut' });
+          gsap.to(perspGridMaterial.uniforms.uCurve, { value: 0, duration: duration * 1.2, ease: 'power1.inOut' });
+          // Scale down bgPlane to keep color wave same visual size
+          gsap.to(bgPlane.scale, { x: 0.1, y: 0.1, duration: duration * 1.2, ease: 'power1.inOut' });
+        } else if (from > 0 && to === 0) {
+          // Returning to hero - dolly camera forward (zoom in), restore curve
+          gsap.to(camera.position, { z: 3.5, duration: duration * 1.2, ease: 'power1.inOut' });
+          gsap.to(perspGridMaterial.uniforms.uCurve, { value: 7, duration: duration * 0.8, ease: 'power1.inOut' });
+          // Restore bgPlane scale if coming from Contact
+          if (from === 4) {
+            gsap.to(bgPlane.scale, { x: 1, y: 1, duration: duration * 1.2, ease: 'power1.inOut' });
+          }
+        }
+        
+        // Contact section transitions (from other sections, not hero)
+        if (to === 4 && from !== 0) {
+          // Entering Contact from middle sections - zoom in and flatten
+          gsap.to(camera.position, { z: 0.5, duration: duration, ease: 'power2.inOut' });
+          gsap.to(perspGridMaterial.uniforms.uCurve, { value: 0, duration: duration, ease: 'power2.inOut' });
+          // Scale down bgPlane
+          gsap.to(bgPlane.scale, { x: 0.1, y: 0.1, duration: duration, ease: 'power2.inOut' });
+        } else if (from === 4 && to !== 0) {
+          // Leaving Contact (but not to Hero) - zoom back out and restore curve
+          gsap.to(camera.position, { z: 9, duration: duration, ease: 'power2.inOut' });
+          gsap.to(perspGridMaterial.uniforms.uCurve, { value: 7, duration: duration, ease: 'power2.inOut' });
+          // Restore bgPlane scale
+          gsap.to(bgPlane.scale, { x: 1, y: 1, duration: duration, ease: 'power2.inOut' });
+        } else if (from === 4 && to === 0) {
+          // Contact to Hero - restore curve during travel
+          gsap.to(perspGridMaterial.uniforms.uCurve, { value: 7, duration: duration * 0.6, ease: 'power2.out' });
         }
         
         // About (1) -> Extensions (2): Logo stays in navbar
@@ -3051,7 +3575,7 @@
       
       // FIX #6: Now actually used
       function resetCamera() {
-        camera.position.set(0, 0, 6);
+        camera.position.set(0, 0, 3.5);  // Hero zoom position
         camera.lookAt(0, 0, 0);
       }
       
@@ -3060,11 +3584,17 @@
         gsap.set(`${id} .panel-tag`, { opacity: 0, y: 30 });
         if (id === '#hero') {
           gsap.set(`${id} h1`, { opacity: 0, y: 50 });
+          gsap.set(`${id} .hero-ctas`, { opacity: 0, y: 30 });
         } else {
           gsap.set(`${id} h2`, { opacity: 0, y: 50 });
         }
         gsap.set(`${id} p`, { opacity: 0, y: 40 });
-        gsap.set(`${id} .panel-content`, { opacity: 1 });
+        // About section glass card needs special handling
+        if (id === '#about') {
+          gsap.set(`${id} .panel-content`, { opacity: 0, visibility: 'hidden', y: 30 });
+        } else {
+          gsap.set(`${id} .panel-content`, { opacity: 1 });
+        }
         if (id === '#contact') gsap.set(`${id} .cta-btn`, { opacity: 0, y: 30 });
       }
       
@@ -3187,12 +3717,17 @@
         onEnter: () => {
           setActiveSection(1);
           
+          // Hide floating balls - only visible in Hero
+          floatingBalls.forEach(ball => { ball.visible = false; });
+          
           // Logo animation handled by warp transition
           
+          // Show glass card and animate content (standard fade up like other sections)
+          gsap.to('#about .panel-content', { opacity: 1, visibility: 'visible', y: 0, duration: 0.6 });
           gsap.to('#about .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
           gsap.to('#about h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
           gsap.to('#about p:first-of-type', { opacity: 1, y: 0, duration: 0.6, delay: 0.2 });
-          gsap.to('#about .about-secondary', { opacity: 1, y: 0, duration: 0.6, delay: 0.55 });
+          gsap.to('#about .about-secondary', { opacity: 1, y: 0, duration: 0.6, delay: 0.35 });
           
           // Founder card - match text timing
           gsap.to('.founder-card', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
@@ -3279,11 +3814,24 @@
         onLeaveBack: () => {
           // Logo animation handled by warp transition
           
-          // Founder card fades out (match text)
-          gsap.to('.founder-card', { opacity: 0, y: 40, duration: 0.4 });
+          // Show floating balls again - returning to Hero
+          floatingBalls.forEach(ball => { ball.visible = true; });
           
-          // Reset text content
-          resetPanelContent('#about');
+          // Text fades out going DOWN when scrolling back up
+          gsap.killTweensOf('#about .panel-content');
+          gsap.killTweensOf('#about .panel-tag');
+          gsap.killTweensOf('#about h2');
+          gsap.killTweensOf('#about p:first-of-type');
+          gsap.killTweensOf('#about .about-secondary');
+          gsap.killTweensOf('.founder-card');
+          
+          gsap.to('#about .panel-content', { opacity: 0, y: 30, visibility: 'hidden', duration: 0.3, overwrite: true });
+          gsap.to('#about .panel-tag', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
+          gsap.to('#about h2', { opacity: 0, y: 40, duration: 0.3, overwrite: true });
+          gsap.to('#about p:first-of-type', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
+          gsap.to('#about .about-secondary', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
+          gsap.to('.founder-card', { opacity: 0, y: 40, duration: 0.4, overwrite: true });
+          
           lastAboutOpacity = 1;
           
           // Neurons fly toward camera when going back to hero
@@ -3345,6 +3893,14 @@
           
           // Logo position handled by warp transition
           
+          // Show glass card and animate content from ABOVE (scrolling back up)
+          gsap.set('#about .panel-tag', { y: -30 });
+          gsap.set('#about h2', { y: -40 });
+          gsap.set('#about p:first-of-type', { y: -30 });
+          gsap.set('#about .about-secondary', { y: -30 });
+          gsap.set('.founder-card', { y: -30 });
+          
+          gsap.to('#about .panel-content', { opacity: 1, visibility: 'visible', duration: 0.4 });
           gsap.to('#about .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
           gsap.to('#about h2', { opacity: 1, y: 0, duration: 0.4 });
           gsap.to('#about p:first-of-type', { opacity: 1, y: 0, duration: 0.4 });
@@ -3440,6 +3996,10 @@
           setActiveSection(2);
           // Logo stays in navbar
           resetExtModels();
+          // Hide neurons from About section
+          neurons.forEach(neuron => { neuron.visible = false; });
+          // Hide floating balls
+          floatingBalls.forEach(ball => { ball.visible = false; });
           gsap.set('.work-item', { opacity: 0, y: 40 });
           gsap.to('#extensions .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
           gsap.to('#extensions h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
@@ -3521,11 +4081,19 @@
           extModels.forEach(name => { if (MODELS[name]) MODELS[name].visible = false; });
         },
         onLeaveBack: () => {
-          // Work items fade out (slide up)
-          gsap.to('.work-item', { opacity: 0, y: -40, duration: 0.4 });
+          // Text fades out going DOWN when scrolling back up
+          gsap.killTweensOf('.work-item');
+          gsap.killTweensOf('#extensions .panel-tag');
+          gsap.killTweensOf('#extensions h2');
+          gsap.killTweensOf('#extensions p');
           
-          resetPanelContent('#extensions');
+          gsap.to('.work-item', { opacity: 0, y: 40, duration: 0.4, overwrite: true });
+          gsap.to('#extensions .panel-tag', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
+          gsap.to('#extensions h2', { opacity: 0, y: 40, duration: 0.3, overwrite: true });
+          gsap.to('#extensions p', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
+          
           resetExtModels();
+          // Keep floating balls hidden - only visible in Hero
           // Logo stays in navbar
           lastExtOpacity = 1;
         },
@@ -3542,10 +4110,15 @@
               m.rotation.y = 0;
             }
           });
+          // Animate from ABOVE (scrolling back up)
+          gsap.set('#extensions .panel-tag', { y: -30 });
+          gsap.set('#extensions h2', { y: -40 });
+          gsap.set('#extensions p', { y: -30 });
+          gsap.set('.work-item', { opacity: 0, y: -40 });
+          
           gsap.to('#extensions .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
           gsap.to('#extensions h2', { opacity: 1, y: 0, duration: 0.4 });
           gsap.to('#extensions p', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.set('.work-item', { opacity: 0, y: 40 });
           gsap.to('.work-item', { opacity: 1, y: 0, duration: 0.4 });
         }
       });
@@ -3572,6 +4145,8 @@
           setActiveSection(3);
           resetExtModels();
           resetTemplateModels();
+          // Keep floating balls hidden
+          floatingBalls.forEach(ball => { ball.visible = false; });
           gsap.to('#templates .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
           gsap.to('#templates h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
           gsap.to('#templates p', { opacity: 1, y: 0, duration: 0.6, delay: 0.2 });
@@ -3602,9 +4177,18 @@
         },
         onLeave: () => {
           templateModels.forEach(name => { if (MODELS[name]) MODELS[name].visible = false; });
+          // Don't zoom here - let Contact section handle it smoothly
         },
         onLeaveBack: () => {
-          resetPanelContent('#templates');
+          // Text fades out going DOWN when scrolling back up
+          gsap.killTweensOf('#templates .panel-tag');
+          gsap.killTweensOf('#templates h2');
+          gsap.killTweensOf('#templates p');
+          
+          gsap.to('#templates .panel-tag', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
+          gsap.to('#templates h2', { opacity: 0, y: 40, duration: 0.3, overwrite: true });
+          gsap.to('#templates p', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
+          
           resetTemplateModels();
           lastTemplateOpacity = 1;
         },
@@ -3622,6 +4206,11 @@
               m.rotation.set(t.rx, t.ry, 0);
             }
           });
+          // Animate from ABOVE (scrolling back up)
+          gsap.set('#templates .panel-tag', { y: -30 });
+          gsap.set('#templates h2', { y: -40 });
+          gsap.set('#templates p', { y: -30 });
+          
           gsap.to('#templates .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
           gsap.to('#templates h2', { opacity: 1, y: 0, duration: 0.4 });
           gsap.to('#templates p', { opacity: 1, y: 0, duration: 0.4 });
@@ -3642,25 +4231,68 @@
           setActiveSection(4);
           resetTemplateModels();
           // Logo stays in navbar
+          // Keep floating balls hidden
+          floatingBalls.forEach(ball => { ball.visible = false; });
           gsap.to('#contact .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
           gsap.to('#contact h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
           gsap.to('#contact p', { opacity: 1, y: 0, duration: 0.6, delay: 0.2 });
           gsap.to('#contact .cta-btn', { opacity: 1, y: 0, duration: 0.6, delay: 0.5 });
+          // ONE smooth zoom - kill any existing camera tweens first
+          gsap.killTweensOf(camera.position);
+          gsap.killTweensOf(perspGridMaterial.uniforms.uCurve);
+          gsap.killTweensOf(bgPlane.scale);
+          gsap.to(camera.position, { z: 0.5, duration: 2.5, ease: 'power2.inOut' });
+          gsap.to(perspGridMaterial.uniforms.uCurve, { value: 0, duration: 2.5, ease: 'power2.inOut' });
+          // Scale down bgPlane to keep color wave same visual size
+          gsap.to(bgPlane.scale, { x: 0.1, y: 0.1, duration: 2.5, ease: 'power2.inOut' });
         },
         onUpdate: self => {
           // Logo stays static in navbar, no rotation
         },
         onLeaveBack: () => {
-          resetPanelContent('#contact');
+          // Text fades out going DOWN when scrolling back up
+          // Kill existing tweens to prevent conflicts
+          gsap.killTweensOf('#contact .panel-tag');
+          gsap.killTweensOf('#contact h2');
+          gsap.killTweensOf('#contact p');
+          gsap.killTweensOf('#contact .cta-btn');
+          
+          gsap.to('#contact .panel-tag', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
+          gsap.to('#contact h2', { opacity: 0, y: 40, duration: 0.3, overwrite: true });
+          gsap.to('#contact p', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
+          gsap.to('#contact .cta-btn', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
+          
           // Logo stays in navbar
+          // ZOOM OUT and RESTORE curve when leaving Contact - kill existing tweens first
+          gsap.killTweensOf(camera.position);
+          gsap.killTweensOf(perspGridMaterial.uniforms.uCurve);
+          gsap.killTweensOf(bgPlane.scale);
+          gsap.to(camera.position, { z: 9, duration: 1.5, ease: 'power2.inOut' });
+          gsap.to(perspGridMaterial.uniforms.uCurve, { value: 7, duration: 1.5, ease: 'power2.inOut' });
+          // Restore bgPlane scale
+          gsap.to(bgPlane.scale, { x: 1, y: 1, duration: 1.5, ease: 'power2.inOut' });
         },
         onEnterBack: () => {
           setActiveSection(4);
           // Logo stays in navbar
+          // Animate from ABOVE (scrolling back up)
+          gsap.set('#contact .panel-tag', { y: -30 });
+          gsap.set('#contact h2', { y: -40 });
+          gsap.set('#contact p', { y: -30 });
+          gsap.set('#contact .cta-btn', { y: -30 });
+          
           gsap.to('#contact .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
           gsap.to('#contact h2', { opacity: 1, y: 0, duration: 0.4 });
           gsap.to('#contact p', { opacity: 1, y: 0, duration: 0.4 });
           gsap.to('#contact .cta-btn', { opacity: 1, y: 0, duration: 0.4 });
+          // ZOOM IN and FLATTEN grid - kill existing tweens first
+          gsap.killTweensOf(camera.position);
+          gsap.killTweensOf(perspGridMaterial.uniforms.uCurve);
+          gsap.killTweensOf(bgPlane.scale);
+          gsap.to(camera.position, { z: 0.5, duration: 2, ease: 'power2.inOut' });
+          gsap.to(perspGridMaterial.uniforms.uCurve, { value: 0, duration: 2, ease: 'power2.inOut' });
+          // Scale down bgPlane to keep color wave same visual size
+          gsap.to(bgPlane.scale, { x: 0.1, y: 0.1, duration: 2, ease: 'power2.inOut' });
         }
       });
       
@@ -3674,19 +4306,67 @@
       }
       
       // ─────────────────────────────────────────────────────────────────
-      // NAV CLICK HANDLERS - Use GSAP scrollTo for pinned sections
+      // NAV CLICK HANDLERS - Use SectionScroller for proper model transitions
       // ─────────────────────────────────────────────────────────────────
+      
+      const sectionMap = {
+        '#hero': 0,
+        '#about': 1,
+        '#extensions': 2,
+        '#templates': 3,
+        '#contact': 4
+      };
       
       document.querySelectorAll('.nav-links a').forEach(link => {
         link.addEventListener('click', (e) => {
           e.preventDefault();
           const target = link.getAttribute('href');
-          gsap.to(window, {
-            duration: 1,
-            scrollTo: { y: target, autoKill: false },
-            ease: 'power2.inOut'
-          });
+          const sectionIndex = sectionMap[target];
+          if (sectionIndex !== undefined && scroller) {
+            scroller.goToSection(sectionIndex);
+          }
         });
+      });
+      
+      // NAVBAR LOGO - Back to top (disabled from Contact section due to camera conflict)
+      document.querySelector('nav .logo').addEventListener('click', () => {
+        if (scroller && scroller.currentSection !== 4) {
+          scroller.goToSection(0);
+        }
+      });
+      
+      // CTA CLICK HANDLERS - Use event delegation for reliability
+      // ─────────────────────────────────────────────────────────────────
+      
+      document.addEventListener('click', (e) => {
+        // Check if clicked element is a hero CTA
+        const heroCta = e.target.closest('.hero-ctas .cta-btn');
+        if (heroCta && scroller) {
+          e.preventDefault();
+          e.stopPropagation();
+          const target = heroCta.getAttribute('href');
+          const sectionIndex = sectionMap[target];
+          console.log('Hero CTA clicked:', target, '-> section', sectionIndex);
+          if (sectionIndex !== undefined) {
+            scroller.goToSection(sectionIndex);
+          }
+          return;
+        }
+        
+        // Check if clicked element is contact CTA
+        const contactCta = e.target.closest('#contact .cta-btn');
+        if (contactCta) {
+          const href = contactCta.getAttribute('href');
+          // Let email links work normally
+          if (href.includes('email-protection') || href.includes('mailto')) {
+            return;
+          }
+          e.preventDefault();
+          const sectionIndex = sectionMap[href];
+          if (sectionIndex !== undefined && scroller) {
+            scroller.goToSection(sectionIndex);
+          }
+        }
       });
     }
     
@@ -3762,7 +4442,7 @@
       }
     }
     
-    document.querySelectorAll('a, button, .cta-btn, .nav-links span, .work-item, .progress-dot').forEach(el => {
+    document.querySelectorAll('a, button, .cta-btn, .nav-links span, .work-item, .progress-dot, nav .logo').forEach(el => {
       el.addEventListener('mouseenter', startGlitch);
       el.addEventListener('mouseleave', stopGlitch);
     });
@@ -3848,30 +4528,20 @@
         if (heroLogo.userData.glow) heroLogo.userData.glow.visible = true;
       }
       
-      // Hero logo rotation - hover spin or auto-rotate
-      // Skip during loading - not visible
-      // Only spin in Hero section
-      if (!isLoadingMode && heroLogo && STATE.section === 0) {
-        if (logoInteraction.isHovering) {
-          // Hovering - apply mouse velocity directly
-          heroLogo.rotation.y += logoInteraction.velocityY;
-          heroLogo.rotation.x += logoInteraction.velocityX;
-          logoInteraction.currentAutoSpeed = 0;
-        } else {
-          // Not hovering - decay momentum, ramp up auto-rotate
-          logoInteraction.velocityY *= 0.96;
-          logoInteraction.velocityX *= 0.96;
-          
-          // Smoothly return to auto-rotate speed
-          logoInteraction.currentAutoSpeed += (logoInteraction.autoRotateSpeed - logoInteraction.currentAutoSpeed) * 0.02;
-          
-          // Apply remaining momentum + auto-rotate
-          heroLogo.rotation.y += logoInteraction.velocityY + logoInteraction.currentAutoSpeed;
-          heroLogo.rotation.x += logoInteraction.velocityX;
-          
-          // Smoothly return X rotation to 0
-          heroLogo.rotation.x *= 0.97;
-        }
+      // Hero logo - smooth pull effect (follows mouse like brain loader)
+      // Skip during loading, transitions, and scrolling
+      if (!isLoadingMode && heroLogo && STATE.section === 0 && !STATE.isAnimating && !STATE.isScrolling) {
+        // Pull effect - logo tilts toward mouse position
+        logoPullTarget.x = -logoMouse.y * logoPullStrength;
+        logoPullTarget.y = logoMouse.x * logoPullStrength;
+        
+        // Smoothly lerp current toward target with friction
+        logoPullCurrent.x += (logoPullTarget.x - logoPullCurrent.x) * logoPullFriction;
+        logoPullCurrent.y += (logoPullTarget.y - logoPullCurrent.y) * logoPullFriction;
+        
+        // Apply smooth pull rotation
+        heroLogo.rotation.x = logoPullCurrent.x;
+        heroLogo.rotation.y = logoPullCurrent.y;
       }
       
       // Animate the glow shader (color wave) - runs in all sections
@@ -3987,6 +4657,29 @@
           loggedComposerStart = true;
           console.log('[PERF] Composer render started - FPS:', currentFPS);
         }
+        
+        // ═══════════════════════════════════════════════════════════════
+        // DOF RENDERING - Blur distant balls, keep close balls sharp
+        // ═══════════════════════════════════════════════════════════════
+        
+        // Render small/distant balls with heavy blur (layer 2)
+        camera.layers.set(2);
+        heavyBlurComposer.render();
+        warpPass.uniforms.tBlurHeavy.value = heavyBlurRT.texture;
+        
+        // Render medium balls with light blur (layer 1)
+        camera.layers.set(1);
+        lightBlurComposer.render();
+        warpPass.uniforms.tBlurLight.value = lightBlurRT.texture;
+        
+        // Render large balls with minimal blur (layer 3)
+        camera.layers.set(3);
+        minBlurComposer.render();
+        warpPass.uniforms.tBlurMin.value = minBlurRT.texture;
+        
+        // Main render: layer 0 only (everything else)
+        camera.layers.set(0);
+        
         // During/after warp: use composer with warp effect
         composer.render();
       }
@@ -4025,6 +4718,24 @@
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
       composer.setSize(window.innerWidth, window.innerHeight);
+      
+      // Update DOF blur composers and render targets
+      heavyBlurRT.setSize(window.innerWidth, window.innerHeight);
+      heavyBlurComposer.setSize(window.innerWidth, window.innerHeight);
+      hBlurHeavy1.uniforms.h.value = 0.5 / window.innerWidth;
+      vBlurHeavy1.uniforms.v.value = 0.5 / window.innerHeight;
+      hBlurHeavy2.uniforms.h.value = 0.5 / window.innerWidth;
+      vBlurHeavy2.uniforms.v.value = 0.5 / window.innerHeight;
+      
+      lightBlurRT.setSize(window.innerWidth, window.innerHeight);
+      lightBlurComposer.setSize(window.innerWidth, window.innerHeight);
+      hBlurLight.uniforms.h.value = 0.7 / window.innerWidth;
+      vBlurLight.uniforms.v.value = 0.7 / window.innerHeight;
+      
+      minBlurRT.setSize(window.innerWidth, window.innerHeight);
+      minBlurComposer.setSize(window.innerWidth, window.innerHeight);
+      hBlurMin.uniforms.h.value = 0.25 / window.innerWidth;
+      vBlurMin.uniforms.v.value = 0.25 / window.innerHeight;
       
       // Update refraction render target
       refractionRT.setSize(window.innerWidth, window.innerHeight);
