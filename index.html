@@ -1802,40 +1802,6 @@
     );
 
     // ═══════════════════════════════════════════════════════════════════
-    // MOBILE DETECTION & PERFORMANCE SETTINGS
-    // ═══════════════════════════════════════════════════════════════════
-    
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
-                     (navigator.maxTouchPoints > 0 && window.innerWidth < 1024);
-    
-    // Performance settings based on device
-    const PERF = {
-      // Pixel ratio - cap on mobile to save GPU
-      pixelRatio: isMobile ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio,
-      
-      // Particle counts
-      heatParticles: isMobile ? 20 : 40,
-      
-      // Blur passes - expensive on mobile
-      enableHeavyBlur: !isMobile,
-      enableLightBlur: !isMobile,
-      enableMinBlur: !isMobile,
-      
-      // Bloom intensity
-      bloomStrength: isMobile ? 0.1 : 0.15,
-      
-      // Antialias - expensive on mobile
-      antialias: !isMobile,
-      
-      // Power preference for WebGL context
-      powerPreference: isMobile ? 'default' : 'high-performance'
-    };
-    
-    if (isMobile) {
-      console.log('%c📱 Mobile Mode', 'color: #ff6432; font-weight: bold;', '- Performance optimizations enabled');
-    }
-
-    // ═══════════════════════════════════════════════════════════════════
     // BLUR SHADERS FOR LARGE ACCENT ORBS
     // ═══════════════════════════════════════════════════════════════════
     
@@ -2016,12 +1982,12 @@
     
     
     const renderer = new THREE.WebGLRenderer({ 
-      antialias: PERF.antialias, 
+      antialias: true, 
       alpha: false,
-      powerPreference: PERF.powerPreference
+      powerPreference: 'high-performance'
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(PERF.pixelRatio);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x030303);
     renderer.toneMapping = THREE.NoToneMapping;
     renderer.toneMappingExposure = 1;
@@ -3088,16 +3054,12 @@
           ball.visible = false;
           
           // DOF layers: small=heavy blur (layer 2), medium=light blur (layer 1), large=minimal blur (layer 3)
-          // On mobile: use layer 0 (no blur passes, render with main scene)
           // 0-6 = small (7), 7-12 = medium (6), 13-16 = large (4)
-          let blurLayer = 0;  // Mobile: layer 0 (no blur)
-          if (!isMobile) {
-            blurLayer = 3;  // Default: minimal blur (large orbs)
-            if (i < 7) {
-              blurLayer = 2;  // Small balls - heavy blur
-            } else if (i < 13) {
-              blurLayer = 1;  // Medium balls - light blur
-            }
+          let blurLayer = 3;  // Default: minimal blur (large orbs)
+          if (i < 7) {
+            blurLayer = 2;  // Small balls - heavy blur
+          } else if (i < 13) {
+            blurLayer = 1;  // Medium balls - light blur
           }
           
           ball.layers.set(blurLayer);
@@ -3166,16 +3128,12 @@
           neuron.visible = false;
           
           // DOF layers: small=heavy blur (layer 2), medium=light blur (layer 1), large=minimal blur (layer 3)
-          // On mobile: use layer 0 (no blur passes, render with main scene)
           // 0,1 = small, 2,3,4 = medium, 5,6 = large, 7,8 = near-DNA small
-          let blurLayer = 0;  // Mobile: layer 0 (no blur)
-          if (!isMobile) {
-            blurLayer = 2;  // Default: heavy blur (small)
-            if (i >= 2 && i <= 4) {
-              blurLayer = 1;  // Medium neurons - light blur
-            } else if (i === 5 || i === 6) {
-              blurLayer = 3;  // Large neurons - minimal blur
-            }
+          let blurLayer = 2;  // Default: heavy blur (small)
+          if (i >= 2 && i <= 4) {
+            blurLayer = 1;  // Medium neurons - light blur
+          } else if (i === 5 || i === 6) {
+            blurLayer = 3;  // Large neurons - minimal blur
           }
           
           // Apply DOF blur layers (same system as floating balls)
@@ -3316,7 +3274,7 @@
     // WORK SECTION HEAT PARTICLES - Rising from project cards
     // ═══════════════════════════════════════════════════════════════════
     
-    const HEAT_PARTICLE_COUNT = PERF.heatParticles;
+    const HEAT_PARTICLE_COUNT = 40;  // Lightweight count
     const heatParticleGeometry = new THREE.BufferGeometry();
     const heatPositions = new Float32Array(HEAT_PARTICLE_COUNT * 3);
     const heatVelocities = new Float32Array(HEAT_PARTICLE_COUNT);
@@ -3596,7 +3554,7 @@
     // POST-PROCESSING
     // ═══════════════════════════════════════════════════════════════════
     
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), PERF.bloomStrength, 0.4, 0.9);
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.15, 0.4, 0.9);
     
     // ─────────────────────────────────────────────────────────────────────
     // WATER DROP WAVE — Two-texture approach
@@ -6218,15 +6176,13 @@
         
         // ═══════════════════════════════════════════════════════════════
         // DOF RENDERING - When floating balls, neurons, or process timeline are visible
-        // Skip on mobile for performance - objects render without blur
         // ═══════════════════════════════════════════════════════════════
         
         // Check if any DOF objects are visible
         const ballsVisible = floatingBalls.some(ball => ball.visible);
         const neuronsVisible = floatingNeurons.some(neuron => neuron.visible);
         
-        // Only run expensive blur passes on desktop
-        if ((ballsVisible || neuronsVisible) && !isMobile) {
+        if (ballsVisible || neuronsVisible) {
           // Render small/distant objects with heavy blur (layer 2)
           camera.layers.set(2);
           heavyBlurComposer.render();
