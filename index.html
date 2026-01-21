@@ -17,6 +17,19 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
   
   <style>
+    /* ═══════════════════════════════════════════════════════════════════
+       CRITICAL: First-paint protection - parsed before ANYTHING renders
+       Hero DOM content hidden until warp reveals it (no animation, instant show)
+       ═══════════════════════════════════════════════════════════════════ */
+    .js-loading #hero .panel-content,
+    .js-loading #hero .panel-tag,
+    .js-loading #hero h1,
+    .js-loading #hero p,
+    .js-loading #hero .hero-ctas {
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+    
     * {
       margin: 0;
       padding: 0;
@@ -186,6 +199,7 @@
       color: var(--gray-500);
       margin-bottom: 20px;
       opacity: 0;
+      visibility: hidden;
       transform: translateY(30px);
     }
     
@@ -196,6 +210,7 @@
       letter-spacing: -1px;
       margin-bottom: 24px;
       opacity: 0;
+      visibility: hidden;
       transform: translateY(50px);
     }
     
@@ -216,6 +231,7 @@
       line-height: 1.9;
       max-width: 400px;
       opacity: 0;
+      visibility: hidden;
       transform: translateY(40px);
     }
     
@@ -228,6 +244,7 @@
       gap: 16px;
       margin-top: 32px;
       opacity: 0;
+      visibility: hidden;
       transform: translateY(30px);
       position: relative;
       z-index: 10;
@@ -267,15 +284,15 @@
       -webkit-backdrop-filter: blur(12px);
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 2px;
+      border-radius: 12px;
     }
     
     .hero-ctas .cta-primary::before {
       background: linear-gradient(
         135deg,
-        rgba(100, 200, 255, 0.15) 0%,
-        rgba(200, 100, 255, 0.15) 50%,
-        rgba(100, 255, 200, 0.15) 100%
+        rgba(255, 100, 50, 0.15) 0%,
+        rgba(255, 150, 50, 0.15) 50%,
+        rgba(255, 80, 80, 0.15) 100%
       );
     }
     
@@ -285,13 +302,13 @@
       inset: -1px;
       background: linear-gradient(
         135deg,
-        rgba(100, 200, 255, 0.5),
-        rgba(200, 100, 255, 0.5),
-        rgba(100, 255, 200, 0.5),
-        rgba(100, 200, 255, 0.5)
+        rgba(255, 100, 50, 0.5),
+        rgba(255, 150, 50, 0.5),
+        rgba(255, 80, 80, 0.5),
+        rgba(255, 100, 50, 0.5)
       );
       background-size: 300% 300%;
-      border-radius: 3px;
+      border-radius: 12px;
       z-index: -1;
       opacity: 0;
       transition: opacity 0.3s ease;
@@ -306,8 +323,8 @@
     .hero-ctas .cta-primary:hover {
       transform: translateY(-2px);
       box-shadow: 
-        0 10px 40px rgba(100, 200, 255, 0.2),
-        0 0 20px rgba(200, 100, 255, 0.1);
+        0 10px 40px rgba(255, 100, 50, 0.2),
+        0 0 20px rgba(255, 150, 50, 0.1);
     }
     
     .hero-ctas .cta-primary:hover::before {
@@ -323,7 +340,7 @@
       background: transparent;
       color: var(--gray-300);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 2px;
+      border-radius: 12px;
     }
     
     .hero-ctas .cta-ghost::before {
@@ -428,13 +445,194 @@
       text-align: right;
     }
     
+    /* Process section - full height flex layout */
+    #templates {
+      justify-content: center !important;
+      align-items: center !important;
+      flex-direction: column !important;
+      display: flex !important;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Process glassmorphic cards - base styling */
+    .process-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 36px 40px;
+      text-align: left;
+      max-width: 340px;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    /* Left card positioning - same as before */
+    .process-card-left {
+      left: calc(5% + 150px);
+    }
+    
+    /* Right card positioning - mirrored from left */
+    .process-card-right {
+      right: calc(5% + 150px);
+    }
+    
+    .process-card .panel-tag {
+      margin-bottom: 16px;
+    }
+    
+    .process-card h2 {
+      font-size: clamp(28px, 3.5vw, 42px);
+      margin-bottom: 20px;
+    }
+    
+    .process-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(22px, 2.5vw, 32px);
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    
+    .process-card p {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--gray-300);
+    }
+    
+    /* Process phone area - centered on page with glassmorphism */
+    .process-phone-area {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      opacity: 0;
+      visibility: hidden;
+      /* Glassmorphic styling */
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 12px;
+    }
+    
+    /* Process section GIF */
+    .process-gif {
+      display: block;
+      max-width: 612px;
+      border-radius: 12px;
+      opacity: 0.9;
+    }
+    
+    /* Process Timeline Steps - horizontal row at bottom */
+    .process-steps {
+      position: absolute;
+      bottom: 12vh;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10%;
+      z-index: 3;
+      pointer-events: none;
+    }
+    
+    .process-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px);
+      width: 140px;
+      position: relative;
+    }
+    
+    .step-number {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: rgba(18, 209, 230, 0.9);
+      margin-bottom: 8px;
+    }
+    
+    .step-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    
+    .step-desc {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.4;
+    }
+    
+    /* Timeline connecting line container */
+    .timeline-line-container {
+      position: absolute;
+      top: -25px;
+      left: calc(10% + 70px);
+      right: calc(10% + 70px);
+      height: 1px;
+      overflow: visible;
+    }
+    
+    /* The animated line that grows */
+    .timeline-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 1px;
+      background: linear-gradient(90deg,
+        rgba(18, 209, 230, 0.6) 0%,
+        rgba(18, 209, 230, 0.8) 100%
+      );
+      box-shadow: 0 0 8px rgba(18, 209, 230, 0.4);
+    }
+    
+    /* Step dots on the line - start dim */
+    .process-step::before {
+      content: '';
+      position: absolute;
+      top: -29px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 8px;
+      background: rgba(18, 209, 230, 0.3);
+      border-radius: 50%;
+      box-shadow: 0 0 0px rgba(18, 209, 230, 0);
+      transition: all 0.4s ease;
+    }
+    
+    /* Glowing dot state */
+    .process-step.dot-active::before {
+      background: rgba(18, 209, 230, 1);
+      box-shadow: 0 0 15px rgba(18, 209, 230, 0.8), 0 0 30px rgba(18, 209, 230, 0.4);
+    }
+    
     /* About section glassmorphic card */
     #about .panel-content {
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
       padding: 36px 40px;
       text-align: left;
       max-width: 420px;
@@ -454,13 +652,14 @@
     }
     
     /* Hero text hidden by default - CSS loads before JS, prevents flash */
-    #hero .panel-tag,
-    #hero h1,
-    #hero p,
-    #hero .hero-ctas {
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(30px);
+    /* Hero text hidden by default via .js-loading class only */
+    /* No other hiding mechanism needed - GSAP handles the rest */
+    
+    /* Robust loading hide - the ONE source of truth */
+    .loading-hidden {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transform: translateY(30px) !important;
     }
     
     #about .panel-content h2 {
@@ -541,74 +740,177 @@
       padding: 0 48px;
     }
     
+    #extensions .work-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100%;
+      width: 100%;
+      padding: 100px 40px 40px 40px;
+      perspective: 1200px;
+    }
+    
     #extensions .work-content {
       flex: 0 0 auto;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 20px auto;
+      opacity: 0;
+      visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    #extensions .work-content .panel-tag,
+    #extensions .work-content h2,
+    #extensions .work-content p {
+      opacity: 0;
+      transform: translateY(30px);
+      text-align: center;
+      width: 100%;
+    }
+    
+    #extensions .work-content p {
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    #extensions .work-content h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
     }
     
     .work-grid {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 32px;
-      margin-right: 48px;
+      max-width: 1400px;
+      margin: 0 auto;
+      opacity: 0;
+      padding: 20px 0 40px 0;
     }
     
     .work-item {
       position: relative;
-      width: 320px;
+      aspect-ratio: 1;
       text-decoration: none;
       opacity: 0;
-      transform: translateY(40px);
-      cursor: none;
-    }
-    
-    .work-image {
-      width: 100%;
-      aspect-ratio: 2/1;
-      overflow: hidden;
-      border-radius: 4px;
-      background: var(--gray-700);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    
-    .work-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease, filter 0.5s ease;
-    }
-    
-    .work-item:hover .work-image img {
-      transform: scale(1.05);
-      filter: brightness(1.1);
-    }
-    
-    .work-image img.img-zoomed {
-      transform: scale(1.01);
-    }
-    
-    .work-item:hover .work-image img.img-zoomed {
-      transform: scale(1.06);
-    }
-    
-    .work-info {
-      margin-top: 16px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 32px;
+      transition: transform 0.15s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
+      cursor: none;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      will-change: transform;
     }
     
-    .work-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--white);
+    /* Holographic gradient overlay on hover - Fire/Orange theme */
+    .work-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 100, 50, 0.15) 0%,
+        rgba(255, 150, 50, 0.15) 50%,
+        rgba(255, 80, 80, 0.15) 100%
+      );
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: 32px;
     }
     
-    .work-type {
+    /* Fire border glow - matches Let's Build button */
+    .work-item::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 100, 50, 0.5),
+        rgba(255, 150, 50, 0.5),
+        rgba(255, 80, 80, 0.5),
+        rgba(255, 100, 50, 0.5)
+      );
+      background-size: 300% 300%;
+      border-radius: 33px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      animation: holoBorder 4s ease infinite;
+    }
+    
+    .work-item:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 
+        0 10px 40px rgba(255, 100, 50, 0.2),
+        0 0 20px rgba(255, 150, 50, 0.1);
+    }
+    
+    .work-item:hover::before {
+      opacity: 1;
+    }
+    
+    .work-item:hover::after {
+      opacity: 1;
+    }
+    
+    /* No stagger needed for flat grid */
+    
+    .work-logo {
+      position: relative;
+      z-index: 1;
+      width: 140px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.4s ease;
+    }
+    
+    .work-logo img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .work-item:hover .work-logo {
+      transform: scale(1.08);
+    }
+    
+    .work-btn {
+      position: relative;
+      z-index: 1;
       font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      color: var(--gray-500);
+      font-size: 13px;
+      font-weight: 500;
       text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.5);
+      transition: color 0.3s ease;
+    }
+    
+    .work-item:hover .work-btn {
+      color: #fff;
+    }
+    
+    .work-warning {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.3);
       letter-spacing: 1px;
+      margin-top: -8px;
     }
     
     /* ═══════════════════════════════════════════════════════════════════
@@ -636,6 +938,126 @@
     /* FIX #10: Removed !important */
     .cta-btn:hover {
       transform: translateY(-2px);
+    }
+    
+    /* ═══════════════════════════════════════════════════════════════════
+       CONTACT SECTION - GLASSMORPHIC BUBBLE + RAINBOW BUTTON
+    ═══════════════════════════════════════════════════════════════════ */
+    
+    .contact-glass-bubble {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 48px 56px;
+      margin-bottom: 32px;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    
+    .contact-glass-bubble .panel-tag,
+    .contact-glass-bubble p {
+      color: var(--gray-300);
+    }
+    
+    .contact-glass-bubble h2 {
+      color: #fff;
+    }
+    
+    .contact-glass-bubble .panel-tag {
+      margin-bottom: 16px;
+    }
+    
+    .contact-glass-bubble h2 {
+      margin-bottom: 16px;
+    }
+    
+    .contact-glass-bubble p {
+      margin-bottom: 0;
+    }
+    
+    /* Rainbow CTA Button - Like hero but rainbow hover */
+    .contact-cta-rainbow {
+      position: relative;
+      padding: 14px 28px;
+      margin-top: 0;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      cursor: none;
+      pointer-events: auto;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .contact-cta-rainbow::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 50, 100, 0.15) 0%,
+        rgba(100, 200, 255, 0.15) 25%,
+        rgba(100, 255, 150, 0.15) 50%,
+        rgba(255, 200, 50, 0.15) 75%,
+        rgba(255, 50, 100, 0.15) 100%
+      );
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .contact-cta-rainbow::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 50, 100, 0.6),
+        rgba(255, 200, 50, 0.6),
+        rgba(100, 255, 150, 0.6),
+        rgba(100, 200, 255, 0.6),
+        rgba(200, 100, 255, 0.6),
+        rgba(255, 50, 100, 0.6)
+      );
+      background-size: 300% 300%;
+      border-radius: 12px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      animation: rainbowBorder 4s ease infinite;
+    }
+    
+    @keyframes rainbowBorder {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .contact-cta-rainbow:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 10px 40px rgba(100, 200, 255, 0.2),
+        0 0 20px rgba(255, 100, 200, 0.15),
+        0 0 30px rgba(100, 255, 150, 0.1);
+    }
+    
+    .contact-cta-rainbow:hover::before {
+      opacity: 1;
+    }
+    
+    .contact-cta-rainbow:hover::after {
+      opacity: 1;
     }
     
     /* ═══════════════════════════════════════════════════════════════════
@@ -816,9 +1238,25 @@
     .status-dot {
       width: 6px;
       height: 6px;
-      background: #7054f2;
+      background: #ff6432;
       border-radius: 50%;
       animation: pulse-dot 2s ease-in-out infinite;
+      transition: background 0.8s ease;
+    }
+    
+    .status-dot.ice {
+      background: #12d1e6;
+    }
+    
+    .status-dot.rainbow {
+      background: linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0080ff, #8000ff);
+      background-size: 600% 100%;
+      animation: pulse-dot 2s ease-in-out infinite, rainbow-shift 3s linear infinite;
+    }
+    
+    @keyframes rainbow-shift {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
     }
     
     @keyframes pulse-dot {
@@ -837,27 +1275,89 @@
       0%, 100% { opacity: 0.3; }
       50% { opacity: 0.7; }
     }
+    
+    /* Footer Glass Bubble */
+    .footer-glass-bubble {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      opacity: 0;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 48px;
+      z-index: 1000;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    }
+    
+    .footer-glass-bubble.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    .footer-glass-bubble .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .footer-glass-bubble .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+    
+    .footer-glass-bubble .footer-copy {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .footer-glass-bubble .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    
+    .footer-glass-bubble .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+    
+    .footer-glass-bubble .footer-links span {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+    }
   </style>
   <script>
     // Immediate scroll lock - runs before body renders
     document.documentElement.style.overflow = 'hidden';
     document.addEventListener('DOMContentLoaded', () => {
-      document.body.style.overflow = 'hidden';
+      // Prevent browser from restoring scroll position
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      window.scrollTo(0, 0);
       
-      // Ensure hero content is hidden IMMEDIATELY on page load
-      // This prevents flash of content before loader animation
-      const heroElements = ['#hero .panel-tag', '#hero h1', '#hero p', '#hero .hero-ctas'];
-      heroElements.forEach(sel => {
-        const el = document.querySelector(sel);
-        if (el) {
-          el.style.opacity = '0';
-          el.style.transform = 'translateY(30px)';
-        }
-      });
+      document.body.style.overflow = 'hidden';
+      // Hero hiding now handled entirely by .js-loading class in CSS
     });
   </script>
 </head>
-<body>
+<body class="js-loading">
   
   <!-- LOADER - HUD with extending circuit traces from corners -->
   <div class="loader">
@@ -1021,7 +1521,7 @@
        PANELS — Each one will be PINNED during scroll
   ═══════════════════════════════════════════════════════════════════ -->
   
-  <!-- HERO -->
+  <!-- HERO - Hidden via .js-loading class only -->
   <section class="panel" id="hero">
     <div class="panel-content">
       <div class="panel-tag">AI-Accelerated Development</div>
@@ -1056,39 +1556,100 @@
   
   <!-- WORK (was Extensions) -->
   <section class="panel" id="extensions">
-    <div class="panel-content work-content">
-      <div class="panel-tag">[ 002 / Work ]</div>
-      <h2>Selected<br>projects.</h2>
-      <p>Custom web development, brand identity, and digital experiences — shipped fast, built to last.</p>
-    </div>
-    <div class="work-grid">
-      <a href="https://mocapwork.com" class="work-item" target="_blank">
-        <div class="work-image">
-          <img src="assets/mocap.webp" alt="MocapWork" class="img-zoomed">
-        </div>
-        <div class="work-info">
-          <span class="work-title">MocapWork</span>
-          <span class="work-type">Motion Capture Platform · Web Design & Development</span>
-        </div>
-      </a>
-      <a href="https://thefactory.gg" class="work-item" target="_blank">
-        <div class="work-image">
-          <img src="assets/fac.webp" alt="TheFactory">
-        </div>
-        <div class="work-info">
-          <span class="work-title">TheFactory</span>
-          <span class="work-type">Esports & Gaming Studio · Brand & Web Development</span>
-        </div>
-      </a>
+    <div class="work-container">
+      <div class="panel-content work-content">
+        <div class="panel-tag">[ 002 / Work ]</div>
+        <h2>Selected projects.</h2>
+        <p>Custom web development, brand identity, and digital experiences — shipped fast, built to last.</p>
+      </div>
+      <div class="work-grid">
+        <a href="https://mocapwork.com" class="work-item" target="_blank">
+          <div class="work-logo">
+            <img src="assets/mw.webp" alt="MocapWork">
+          </div>
+          <span class="work-btn">MocapWork</span>
+        </a>
+        <a href="https://thefactory.gg" class="work-item" target="_blank">
+          <div class="work-logo">
+            <img src="assets/fac.webp" alt="The Factory">
+          </div>
+          <span class="work-btn">The Factory</span>
+        </a>
+        <a href="https://deploytemplate.com" class="work-item" target="_blank">
+          <div class="work-logo">
+            <img src="assets/dt.webp" alt="DeployTemplate">
+          </div>
+          <span class="work-btn">DeployTemplate</span>
+        </a>
+        <a href="https://majesticlevel.com" class="work-item" target="_blank">
+          <div class="work-logo">
+            <img src="assets/maj.webp" alt="Majestic Level">
+          </div>
+          <span class="work-btn">Majestic Level</span>
+        </a>
+        <a href="https://ward.gg" class="work-item" target="_blank">
+          <div class="work-logo">
+            <img src="assets/ward.webp" alt="Ward Gaming">
+          </div>
+          <span class="work-btn">Ward Gaming</span>
+        </a>
+        <a href="https://siren.tv" class="work-item" target="_blank">
+          <div class="work-logo">
+            <img src="assets/siren.webp" alt="Siren">
+          </div>
+          <span class="work-btn">Siren</span>
+          <span class="work-warning">18+ · Adult Platform</span>
+        </a>
+      </div>
     </div>
   </section>
   
   <!-- PROCESS -->
   <section class="panel right" id="templates">
-    <div class="panel-content">
+    <!-- Glassmorphic card on left with title and description -->
+    <div class="process-card process-card-left">
       <div class="panel-tag">[ 003 / Process ]</div>
       <h2>How we<br>build.</h2>
       <p>Discovery. Design. Develop. Deploy. We move fast through iterative cycles — refining until every detail is right. You stay in the loop, we handle the heavy lifting.</p>
+    </div>
+    
+    <!-- GIF in center -->
+    <div class="process-phone-area">
+      <img src="assets/claude.gif" alt="" class="process-gif">
+    </div>
+    
+    <!-- Glassmorphic card on right explaining the collaboration -->
+    <div class="process-card process-card-right">
+      <div class="panel-tag">[ ITEREX + CLAUDE ]</div>
+      <h2>Your vision.<br>1000+ edits.</h2>
+      <p>Every pixel refined. Every interaction perfected. Your project evolves through relentless iteration until it feels inevitable. AI-accelerated craftsmanship.</p>
+    </div>
+    
+    <!-- Timeline at bottom -->
+    <div class="process-steps">
+      <div class="timeline-line-container">
+        <div class="timeline-line"></div>
+      </div>
+      <div class="process-step step-discovery">
+        <span class="step-number">01</span>
+        <span class="step-title">Discovery</span>
+        <span class="step-desc">Understanding your vision</span>
+      </div>
+      <div class="process-step step-design">
+        <span class="step-number">02</span>
+        <span class="step-title">Design</span>
+        <span class="step-desc">Planning the approach</span>
+      </div>
+      <div class="process-step step-develop">
+        <span class="step-number">03</span>
+        <span class="step-title">Develop</span>
+        <span class="step-desc">Building with AI speed</span>
+      </div>
+      <div class="process-step step-deploy">
+        <span class="step-number">04</span>
+        <span class="step-title">Deploy</span>
+        <span class="step-desc">Ship it live</span>
+      </div>
     </div>
   </section>
   
@@ -1096,12 +1657,29 @@
   <!-- FIX #7: Proper mailto instead of Cloudflare protected email -->
   <section class="panel center" id="contact">
     <div class="panel-content">
-      <div class="panel-tag">[ 004 / Contact ]</div>
-      <h2>Let's build<br>something.</h2>
-      <p>Ready to ship your next project at impossible speed?</p>
-      <a href="/cdn-cgi/l/email-protection#ee868b828281ae879a8b9c8b96c08a8b98" class="cta-btn">Get In Touch</a>
+      <div class="contact-glass-bubble">
+        <div class="panel-tag">[ 004 / Contact ]</div>
+        <h2>Let's build<br>something.</h2>
+        <p>Ready to ship your next project at impossible speed?</p>
+      </div>
+      <a href="/cdn-cgi/l/email-protection#ee868b828281ae879a8b9c8b96c08a8b98" class="cta-btn contact-cta-rainbow">Get In Touch</a>
     </div>
   </section>
+
+  <!-- Footer Glass Bubble -->
+  <div class="footer-glass-bubble">
+    <div class="footer-left">
+      <span class="footer-logo">ITEREX</span>
+      <span class="footer-copy">© 2025 All rights reserved</span>
+    </div>
+    <div class="footer-right">
+      <div class="footer-links">
+        <span>Extensions</span>
+        <span>Templates</span>
+        <span>Motion Capture</span>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════════════════════════════════
        THREE.JS + SCROLL SYSTEM
@@ -1124,6 +1702,13 @@
     import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
     import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
     import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+    // ═══════════════════════════════════════════════════════════════════
+    // PERFORMANCE PROFILING
+    // ═══════════════════════════════════════════════════════════════════
+    console.log('%c[PROFILE] Init started', 'color: #00ff00');
+    console.time('[PROFILE] Total Init');
+    console.time('[PROFILE] Shader Definitions');
 
     // ═══════════════════════════════════════════════════════════════════
     // BLUR SHADERS FOR LARGE ACCENT ORBS
@@ -1209,6 +1794,20 @@
       if (scrollLocked && [32, 33, 34, 35, 36, 37, 38, 39, 40].includes(e.keyCode)) e.preventDefault();
     });
     
+    // Disable middle mouse click auto-scroll (breaks animations)
+    window.addEventListener('mousedown', (e) => {
+      if (e.button === 1) e.preventDefault();
+    });
+    window.addEventListener('auxclick', (e) => {
+      if (e.button === 1) e.preventDefault();
+    });
+    
+    // Auto-focus window on mouse enter so scrolling works without clicking
+    document.addEventListener('mouseenter', () => window.focus());
+    document.addEventListener('mousemove', () => {
+      if (!document.hasFocus()) window.focus();
+    }, { once: false, passive: true });
+    
     const STATE = {
       progress: 0,
       section: 0,
@@ -1227,6 +1826,58 @@
       glowLinger: 0          // How long to keep boosted speed after scrolling stops
     };
     
+    // ═══════════════════════════════════════════════════════════════════
+    // UNIFIED TIMING SYSTEM - One animation language for the whole site
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // CINEMA - Unified Animation System
+    // Everything moves together, one tempo, one rhythm
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const CINEMA = {
+      // Core duration - slow and intentional
+      duration: 1.4,
+      
+      // Single easing language
+      ease: 'power3.out',        // Soft luxurious deceleration
+      easeOut: 'power2.inOut',   // Smooth exits
+      
+      // Stagger between elements
+      stagger: 0.12,
+      staggerFast: 0.08,         // For many items (work cards, neurons)
+      
+      // Y travel distance
+      yDistance: 120,
+      
+      // 3D model timing
+      modelDuration: 1.6,        // Models feel heavier, move slower
+      modelDelay: 0.1,           // Models start just after text
+      
+      // Scroll duration - SNAPPIER like Junni
+      scrollBase: 1.2,           // Much faster base (was 2.5)
+      scrollPerSection: 0.25,    // Less additional time per section
+      
+      // Contact zoom (sacred - don't change values)
+      contactZoom: 2.5
+    };
+    
+    // Legacy alias for any code still referencing TIMING
+    const TIMING = {
+      duration: CINEMA.duration,
+      durationFast: CINEMA.duration * 0.6,
+      durationSlow: CINEMA.duration * 1.3,
+      easeEnter: CINEMA.ease,
+      easeExit: CINEMA.easeOut,
+      easeMove: CINEMA.ease,
+      stagger: CINEMA.stagger,
+      staggerFast: CINEMA.staggerFast,
+      yEnter: CINEMA.yDistance,
+      yExit: CINEMA.yDistance,
+      modelExitDuration: CINEMA.modelDuration,
+      contact: { zoomDuration: CINEMA.contactZoom }
+    };
+    
     const MODELS = {};
     
     // FIX #1: Store base Y positions for floating animation
@@ -1237,6 +1888,9 @@
     // ═══════════════════════════════════════════════════════════════════
     
     const container = document.getElementById('canvas-container');
+    
+    console.timeEnd('[PROFILE] Shader Definitions');
+    console.time('[PROFILE] Renderer Setup');
     
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true, 
@@ -1257,6 +1911,9 @@
     
     const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(0, 0, 3.5);  // Start closer for hero zoom effect
+    
+    console.timeEnd('[PROFILE] Renderer Setup');
+    console.time('[PROFILE] Lights');
     
     // ═══════════════════════════════════════════════════════════════════
     // LIGHTS
@@ -1280,6 +1937,9 @@
     greenLight.position.set(0, -4, 6);
     scene.add(greenLight);
     
+    console.timeEnd('[PROFILE] Lights');
+    console.time('[PROFILE] Background/Grid');
+    
     // ═══════════════════════════════════════════════════════════════════
     // BACKGROUND LAYERS — Modern, Subtle Depth
     // ═══════════════════════════════════════════════════════════════════
@@ -1288,7 +1948,10 @@
     const bgPlaneGeometry = new THREE.PlaneGeometry(300, 200);
     const bgPlaneMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        uTime: { value: 0 }
+        uTime: { value: 0 },
+        uGlowColor: { value: new THREE.Vector3(0.0, 0.0, 0.0) },  // RGB glow color
+        uGlowIntensity: { value: 0.0 },  // Glow strength
+        uRainbowMode: { value: 0.0 }  // 0 = static color, 1 = rainbow
       },
       vertexShader: `
         varying vec2 vUv;
@@ -1299,6 +1962,9 @@
       `,
       fragmentShader: `
         uniform float uTime;
+        uniform vec3 uGlowColor;
+        uniform float uGlowIntensity;
+        uniform float uRainbowMode;
         varying vec2 vUv;
         
         // Noise function for grain
@@ -1306,9 +1972,16 @@
           return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
         }
         
+        // HSL to RGB
+        vec3 hsl2rgb(vec3 c) {
+          vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+          return c.z + c.y * (rgb - 0.5) * (1.0 - abs(2.0 * c.z - 1.0));
+        }
+        
         void main() {
           vec2 center = vUv - 0.5;
           float dist = length(center);
+          float angle = atan(center.y, center.x);
           
           // Base color - slightly off-black
           vec3 color = vec3(0.04, 0.04, 0.045);
@@ -1316,6 +1989,22 @@
           // Vignette - darken edges
           float vignette = 1.0 - smoothstep(0.2, 0.9, dist * 1.4);
           color *= vignette * 0.9 + 0.1;
+          
+          // Radial glow effect
+          if (uGlowIntensity > 0.0) {
+            // Calculate glow color - either static or rainbow
+            vec3 glowCol = uGlowColor;
+            if (uRainbowMode > 0.5) {
+              // Rainbow: hue shifts with angle and time
+              float hue = fract(angle / 6.283 + uTime * 0.1);
+              glowCol = hsl2rgb(vec3(hue, 0.85, 0.55));
+            }
+            
+            // Radial gradient glow from center
+            float glowFalloff = 1.0 - smoothstep(0.0, 0.7, dist);
+            glowFalloff = pow(glowFalloff, 1.5);  // Soften falloff
+            color += glowCol * glowFalloff * uGlowIntensity * 0.15;
+          }
           
           // Subtle animated grain
           float grain = random(vUv + uTime * 0.01) * 0.03;
@@ -1337,7 +2026,8 @@
         uTime: { value: 0 },
         uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
         uMouse: { value: new THREE.Vector2(0, 0) },
-        uCurve: { value: 7.0 }  // Grid curve strength - animate to 0 for flat
+        uCurve: { value: 7.0 },  // Grid curve strength - animate to 0 for flat
+        uOpacity: { value: 1.0 } // Global opacity for hiding in certain sections
       },
       vertexShader: `
         varying vec2 vUv;
@@ -1354,6 +2044,7 @@
         uniform vec2 uResolution;
         uniform vec2 uMouse;
         uniform float uCurve;
+        uniform float uOpacity;
         varying vec2 vUv;
         varying vec2 vWorldXY;
         
@@ -1497,7 +2188,7 @@
           // Additive blend - back layers show through, front layers on top
           float alpha = xlSquareAlpha + largeSquareAlpha + dotAlpha + gridAlpha;
           
-          gl_FragColor = vec4(color, alpha);
+          gl_FragColor = vec4(color, alpha * uOpacity);
         }
       `,
       transparent: true,
@@ -1698,6 +2389,71 @@
     });
     
     // ═══════════════════════════════════════════════════════════════════
+    // RAINBOW HOLOGRAPHIC MATERIAL - Vibrant spectrum effect for robot
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const rainbowHoloMat = () => new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 }
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        varying vec3 vViewPosition;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vViewPosition = -mvPosition.xyz;
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        varying vec3 vViewPosition;
+        uniform float uTime;
+        
+        // HSL to RGB conversion
+        vec3 hsl2rgb(vec3 c) {
+          vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+          return c.z + c.y * (rgb - 0.5) * (1.0 - abs(2.0 * c.z - 1.0));
+        }
+        
+        void main() {
+          vec3 viewDir = normalize(vViewPosition);
+          vec3 normal = normalize(vNormal);
+          
+          // Fresnel for edge glow
+          float fresnel = pow(1.0 - abs(dot(viewDir, normal)), 2.5);
+          
+          // Rainbow based on normal direction + time
+          float hue = dot(normal, vec3(0.5, 1.0, 0.3)) * 0.5 + 0.5;
+          hue += uTime * 0.15; // Slow color shift
+          hue += fresnel * 0.3; // Edge color variation
+          hue = fract(hue); // Keep in 0-1 range
+          
+          // Vibrant saturated rainbow
+          vec3 rainbow = hsl2rgb(vec3(hue, 0.9, 0.55));
+          
+          // Add sparkle based on view angle - reduced for less white glare
+          float sparkle = pow(max(dot(reflect(-viewDir, normal), vec3(0.5, 1.0, 0.5)), 0.0), 32.0);
+          
+          // Combine rainbow with fresnel glow - reduced fresnel intensity
+          vec3 finalColor = rainbow * (1.0 + fresnel * 0.8);
+          finalColor += vec3(1.0) * sparkle * 0.2; // Reduced white sparkle highlights
+          finalColor += rainbow * pow(fresnel, 4.0) * 1.2; // Reduced colored edge glow
+          
+          // Semi-transparent
+          gl_FragColor = vec4(finalColor, 0.2);
+        }
+      `,
+      transparent: true,
+      side: THREE.FrontSide,  // FrontSide only to prevent self-flickering
+      depthWrite: false
+    });
+    
+    // ═══════════════════════════════════════════════════════════════════
     // HERO LOGO - Center of screen, spinning + interactive
     // ═══════════════════════════════════════════════════════════════════
     
@@ -1719,9 +2475,28 @@
     const logoPullFriction = 0.03;  // Lower = more friction/slower
     const logoPullStrength = 0.25;  // How much it tilts toward mouse
     
+    // Robot interaction state (same as logo, for contact section)
+    const robotInteraction = {
+      isHovering: false,
+      lastMouseX: 0,
+      lastMouseY: 0,
+      velocityY: 0,
+      velocityX: 0
+    };
+    
+    // Robot pull effect - follows mouse with friction
+    const robotMouse = { x: 0, y: 0 };
+    const robotPullTarget = { x: 0, y: 0 };
+    const robotPullCurrent = { x: 0, y: 0 };
+    const robotPullFriction = 0.03;
+    const robotPullStrength = 0.25;
+    
     // Raycaster for logo hover/click detection
     const logoRaycaster = new THREE.Raycaster();
     const logoMouseVec = new THREE.Vector2(); // Reusable vector for raycasting
+    
+    console.timeEnd('[PROFILE] Background/Grid');
+    console.time('[PROFILE] Model Loader Setup');
     
     const gltfLoader = new GLTFLoader();
     
@@ -1729,6 +2504,9 @@
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
     gltfLoader.setDRACOLoader(dracoLoader);
+    
+    console.timeEnd('[PROFILE] Model Loader Setup');
+    console.time('[PROFILE] Hero Text Canvas');
     
     // ═══════════════════════════════════════════════════════════════════
     // BIG ITEREX TEXT - Behind the logo
@@ -1783,8 +2561,8 @@
       uTime: holoUniforms.uTime,
       uBackground: { value: refractionRT.texture },
       uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-      uRefractionStrength: { value: 0.15 },
-      uChromaticAberration: { value: 0.02 }
+      uRefractionStrength: { value: 0.10 },
+      uChromaticAberration: { value: 0.03 }
     };
     
     const refractionMat = () => new THREE.ShaderMaterial({
@@ -1852,21 +2630,21 @@
           float b = texture2D(uBackground, uvB).b;
           vec3 refractedColor = vec3(r, g, b);
           
-          // Fresnel for edge glow
-          float fresnel = pow(1.0 - abs(dot(viewDir, normal)), 1.5);
+          // Fresnel for edge glow - power 2.0
+          float fresnel = pow(1.0 - abs(dot(viewDir, normal)), 2.0);
           
-          // Noise pattern on surface
-          vec2 noiseUV = vWorldPosition.xy * 8.0 + vWorldPosition.z * 2.0;
+          // Noise pattern on surface - scale 6.0
+          vec2 noiseUV = vWorldPosition.xy * 6.0 + vWorldPosition.z * 2.0;
           float noisePattern = noise(noiseUV + uTime * 0.1);
           
-          // Holo colors
+          // FIRE COLORS 🔥
           float angle = dot(normal, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
           float viewAngle = dot(viewDir, vec3(1.0, 0.0, 0.0)) * 0.5 + 0.5;
-          float timeShift = uTime * 1.0;
+          float timeShift = uTime * 0.5;  // Color speed 0.5
           
-          vec3 color1 = vec3(0.76, 0.44, 0.71);
-          vec3 color2 = vec3(0.00, 0.78, 1.00);
-          vec3 color3 = vec3(0.40, 0.30, 1.00);
+          vec3 color1 = vec3(1.00, 0.30, 0.00);  // #ff4d00 orange
+          vec3 color2 = vec3(1.00, 0.60, 0.00);  // #ff9900 yellow-orange
+          vec3 color3 = vec3(1.00, 0.10, 0.10);  // #ff1a1a red
           
           float t1 = sin(angle * 6.28 + timeShift + viewAngle * 3.0) * 0.5 + 0.5;
           float t2 = sin(angle * 6.28 + timeShift + 2.09 + viewAngle * 2.0) * 0.5 + 0.5;
@@ -1874,18 +2652,18 @@
           vec3 holoColor = mix(color1, color2, t1);
           holoColor = mix(holoColor, color3, t2);
           
-          // Apply noise to holo color
-          holoColor *= 0.8 + noisePattern * 0.4;
+          // Apply noise - intensity 0.6
+          holoColor *= 0.70 + noisePattern * 0.60;
           
-          // Edge glow
-          vec3 edgeGlow = vec3(1.0, 0.98, 0.2) * pow(fresnel, 6.0) * 2.0;
+          // Yellow-gold edge glow
+          vec3 edgeGlow = vec3(1.00, 0.90, 0.30) * pow(fresnel, 3.0) * 0.9;
           
-          // Blend refraction with holo effect
-          vec3 finalColor = refractedColor * 0.7 + holoColor * fresnel * 0.8;
+          // Blend refraction with holo effect - holoMix 1.2
+          vec3 finalColor = refractedColor * 0.50 + holoColor * fresnel * 1.20;
           finalColor += edgeGlow;
           
-          // Alpha based on fresnel
-          float alpha = 0.85 + fresnel * 0.15;
+          // Alpha - high base 0.9
+          float alpha = 0.90 + fresnel * 0.10;
           
           gl_FragColor = vec4(finalColor, alpha);
         }
@@ -1894,6 +2672,155 @@
       side: THREE.DoubleSide,
       depthWrite: false
     });
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // ICE MATERIAL ❄️ - For About & Process sections
+    // ═══════════════════════════════════════════════════════════════════
+    const iceRefractionMat = () => new THREE.ShaderMaterial({
+      uniforms: refractionUniforms,
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        varying vec4 vScreenPos;
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          vNormal = normalize(normalMatrix * normal);
+          vec4 worldPos = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPos.xyz;
+          vec4 clipPos = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          vScreenPos = clipPos;
+          gl_Position = clipPos;
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        varying vec4 vScreenPos;
+        varying vec2 vUv;
+        uniform float uTime;
+        uniform sampler2D uBackground;
+        uniform vec2 uResolution;
+        uniform float uRefractionStrength;
+        uniform float uChromaticAberration;
+        
+        // Noise functions
+        float hash(vec2 p) {
+          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+        }
+        
+        float noise(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          float a = hash(i);
+          float b = hash(i + vec2(1.0, 0.0));
+          float c = hash(i + vec2(0.0, 1.0));
+          float d = hash(i + vec2(1.0, 1.0));
+          return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+        }
+        
+        void main() {
+          // Screen UV from clip space
+          vec2 screenUV = (vScreenPos.xy / vScreenPos.w) * 0.5 + 0.5;
+          
+          vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+          vec3 normal = normalize(vNormal);
+          
+          // Refraction offset - 0.20
+          vec2 refractOffset = normal.xy * 0.20;
+          
+          // Chromatic aberration - 0.01
+          float aberr = 0.01;
+          vec2 uvR = screenUV + refractOffset * (1.0 + aberr);
+          vec2 uvG = screenUV + refractOffset;
+          vec2 uvB = screenUV + refractOffset * (1.0 - aberr);
+          
+          float r = texture2D(uBackground, uvR).r;
+          float g = texture2D(uBackground, uvG).g;
+          float b = texture2D(uBackground, uvB).b;
+          vec3 refractedColor = vec3(r, g, b);
+          
+          // Fresnel - power 2.0
+          float fresnel = pow(1.0 - abs(dot(viewDir, normal)), 2.0);
+          
+          // Noise pattern - scale 12.0
+          vec2 noiseUV = vWorldPosition.xy * 12.0 + vWorldPosition.z * 2.0;
+          float noisePattern = noise(noiseUV + uTime * 0.1);
+          
+          // ❄️ ICE COLORS - cyan, teal-green, deep blue
+          float angle = dot(normal, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
+          float viewAngle = dot(viewDir, vec3(1.0, 0.0, 0.0)) * 0.5 + 0.5;
+          float timeShift = uTime * 0.5;  // Color speed 0.5
+          
+          vec3 color1 = vec3(0.29, 0.97, 1.00);  // #4af7ff cyan
+          vec3 color2 = vec3(0.42, 0.93, 0.71);  // #6aeeb6 teal-green
+          vec3 color3 = vec3(0.00, 0.17, 0.98);  // #002cfb deep blue
+          
+          float t1 = sin(angle * 6.28 + timeShift + viewAngle * 3.0) * 0.5 + 0.5;
+          float t2 = sin(angle * 6.28 + timeShift + 2.09 + viewAngle * 2.0) * 0.5 + 0.5;
+          
+          vec3 holoColor = mix(color1, color2, t1);
+          holoColor = mix(holoColor, color3, t2);
+          
+          // Apply noise - intensity 0.2
+          holoColor *= 0.90 + noisePattern * 0.20;
+          
+          // Cyan edge glow
+          vec3 edgeGlow = vec3(0.00, 0.88, 0.95) * pow(fresnel, 4.0) * 1.5;
+          
+          // Blend - refractionMix 0.8, holoMix 0.5
+          vec3 finalColor = refractedColor * 0.80 + holoColor * fresnel * 0.50;
+          finalColor += edgeGlow;
+          
+          // Alpha - 0.70 base + 0.30 fresnel
+          float alpha = 0.70 + fresnel * 0.30;
+          
+          gl_FragColor = vec4(finalColor, alpha);
+        }
+      `,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // MODEL LOADING TRACKER - Pre-render all models to GPU after load
+    // ═══════════════════════════════════════════════════════════════════
+    const modelLoadTracker = {
+      logo: false,
+      balls: false,
+      neurons: false,
+      dna: false,
+      brain: false,
+      allLoaded: false,
+      check: function() {
+        if (this.logo && this.balls && this.neurons && this.dna && this.brain && !this.allLoaded) {
+          this.allLoaded = true;
+          this.preRenderAll();
+        }
+      },
+      preRenderAll: function() {
+        console.log('[PERF] All models loaded - pre-rendering to GPU...');
+        
+        // Temporarily show all hidden models
+        const wasVisible = {
+          dna: dnaHelix ? dnaHelix.visible : false
+        };
+        
+        if (dnaHelix) dnaHelix.visible = true;
+        floatingNeurons.forEach(n => n.visible = true);
+        
+        // Force GPU upload by rendering
+        renderer.render(scene, camera);
+        
+        // Restore visibility
+        if (dnaHelix) dnaHelix.visible = wasVisible.dna;
+        floatingNeurons.forEach(n => n.visible = false);
+        
+        console.log('[PERF] GPU pre-render complete!');
+      }
+    };
     
     gltfLoader.load('assets/logo.glb',
       (gltf) => {
@@ -1917,7 +2844,8 @@
         // ═══════════════════════════════════════════════════════════════
         const glowMaterial = new THREE.ShaderMaterial({
           uniforms: {
-            uTime: { value: 0 }
+            uTime: { value: 0 },
+            uThemeBlend: { value: 0 }  // 0 = fire, 1 = ice
           },
           vertexShader: `
             varying vec2 vUv;
@@ -1928,6 +2856,7 @@
           `,
           fragmentShader: `
             uniform float uTime;
+            uniform float uThemeBlend;
             varying vec2 vUv;
             
             void main() {
@@ -1935,31 +2864,43 @@
               vec2 center = vUv - 0.5;
               float dist = length(center);
               
-              // Colors
-              vec3 purple = vec3(0.44, 0.33, 0.95);  // #7054f2
-              vec3 cyan = vec3(0.0, 0.78, 1.0);
-              vec3 pink = vec3(0.7, 0.4, 0.78);
-              vec3 blue = vec3(0.24, 0.47, 0.7);
+              // 🔥 FIRE colors - orange, yellow-orange, red, deep red
+              vec3 fireA = vec3(1.00, 0.40, 0.05);  // bright orange
+              vec3 fireB = vec3(1.00, 0.65, 0.10);  // yellow-orange
+              vec3 fireC = vec3(1.00, 0.20, 0.05);  // red-orange
+              vec3 fireD = vec3(0.80, 0.15, 0.02);  // deep red
+              
+              // ❄️ ICE colors - cyan, teal, blue, deep blue
+              vec3 iceA = vec3(0.29, 0.97, 1.00);   // bright cyan
+              vec3 iceB = vec3(0.42, 0.93, 0.71);   // teal-green
+              vec3 iceC = vec3(0.15, 0.60, 0.95);   // mid blue
+              vec3 iceD = vec3(0.00, 0.17, 0.98);   // deep blue
+              
+              // Blend fire and ice palettes based on theme
+              vec3 colorA = mix(fireA, iceA, uThemeBlend);
+              vec3 colorB = mix(fireB, iceB, uThemeBlend);
+              vec3 colorC = mix(fireC, iceC, uThemeBlend);
+              vec3 colorD = mix(fireD, iceD, uThemeBlend);
               
               // Wave rotating through colors based on distance + time
               float wave = dist * 8.0 - uTime * 0.2;
               float t = fract(wave);
               
-              // Cycle through colors
+              // Cycle through blended colors
               vec3 color;
               float segment = mod(wave, 4.0);
               if (segment < 1.0) {
-                color = mix(purple, cyan, t);
+                color = mix(colorA, colorB, t);
               } else if (segment < 2.0) {
-                color = mix(cyan, pink, t);
+                color = mix(colorB, colorC, t);
               } else if (segment < 3.0) {
-                color = mix(pink, blue, t);
+                color = mix(colorC, colorD, t);
               } else {
-                color = mix(blue, purple, t);
+                color = mix(colorD, colorA, t);
               }
               
               // Fade out from center
-              float alpha = smoothstep(0.5, 0.0, dist) * 0.35;
+              float alpha = smoothstep(0.5, 0.0, dist) * 0.08;
               
               gl_FragColor = vec4(color, alpha);
             }
@@ -1981,6 +2922,8 @@
         heroLogo.userData.glowMaterial = glowMaterial;
         
         console.log('Hero logo loaded with refraction + animated glow!');
+        modelLoadTracker.logo = true;
+        modelLoadTracker.check();
       },
       undefined,
       (error) => {
@@ -2032,6 +2975,15 @@
       
       logoInteraction.lastMouseX = e.clientX;
       logoInteraction.lastMouseY = e.clientY;
+    });
+    
+    // Robot interaction events - same pull effect as logo, for contact section
+    document.addEventListener('mousemove', (e) => {
+      // Track mouse position for pull effect in contact section
+      if (contactRobot && contactRobot.visible && !isLoadingMode && STATE.section === 4) {
+        robotMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        robotMouse.y = (e.clientY / window.innerHeight) * 2 - 1;
+      }
     });
     
     // DNA interaction events - hover based rotation (horizontal only)
@@ -2096,7 +3048,7 @@
           const ball = gltf.scene.clone();
           ball.traverse((child) => {
             if (child.isMesh) {
-              child.material = holoMat();
+              child.material = refractionMat();
             }
           });
           
@@ -2135,6 +3087,8 @@
           floatingBalls.push(ball);
         }
         console.log('Floating balls loaded!');
+        modelLoadTracker.balls = true;
+        modelLoadTracker.check();
       },
       undefined,
       (error) => {
@@ -2149,17 +3103,17 @@
     const floatingNeurons = [];
     const neuronPositions = [
       // Small neurons
-      { x: 9, y: 4, z: -10, scale: 0.6 },
+      { x: 9, y: 8, z: -10, scale: 0.6 },
       { x: 7, y: -4, z: -7, scale: 0.55 },    // Bottom right small
       // Medium neurons  
       { x: -11, y: 2, z: -6, scale: 1.1 },
       { x: -9, y: -7, z: -6, scale: 0.95 },   // Below founder, partially off-screen
       { x: 12, y: 6, z: -7, scale: 1.0 },     // Top right corner
       // Large neurons
-      { x: -5, y: 4, z: -4, scale: 1.8 },
+      { x: -5, y: 6.5, z: -4, scale: 1.8 },   // Moved UP - halfway off screen
       { x: 11, y: -5, z: -3, scale: 1.6 },    // Bottom right, large
       // Near DNA - 2 small
-      { x: -1.8, y: -3, z: -5, scale: 0.55 },   // Small, bottom left of DNA
+      { x: -5, y: -3, z: -5, scale: 0.55 },   // Small, bottom left of DNA
       { x: 4, y: 3.5, z: -5, scale: 0.6 }    // Small, upper right of DNA
     ];
     
@@ -2169,7 +3123,7 @@
           const neuron = gltf.scene.clone();
           neuron.traverse((child) => {
             if (child.isMesh) {
-              child.material = holoMat();
+              child.material = iceRefractionMat();  // ❄️ ICE - About section
             }
           });
           
@@ -2189,6 +3143,7 @@
             blurLayer = 3;  // Large neurons - minimal blur
           }
           
+          // Apply DOF blur layers (same system as floating balls)
           neuron.layers.set(blurLayer);
           neuron.traverse((child) => { child.layers.set(blurLayer); });
           
@@ -2202,17 +3157,15 @@
             ampZ: 1.2 + (i * 0.2),
             phase: i * 1.2,
             rotSpeed: 0.15 + (i * 0.03),
-            blurLayer: blurLayer
+            blurLayer: blurLayer  // Store for DOF rendering
           };
           
-          neuron.renderOrder = 10;  // Render on top of logo/text
-          neuron.traverse((child) => {
-            child.renderOrder = 10;
-          });
           scene.add(neuron);
           floatingNeurons.push(neuron);
         }
-        console.log('Floating neurons loaded for About section!');
+        console.log('Floating neurons loaded!');
+        modelLoadTracker.neurons = true;
+        modelLoadTracker.check();
       },
       undefined,
       (error) => {
@@ -2221,10 +3174,74 @@
     );
     
     // ═══════════════════════════════════════════════════════════════════
+    // SKYLINE - Centerpiece for Work section
+    // ═══════════════════════════════════════════════════════════════════
     // DNA HELIX - Meshy-generated centerpiece for About section
     // ═══════════════════════════════════════════════════════════════════
     
     let dnaHelix = null;
+    let workLaptop = null;  // Laptop for Work section
+    let processPhone = null;  // Phone for Process section
+    let codeBracket = null;   // Code bracket for Process section
+    let contactRobot = null;  // Robot for Contact section
+    let processClaude1 = null;  // Claude models scattered around
+    let processClaude2 = null;
+    let processClaude3 = null;
+    let processClaude4 = null;
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // PRE-CREATED DNA CURVES - Avoid first-run lag from curve creation
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Reusable vector to avoid GC stutter during animations
+    const dnaTempVec = new THREE.Vector3();
+    
+    const dnaCurves = {
+      // Entry from right (About section enter)
+      entry: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(8, -4, 2),
+        new THREE.Vector3(5, -2, 4),
+        new THREE.Vector3(2, -0.5, 2),
+        new THREE.Vector3(0, -0.35, -4)
+      ]),
+      entryScales: [5.0, 5.5, 5.0, 4.5],
+      entryStart: new THREE.Vector3(8, -4, 2),
+      
+      // Exit to top-left (About section leave to Work)
+      exit: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0, -0.35, -4),
+        new THREE.Vector3(-4, 2, 2),
+        new THREE.Vector3(-10, 6, 0),
+        new THREE.Vector3(-18, 12, -10)
+      ]),
+      exitScales: [4.5, 5.0, 5.5, 4.5],
+      
+      // Exit back to right/down (About leave back to Hero)
+      exitBack: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0, -0.35, -4),
+        new THREE.Vector3(2, -2, 2),
+        new THREE.Vector3(5, -4, 5),
+        new THREE.Vector3(10, -7, 2),
+        new THREE.Vector3(15, -10, -8)
+      ]),
+      exitBackScales: [4.5, 5.0, 6.5, 5.5, 4.5],
+      
+      // Re-entry from top-left (Work scrolling back up)
+      reentry: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-8, 4, 2),
+        new THREE.Vector3(-5, 2, 4),
+        new THREE.Vector3(-2, 0.5, 2),
+        new THREE.Vector3(0, -0.35, -4)
+      ]),
+      reentryScales: [5.0, 5.5, 5.0, 4.5],
+      reentryStart: new THREE.Vector3(-8, 4, 2)
+    };
+    
+    // Pre-warm the curves by calling getPoint once
+    dnaCurves.entry.getPoint(0.5);
+    dnaCurves.exit.getPoint(0.5);
+    dnaCurves.exitBack.getPoint(0.5);
+    dnaCurves.reentry.getPoint(0.5);
     
     // DNA interaction state - horizontal only
     const dnaInteraction = {
@@ -2242,7 +3259,7 @@
         dnaHelix = gltf.scene;
         dnaHelix.traverse((child) => {
           if (child.isMesh) {
-            child.material = holoMat();
+            child.material = iceRefractionMat();  // ❄️ ICE - About section
           }
         });
         
@@ -2258,13 +3275,256 @@
         });
         
         scene.add(dnaHelix);
-        console.log('DNA Helix loaded for About section!');
+        console.log('DNA Helix loaded!');
+        modelLoadTracker.dna = true;
+        modelLoadTracker.check();
       },
       undefined,
       (error) => {
         console.warn('DNA not loaded:', error.message);
       }
     );
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // WORK SECTION LAPTOP
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Tablet removed for cleaner design - just cards floating on grid
+    
+    // Lightning removed for cleaner design
+    let workLightning = null;
+    let workLightningRight = null;
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // WORK SECTION HEAT PARTICLES - Rising from project cards
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const HEAT_PARTICLE_COUNT = 40;  // Lightweight count
+    const heatParticleGeometry = new THREE.BufferGeometry();
+    const heatPositions = new Float32Array(HEAT_PARTICLE_COUNT * 3);
+    const heatVelocities = new Float32Array(HEAT_PARTICLE_COUNT);
+    const heatLifetimes = new Float32Array(HEAT_PARTICLE_COUNT);
+    const heatSizes = new Float32Array(HEAT_PARTICLE_COUNT);
+    const heatColors = new Float32Array(HEAT_PARTICLE_COUNT * 3);
+    
+    // Initialize particles in the card grid area - centered within 580px from screen edges
+    // Cards are in a 3x2 grid - spread a bit for coverage
+    const cardPositions = [
+      { x: -3, y: 0.5 },    // Top left
+      { x: 0, y: 0.5 },     // Top center
+      { x: 3, y: 0.5 },     // Top right
+      { x: -3, y: -2 },     // Bottom left
+      { x: 0, y: -2 },      // Bottom center
+      { x: 3, y: -2 }       // Bottom right
+    ];
+    
+    for (let i = 0; i < HEAT_PARTICLE_COUNT; i++) {
+      // Pick a random card to spawn from
+      const card = cardPositions[Math.floor(Math.random() * cardPositions.length)];
+      
+      // Moderate spread around each card
+      heatPositions[i * 3] = card.x + (Math.random() - 0.5) * 2;        // x - moderate spread
+      heatPositions[i * 3 + 1] = card.y + (Math.random() - 0.5) * 1.5;  // y
+      heatPositions[i * 3 + 2] = -4.5 + Math.random() * 0.5;            // z - close to cards
+      
+      heatVelocities[i] = 0.4 + Math.random() * 0.3;  // Rise speed
+      heatLifetimes[i] = Math.random();                // Stagger start times
+      heatSizes[i] = 18 + Math.random() * 25;           // Bigger particles
+      
+      // Heat colors: orange, red, yellow spectrum
+      const colorChoice = Math.random();
+      if (colorChoice < 0.4) {
+        // Orange
+        heatColors[i * 3] = 1.0;
+        heatColors[i * 3 + 1] = 0.4 + Math.random() * 0.2;
+        heatColors[i * 3 + 2] = 0.1;
+      } else if (colorChoice < 0.7) {
+        // Red-orange
+        heatColors[i * 3] = 1.0;
+        heatColors[i * 3 + 1] = 0.2 + Math.random() * 0.2;
+        heatColors[i * 3 + 2] = 0.05;
+      } else {
+        // Yellow-orange
+        heatColors[i * 3] = 1.0;
+        heatColors[i * 3 + 1] = 0.6 + Math.random() * 0.3;
+        heatColors[i * 3 + 2] = 0.2;
+      }
+    }
+    
+    heatParticleGeometry.setAttribute('position', new THREE.BufferAttribute(heatPositions, 3));
+    heatParticleGeometry.setAttribute('aVelocity', new THREE.BufferAttribute(heatVelocities, 1));
+    heatParticleGeometry.setAttribute('aLifetime', new THREE.BufferAttribute(heatLifetimes, 1));
+    heatParticleGeometry.setAttribute('aSize', new THREE.BufferAttribute(heatSizes, 1));
+    heatParticleGeometry.setAttribute('aColor', new THREE.BufferAttribute(heatColors, 3));
+    
+    const heatParticleMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uOpacity: { value: 0 }  // Fade in/out with section
+      },
+      vertexShader: `
+        attribute float aVelocity;
+        attribute float aLifetime;
+        attribute float aSize;
+        attribute vec3 aColor;
+        
+        uniform float uTime;
+        uniform float uOpacity;
+        
+        varying float vAlpha;
+        varying vec3 vColor;
+        
+        void main() {
+          vColor = aColor;
+          
+          // Animate position - rise upward with slight wobble
+          vec3 pos = position;
+          float life = fract(aLifetime + uTime * 0.12 * aVelocity);
+          
+          // Rise from cards - tall enough to exit screen
+          pos.y += life * 10.0;
+          
+          // Subtle horizontal drift
+          pos.x += sin(uTime * 2.0 + aLifetime * 10.0) * 0.12;
+          pos.z += cos(uTime * 1.5 + aLifetime * 8.0) * 0.08;
+          
+          // Fade in at start, fade out toward top
+          float fadeIn = smoothstep(0.0, 0.15, life);
+          float fadeOut = 1.0 - smoothstep(0.5, 0.8, life);
+          vAlpha = fadeIn * fadeOut * uOpacity;
+          
+          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = aSize * (1.0 / -mvPosition.z) * (0.7 + life * 0.3);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        varying float vAlpha;
+        varying vec3 vColor;
+        
+        void main() {
+          // Soft circular particle with glow
+          vec2 center = gl_PointCoord - vec2(0.5);
+          float dist = length(center);
+          
+          // Soft falloff
+          float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+          alpha *= vAlpha;
+          
+          // Add glow (brighter center)
+          vec3 color = vColor * (1.0 + (1.0 - dist * 2.0) * 0.5);
+          
+          gl_FragColor = vec4(color, alpha * 0.6);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    
+    const heatParticles = new THREE.Points(heatParticleGeometry, heatParticleMaterial);
+    heatParticles.visible = false;
+    heatParticles.renderOrder = 50;
+    scene.add(heatParticles);
+    console.log('Heat particles created for Work section!');
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // PROCESS SECTION PHONE - DISABLED
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Phone model disabled - keeping GIF only for cleaner design
+    processPhone = null;
+    console.log('Process phone model disabled - using centered GIF only');
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // PROCESS SECTION - CODE BRACKET MODEL
+    // ═══════════════════════════════════════════════════════════════════
+    
+    gltfLoader.load('assets/codebracket.glb',
+      (gltf) => {
+        codeBracket = gltf.scene;
+        
+        // ❄️ ICE material for Process section
+        codeBracket.traverse((child) => {
+          if (child.isMesh) {
+            child.material = iceRefractionMat();
+          }
+        });
+        
+        // Start hidden, positioned above the GIF area
+        codeBracket.visible = false;
+        codeBracket.scale.setScalar(4.0);
+        codeBracket.position.set(0, 3.95, -5);
+        codeBracket.rotation.set(0, 0, 0);
+        
+        scene.add(codeBracket);
+        console.log('Code Bracket loaded for Process section!');
+      },
+      undefined,
+      (error) => {
+        console.warn('Code Bracket not loaded:', error.message);
+      }
+    );
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // CONTACT SECTION - ROBOT MODEL
+    // ═══════════════════════════════════════════════════════════════════
+    
+    gltfLoader.load('assets/robot.glb',
+      (gltf) => {
+        contactRobot = gltf.scene;
+        
+        // 🌈 RAINBOW holographic material for Contact section
+        const robotMaterial = rainbowHoloMat();
+        contactRobot.traverse((child) => {
+          if (child.isMesh) {
+            child.material = robotMaterial;
+            child.renderOrder = 100;  // Render after background
+          }
+        });
+        
+        // Store material reference for time updates
+        contactRobot.userData.rainbowMat = robotMaterial;
+        
+        // Start hidden, positioned below viewport
+        contactRobot.visible = false;
+        contactRobot.scale.setScalar(5.4);
+        contactRobot.position.set(0, -20, -5);
+        contactRobot.rotation.set(0, 0, 0);
+        contactRobot.renderOrder = 100;
+        
+        scene.add(contactRobot);
+        console.log('Robot loaded for Contact section with rainbow material!');
+      },
+      undefined,
+      (error) => {
+        console.warn('Robot not loaded:', error.message);
+      }
+    );
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // PROCESS SECTION CLAUDE MODELS (scattered around phone/title)
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // PROCESS SECTION - CLEAN DESIGN
+    // Phone is the hero element, timeline labels at bottom
+    // No Claude models - keeping it clean and focused
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Claude models disabled for cleaner design
+    processClaude1 = null;
+    processClaude2 = null;
+    processClaude3 = null;
+    processClaude4 = null;
+    
+    // Timeline lines not needed
+    let timelineLines = [];
+    function createTimelineLines() {}
+    function updateTimelineLines() {}
+    function hideTimelineLines() {}
+    
+    console.time('[PROFILE] Loader Scene Setup');
     
     // ═══════════════════════════════════════════════════════════════════
     // LOADER SCENE - Brain gets rendered here, then warped by shader
@@ -2311,16 +3571,17 @@
       (gltf) => {
         loaderBrain = gltf.scene;
         
-        // Use same holoMat as balls for consistent look
+        // ❄️ ICE - Brain in loader
         loaderBrain.traverse((child) => {
           if (child.isMesh) {
-            child.material = holoMat();
+            child.material = iceRefractionMat();
           }
         });
         
         // Position above center (where loading bar will be below)
         loaderBrain.scale.setScalar(0.35);
         loaderBrain.position.set(0, 0.3, 0);
+        loaderBrain.rotation.y = Math.PI;  // Spin 180 degrees to face forward
         
         // Add glow plane behind brain
         const glowGeom = new THREE.PlaneGeometry(2.5, 2.5);
@@ -2338,6 +3599,8 @@
         loaderScene.add(loaderBrain);
         
         console.log('Brain loaded for loader scene!');
+        modelLoadTracker.brain = true;
+        modelLoadTracker.check();
       },
       // Progress
       undefined,
@@ -2865,10 +4128,16 @@
     // Initialize tLoader
     warpPass.uniforms.tLoader = { value: loaderRT.texture };
     
+    console.timeEnd('[PROFILE] Loader Scene Setup');
+    console.time('[PROFILE] Main Composer');
+    
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
     composer.addPass(warpPass);
     composer.addPass(bloomPass);
+    
+    console.timeEnd('[PROFILE] Main Composer');
+    console.time('[PROFILE] Blur Composers (3x)');
     
     // ═══════════════════════════════════════════════════════════════════
     // DOF BLUR COMPOSERS - Heavy blur for small balls, light blur for medium
@@ -2944,11 +4213,18 @@
     vBlurMin.renderToScreen = false;
     minBlurComposer.addPass(vBlurMin);
     
+    console.timeEnd('[PROFILE] Blur Composers (3x)');
+    console.time('[PROFILE] Shader Warmup');
+    
     // SHADER WARMUP - render one frame with composer to pre-compile shaders
     // This prevents lag spike when warp first kicks in
     console.log('[PERF] Warming up shaders...');
     composer.render();
     console.log('[PERF] Shader warmup complete');
+    
+    console.timeEnd('[PROFILE] Shader Warmup');
+    console.timeEnd('[PROFILE] Total Init');
+    console.log('%c[PROFILE] Init complete! Now loading assets...', 'color: #00ff00');
     
     // Loading mode flag - when true, render loaderScene directly
     let isLoadingMode = true;
@@ -2966,7 +4242,88 @@
         return;
       }
       warpTriggered = true;
+      console.time('[PROFILE] Warp Intro Transition');
+      
       console.log('[PERF] Warp starting - FPS before:', currentFPS);
+      
+      // ═══════════════════════════════════════════════════════════════════
+      // COMPREHENSIVE PRE-WARM - Force first render of everything
+      // This eliminates the "first scroll" lag by warming up:
+      // - DNA helix + its exit animation path
+      // - All neurons + their exit animation
+      // - Work section DOM elements (force layout/paint)
+      // ═══════════════════════════════════════════════════════════════════
+      console.time('[PROFILE] Pre-warm');
+      
+      // 1. Pre-warm DNA at its About section position
+      if (dnaHelix) {
+        const origPos = dnaHelix.position.clone();
+        const origScale = dnaHelix.scale.clone();
+        const origVisible = dnaHelix.visible;
+        
+        // Position DNA where it will be in About section
+        dnaHelix.position.set(0, -0.35, -4);
+        dnaHelix.scale.setScalar(4.5);
+        dnaHelix.visible = true;
+        
+        // Force render
+        renderer.render(scene, camera);
+        
+        // Also pre-warm the exit path by sampling it
+        for (let t = 0; t <= 1; t += 0.25) {
+          dnaCurves.exitBack.getPoint(t, dnaTempVec);
+        }
+        
+        // Restore
+        dnaHelix.position.copy(origPos);
+        dnaHelix.scale.copy(origScale);
+        dnaHelix.visible = origVisible;
+      }
+      
+      // 2. Pre-warm neurons at their About section positions
+      if (floatingNeurons.length > 0) {
+        const origStates = floatingNeurons.map(n => ({
+          pos: n.position.clone(),
+          scale: n.scale.clone(),
+          visible: n.visible
+        }));
+        
+        // Position neurons where they'll be in About
+        floatingNeurons.forEach((neuron, i) => {
+          neuron.position.set(
+            neuron.userData.baseX || -3 + i * 0.5,
+            neuron.userData.baseY || 0,
+            neuron.userData.baseZ || 0
+          );
+          neuron.scale.setScalar(neuron.userData.baseScale || 0.4);
+          neuron.visible = true;
+        });
+        
+        // Force render
+        renderer.render(scene, camera);
+        
+        // Restore
+        floatingNeurons.forEach((neuron, i) => {
+          neuron.position.copy(origStates[i].pos);
+          neuron.scale.copy(origStates[i].scale);
+          neuron.visible = origStates[i].visible;
+        });
+      }
+      
+      // 3. Pre-warm Work section DOM - force layout/paint
+      const workItems = document.querySelectorAll('.work-item');
+      const workGrid = document.querySelector('.work-grid');
+      if (workGrid && workItems.length) {
+        // Force layout calculation
+        workGrid.offsetHeight;
+        workItems.forEach(item => item.offsetHeight);
+      }
+      
+      // 4. One more composer render to warm everything together
+      composer.render();
+      
+      console.timeEnd('[PROFILE] Pre-warm');
+      // ═══════════════════════════════════════════════════════════════════
       
       // Stop redrawing canvas - loading is done
       loaderNeedsRedraw = false;
@@ -2982,25 +4339,16 @@
       // Now hide DOM loader - shader will show captured loader texture
       loaderEl.classList.add('hidden');
       
-      // Ensure hero content starts HIDDEN before animating in
-      gsap.set('#hero .panel-tag', { opacity: 0, visibility: 'hidden', y: 30 });
-      gsap.set('#hero h1', { opacity: 0, visibility: 'hidden', y: 50 });
-      gsap.set('#hero p', { opacity: 0, visibility: 'hidden', y: 40 });
-      gsap.set('#hero .hero-ctas', { opacity: 0, visibility: 'hidden', y: 30 });
-      gsap.set('#hero .panel-content', { opacity: 1 });
+      // Hero hiding is now handled ONLY by .js-loading class
+      // No gsap.set calls needed here - keeps things simple
       
       const tl = gsap.timeline({
         onComplete: () => {
-          // Ensure hero content stays visible
-          gsap.set('#hero .panel-tag', { opacity: 1, visibility: 'visible', y: 0 });
-          gsap.set('#hero h1', { opacity: 1, visibility: 'visible', y: 0 });
-          gsap.set('#hero p', { opacity: 1, visibility: 'visible', y: 0 });
-          gsap.set('#hero .hero-ctas', { opacity: 1, visibility: 'visible', y: 0 });
-          gsap.set('#hero .panel-content', { opacity: 1, y: 0 });
+          console.timeEnd('[PROFILE] Warp Intro Transition');
         }
       });
       
-      // Unlock scroll at 3s into the warp (while still animating)
+      // Unlock scroll early - as soon as hero content starts appearing (0.5s)
       tl.call(() => {
         scrollLocked = false;
         document.documentElement.style.overflow = '';
@@ -3008,7 +4356,7 @@
         window.scrollTo(0, 0);
         ScrollTrigger.refresh();
         initScrollAnimations();
-      }, null, 3);
+      }, null, 0.5);
       
       // ═══════════════════════════════════════════════════════════════
       // WATER DROP WAVE — Slow expansion, long settle, lingering chroma
@@ -3052,11 +4400,28 @@
       tl.to('.corner-bl', { opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power2.out' }, 1.9);
       tl.to('.corner-br', { opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power2.out' }, 2.0);
       
-      // Hero content
-      tl.to('#hero .panel-tag', { opacity: 1, visibility: 'visible', y: 0, duration: 0.8, ease: 'power2.out' }, 1.5);
-      tl.to('#hero h1', { opacity: 1, visibility: 'visible', y: 0, duration: 1.0, ease: 'power2.out' }, 1.7);
-      tl.to('#hero p', { opacity: 1, visibility: 'visible', y: 0, duration: 0.8, ease: 'power2.out' }, 1.9);
-      tl.to('#hero .hero-ctas', { opacity: 1, visibility: 'visible', y: 0, duration: 0.8, ease: 'power2.out' }, 2.1);
+      // ═══════════════════════════════════════════════════════════════
+      // HERO TEXT - Blur-in reveal timed with wave reaching left side
+      // Wave reaches left edge around 0.5-0.6s, so reveal then
+      // ═══════════════════════════════════════════════════════════════
+      
+      // Remove js-loading early so we can animate
+      tl.call(() => {
+        document.body.classList.remove('js-loading');
+        // Set initial state for blur-in (must include visibility since base CSS hides them)
+        gsap.set('#hero .panel-tag, #hero h1, #hero p, #hero .hero-ctas', {
+          opacity: 0,
+          visibility: 'visible',
+          y: 0,
+          filter: 'blur(10px)'
+        });
+      }, null, 0.4);
+      
+      // Blur-in reveal - starts right after set (0.5s) so no gap
+      tl.to('#hero .panel-tag', { opacity: 1, visibility: 'visible', filter: 'blur(0px)', duration: 0.8, ease: 'power2.out' }, 0.5);
+      tl.to('#hero h1', { opacity: 1, visibility: 'visible', filter: 'blur(0px)', duration: 0.8, ease: 'power2.out' }, 0.55);
+      tl.to('#hero p', { opacity: 1, visibility: 'visible', filter: 'blur(0px)', duration: 0.8, ease: 'power2.out' }, 0.6);
+      tl.to('#hero .hero-ctas', { opacity: 1, visibility: 'visible', filter: 'blur(0px)', duration: 0.8, ease: 'power2.out' }, 0.65);
       
       // Floating balls fade in with hero content
       tl.call(() => {
@@ -3146,6 +4511,20 @@
       }, 500);
     });
     
+    // Reset tabSwitching when mouse moves over the page (no click needed)
+    document.addEventListener('mousemove', () => {
+      if (tabSwitching) {
+        tabSwitching = false;
+      }
+    }, { passive: true });
+    
+    // Also reset on wheel event (capture phase to run before scroller)
+    document.addEventListener('wheel', () => {
+      if (tabSwitching) {
+        tabSwitching = false;
+      }
+    }, { passive: true, capture: true });
+    
     // Block scroll events during tab switching (Opera GX fix)
     window.addEventListener('scroll', () => {
       if (tabSwitching && Math.abs(window.scrollY - savedScrollY) > 10) {
@@ -3156,35 +4535,39 @@
     class SectionScroller {
       constructor() {
         this.currentSection = 0;
+        this.targetSection = 0;  // Track where we're animating TO
         this.totalSections = 5;
         this.intent = 0;
         this.isAnimating = false;
-        this.isActive = false; // Don't respond until activated
+        this.isActive = false;
         
-        // Tuning — adjusted for precise wheel detection
-        this.threshold = 0.1;        // Sweet spot
-        this.intentDecay = 0.85;     // Faster decay for snappier feel
-        this.transitionDuration = 1;
-        this.decayPause = 100;       // Shorter pause before decay
+        // ═══════════════════════════════════════════════════════════════
+        // JUNNI-STYLE TUNING - Snappy but smooth
+        // ═══════════════════════════════════════════════════════════════
+        this.threshold = 0.08;        // Lower = more responsive
+        this.intentDecay = 0.92;      // Slower decay = more momentum feel
+        this.decayPause = 50;         // Shorter pause before decay starts
         
+        // Velocity tracking for adaptive speed
+        this.velocity = 0;
+        this.lastDelta = 0;
         this.lastWheelTime = 0;
         this.scrollTimeout = null;
-        this.wheelBuffer = 0;        // Buffer for accumulating small deltas
+        
         this.init();
         
-        // Activate after short delay to ignore any queued events
         setTimeout(() => {
           this.isActive = true;
         }, 100);
         
-        // Pause when tab loses focus, resume after delay when it regains focus
         document.addEventListener('visibilitychange', () => {
           if (document.hidden) {
             this.isActive = false;
             this.intent = 0;
+            this.velocity = 0;
           } else {
-            // Delay reactivation to ignore any spurious events on tab focus
             this.intent = 0;
+            this.velocity = 0;
             this.isAnimating = false;
             setTimeout(() => {
               this.isActive = true;
@@ -3192,13 +4575,14 @@
           }
         });
         
-        // Also handle window focus/blur for clicking on the tab itself
         window.addEventListener('blur', () => {
           this.isActive = false;
           this.intent = 0;
+          this.velocity = 0;
         });
         window.addEventListener('focus', () => {
           this.intent = 0;
+          this.velocity = 0;
           this.isAnimating = false;
           setTimeout(() => {
             this.isActive = true;
@@ -3211,55 +4595,70 @@
           e.preventDefault();
           if (!this.isActive || this.isAnimating || tabSwitching) return;
           
-          this.lastWheelTime = Date.now();
+          const now = Date.now();
+          const timeDelta = now - this.lastWheelTime;
+          this.lastWheelTime = now;
           STATE.isScrolling = true;
           
           clearTimeout(this.scrollTimeout);
           this.scrollTimeout = setTimeout(() => {
             STATE.isScrolling = false;
+            this.velocity = 0;
           }, 150);
           
-          // Normalize wheel delta — different mice/trackpads give wildly different values
-          // Most mice: ~100-120 per notch, trackpads: much smaller continuous values
+          // Normalize wheel delta
           let delta = e.deltaY;
+          if (e.deltaMode === 1) delta *= 30;
+          else if (e.deltaMode === 2) delta *= 800;
           
-          // Normalize to roughly -1 to 1 per "notch"
-          // deltaMode: 0 = pixels, 1 = lines, 2 = pages
-          if (e.deltaMode === 1) {
-            delta *= 30;  // Lines to pixels approximation
-          } else if (e.deltaMode === 2) {
-            delta *= 800; // Pages to pixels
-          }
-          
-          // Normalize large deltas (100+ typical for mouse wheel notch)
-          // Small deltas (trackpad) accumulate in buffer
           const normalizedDelta = delta / 100;
           
-          // Add to intent with sensitivity curve
-          // Small scrolls are amplified, large scrolls are capped
-          const contribution = Math.sign(normalizedDelta) * Math.min(Math.abs(normalizedDelta) * 0.15, 0.2);
+          // Track velocity for adaptive animation speed
+          if (timeDelta > 0 && timeDelta < 100) {
+            this.velocity = Math.abs(normalizedDelta) / (timeDelta / 16.67);
+            this.velocity = Math.min(this.velocity, 3); // Cap velocity
+          }
+          
+          // Smoother intent accumulation with velocity influence
+          const contribution = Math.sign(normalizedDelta) * Math.min(Math.abs(normalizedDelta) * 0.12, 0.15);
           this.intent += contribution;
+          this.intent = Math.max(-0.4, Math.min(0.4, this.intent));
           
-          // Clamp intent to prevent over-accumulation
-          this.intent = Math.max(-0.5, Math.min(0.5, this.intent));
-          
+          this.lastDelta = normalizedDelta;
           this.checkThreshold();
         }, { passive: false });
         
         let touchY = 0;
+        let touchStartTime = 0;
+        
         window.addEventListener('touchstart', e => {
           touchY = e.touches[0].clientY;
+          touchStartTime = Date.now();
           this.intent = 0;
+          this.velocity = 0;
         }, { passive: false });
         
         window.addEventListener('touchmove', e => {
           e.preventDefault();
           if (!this.isActive || this.isAnimating || tabSwitching) return;
           STATE.isScrolling = true;
-          const delta = touchY - e.touches[0].clientY;
-          touchY = e.touches[0].clientY;
-          this.intent += delta * 0.003;
-          this.intent = Math.max(-0.5, Math.min(0.5, this.intent));
+          
+          const currentY = e.touches[0].clientY;
+          const delta = touchY - currentY;
+          const now = Date.now();
+          const timeDelta = now - touchStartTime;
+          
+          // Track touch velocity
+          if (timeDelta > 0) {
+            this.velocity = Math.abs(delta) / timeDelta * 10;
+            this.velocity = Math.min(this.velocity, 3);
+          }
+          
+          touchY = currentY;
+          touchStartTime = now;
+          
+          this.intent += delta * 0.002;
+          this.intent = Math.max(-0.4, Math.min(0.4, this.intent));
           this.checkThreshold();
         }, { passive: false });
         
@@ -3268,6 +4667,7 @@
           if (!this.isAnimating && Math.abs(this.intent) < this.threshold) {
             this.intent = 0;
           }
+          this.velocity = 0;
         });
         
         this.decayLoop();
@@ -3304,208 +4704,417 @@
         
         this.isAnimating = true;
         this.intent = 0;
+        this.targetSection = index;  // Track where we're going immediately
         STATE.isScrolling = true;
         STATE.isAnimating = true;
         
         const from = this.currentSection;
         const to = index;
+        const direction = to > from ? 'down' : 'up';
         const targetScroll = (index / (this.totalSections - 1)) * 
           (document.body.scrollHeight - window.innerHeight);
         
-        // Scale duration based on distance - more cinematic for long jumps
+        // ═══════════════════════════════════════════════════════════════
+        // JUNNI-STYLE ADAPTIVE TIMING
+        // Fast scroll = faster transition, slow scroll = normal transition
+        // ═══════════════════════════════════════════════════════════════
         const sectionDistance = Math.abs(to - from);
-        const baseDuration = 1.5;  // Single section jump
-        const duration = baseDuration + (sectionDistance - 1) * 0.8;  // +0.8s per additional section
-        const ease = 'power1.inOut';  // Gentler ease for smoother flow
+        let baseDuration = CINEMA.scrollBase + (sectionDistance - 1) * CINEMA.scrollPerSection;
         
-        // Animate scroll
+        // Velocity modifier: faster scroll = shorter duration (min 0.6s)
+        const velocityMod = Math.max(0.5, 1 - this.velocity * 0.15);
+        const duration = Math.max(0.6, baseDuration * velocityMod);
+        
+        // ═══════════════════════════════════════════════════════════════
+        // JUNNI-STYLE CUSTOM EASING
+        // Exponential ease-out: fast start, smooth landing
+        // ═══════════════════════════════════════════════════════════════
         gsap.to(window, {
           scrollTo: { y: targetScroll, autoKill: false },
           duration: duration,
-          ease: ease,
+          ease: "expo.out",  // The Junni secret: exponential ease-out
           onComplete: () => {
             this.currentSection = index;
             this.isAnimating = false;
             STATE.isScrolling = false;
             STATE.isAnimating = false;
+            this.velocity = 0;
           }
         });
         
-        // ─────────────────────────────────────────────────────────────────
-        // DIRECT TEXT ANIMATIONS — Fade out current, fade in next
-        // ─────────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════════
+        // CINEMATIC CHOREOGRAPHY - Everything moves as ONE
+        // Like connected by invisible strings - all elements flow together
+        // Tiny stagger (0.04s) just adds organic feel, not sequencing
+        // ═══════════════════════════════════════════════════════════════
         
         const sections = ['#hero', '#about', '#extensions', '#templates', '#contact'];
         const fromSection = sections[from];
         const toSection = sections[to];
         
-        // Kill any existing tweens on these elements first
-        gsap.killTweensOf(`${fromSection} .panel-content`);
-        gsap.killTweensOf(`${fromSection} .panel-tag`);
-        gsap.killTweensOf(`${fromSection} h1`);
-        gsap.killTweensOf(`${fromSection} h2`);
-        gsap.killTweensOf(`${fromSection} p`);
+        // Direction: scroll DOWN = content exits UP, enters from BELOW
+        const exitY = direction === 'down' ? -CINEMA.yDistance : CINEMA.yDistance;
+        const enterY = direction === 'down' ? CINEMA.yDistance : -CINEMA.yDistance;
         
-        // Fade out current section text - direction based on scroll direction
-        // Scrolling DOWN (to > from): text exits UP (negative y)
-        // Scrolling UP (to < from): text exits DOWN (positive y)
-        const exitY = to > from ? -30 : 30;
-        const enterY = to > from ? 30 : -30;
+        // ─────────────────────────────────────────────────────────────────
+        // EXIT CURRENT SECTION - Everything leaves TOGETHER
+        // ─────────────────────────────────────────────────────────────────
         
-        gsap.to(`${fromSection} .panel-content`, { opacity: 0, y: exitY, duration: duration * 0.4, ease: 'power2.in', overwrite: true });
+        // Kill ALL tweens first
+        gsap.killTweensOf([
+          `${fromSection} .panel-content`,
+          `${fromSection} .panel-tag`,
+          `${fromSection} h1`, `${fromSection} h2`,
+          `${fromSection} p`,
+          `${fromSection} .hero-ctas`,
+          `${fromSection} .cta-btn`,
+          `${fromSection} .about-secondary`,
+          '.founder-card',
+          '.work-grid',
+          '.work-item',
+          '.process-card',
+          '.process-phone-area'
+        ]);
         
-        // Fade in next section text
-        gsap.set(`${toSection} .panel-content`, { opacity: 0, y: enterY });
-        gsap.to(`${toSection} .panel-content`, { opacity: 1, y: 0, duration: duration * 0.5, delay: duration * 0.4, ease: 'power2.out', overwrite: true });
+        // Collect ALL elements that need to exit
+        const exitElements = [
+          `${fromSection} .panel-tag`,
+          `${fromSection} h1`,
+          `${fromSection} h2`, 
+          `${fromSection} p`
+        ];
         
-        // Animate individual elements for polish
-        gsap.set(`${toSection} .panel-tag`, { y: enterY });
-        gsap.to(`${toSection} .panel-tag`, { opacity: 1, visibility: 'visible', y: 0, duration: 0.6, delay: duration * 0.4, ease: 'power2.out', overwrite: true });
-        if (to === 0) {
-          gsap.set(`${toSection} h1`, { y: enterY * 1.3 });
-          gsap.to(`${toSection} h1`, { opacity: 1, visibility: 'visible', y: 0, duration: 0.8, delay: duration * 0.45, ease: 'power2.out', overwrite: true });
-          gsap.set(`${toSection} .hero-ctas`, { y: enterY });
-          gsap.to(`${toSection} .hero-ctas`, { opacity: 1, visibility: 'visible', y: 0, duration: 0.6, delay: duration * 0.5, ease: 'power2.out', overwrite: true });
-        } else {
-          gsap.set(`${toSection} h2`, { y: enterY * 1.3 });
-          gsap.to(`${toSection} h2`, { opacity: 1, visibility: 'visible', y: 0, duration: 0.8, delay: duration * 0.45, ease: 'power2.out', overwrite: true });
+        // Add section-specific elements
+        if (from === 0) exitElements.push(`${fromSection} .hero-ctas`);
+        if (from === 1) exitElements.push('.founder-card', `${fromSection} .about-secondary`);
+        if (from === 4) {
+          exitElements.push(`${fromSection} .contact-glass-bubble`, `${fromSection} .cta-btn`);
+          // 🌈 Disable rainbow glow when leaving Contact - match enter timing (reversed)
+          gsap.killTweensOf(bgPlaneMaterial.uniforms.uGlowIntensity);
+          gsap.killTweensOf(bgPlaneMaterial.uniforms.uRainbowMode);
+          // Rainbow mode fades first
+          gsap.to(bgPlaneMaterial.uniforms.uRainbowMode, {
+            value: 0.0,
+            duration: CINEMA.duration * 0.8,
+            ease: CINEMA.easeOut
+          });
+          // Intensity fades slightly after
+          gsap.to(bgPlaneMaterial.uniforms.uGlowIntensity, {
+            value: 0.0,
+            duration: CINEMA.duration,
+            ease: CINEMA.easeOut
+          });
         }
-        gsap.set(`${toSection} p`, { y: enterY });
-        gsap.to(`${toSection} p`, { opacity: 1, visibility: 'visible', y: 0, duration: 0.6, delay: duration * 0.5, ease: 'power2.out', overwrite: true });
         
-        if (to === 2) {
-          gsap.set('.work-item', { y: enterY });
-          gsap.to('.work-item', { opacity: 1, y: 0, duration: 0.8, delay: duration * 0.45, ease: 'power2.out', overwrite: true });
+        // EXIT: All elements animate TOGETHER with tiny stagger
+        gsap.to(exitElements.join(', '), {
+          y: exitY,
+          opacity: 0,
+          duration: CINEMA.duration,
+          ease: CINEMA.easeOut,
+          stagger: 0.04  // Tiny stagger for organic feel
+        });
+        
+        // Work items exit together
+        if (from === 2) {
+          gsap.to('.work-item', {
+            y: exitY,
+            opacity: 0,
+            duration: CINEMA.duration,
+            ease: CINEMA.easeOut,
+            stagger: 0.03  // Even tighter for grid items
+          });
         }
+        
+        // Process section elements exit together
+        if (from === 3) {
+          gsap.to('.process-card', {
+            yPercent: -50,
+            y: exitY,
+            opacity: 0,
+            visibility: 'hidden',
+            duration: CINEMA.duration,
+            ease: CINEMA.easeOut,
+            stagger: 0.03
+          });
+          gsap.to('.process-phone-area', {
+            y: exitY,
+            opacity: 0,
+            visibility: 'hidden',
+            duration: CINEMA.duration,
+            ease: CINEMA.easeOut
+          });
+        }
+        
+        // Container fades
+        gsap.to(`${fromSection} .panel-content`, {
+          opacity: 0,
+          visibility: 'hidden',
+          duration: CINEMA.duration * 0.8,
+          ease: CINEMA.easeOut
+        });
+        
+        // ─────────────────────────────────────────────────────────────────
+        // ENTER NEW SECTION - Everything arrives TOGETHER
+        // ─────────────────────────────────────────────────────────────────
+        
+        const enterDelay = duration * 0.35;  // Start entering at 35% of scroll
+        
+        // Kill tweens on entering section
+        gsap.killTweensOf([
+          `${toSection} .panel-content`,
+          `${toSection} .panel-tag`,
+          `${toSection} h1`, `${toSection} h2`,
+          `${toSection} p`,
+          `${toSection} .hero-ctas`,
+          `${toSection} .cta-btn`,
+          `${toSection} .about-secondary`
+        ]);
+        
+        // Set ALL starting positions - same Y offset for everything
+        const enterElements = [
+          `${toSection} .panel-tag`,
+          `${toSection} h1`,
+          `${toSection} h2`,
+          `${toSection} p`
+        ];
+        
+        // Add section-specific elements
+        if (to === 0) enterElements.push(`${toSection} .hero-ctas`);
+        if (to === 1) enterElements.push('.founder-card', `${toSection} .about-secondary`);
         if (to === 4) {
-          gsap.set(`${toSection} .cta-btn`, { y: enterY });
-          gsap.to(`${toSection} .cta-btn`, { opacity: 1, y: 0, duration: 0.6, delay: duration * 0.55, ease: 'power2.out', overwrite: true });
+          enterElements.push(`${toSection} .contact-glass-bubble`, `${toSection} .cta-btn`);
+          // 🌈 Enable rainbow glow when entering Contact - smooth transition
+          gsap.killTweensOf(bgPlaneMaterial.uniforms.uGlowIntensity);
+          gsap.killTweensOf(bgPlaneMaterial.uniforms.uRainbowMode);
+          gsap.to(bgPlaneMaterial.uniforms.uGlowIntensity, {
+            value: 1.0,
+            duration: CINEMA.duration,
+            delay: enterDelay,
+            ease: CINEMA.ease
+          });
+          gsap.to(bgPlaneMaterial.uniforms.uRainbowMode, {
+            value: 1.0,
+            duration: CINEMA.duration * 0.8,
+            delay: enterDelay,
+            ease: CINEMA.ease
+          });
         }
         
-        // ─────────────────────────────────────────────────────────────────
-        // DIRECT MODEL ANIMATIONS — Synced with scroll for smooth feel
-        // ─────────────────────────────────────────────────────────────────
+        // Set starting positions
+        gsap.set(`${toSection} .panel-content`, { opacity: 0 });
+        gsap.set(enterElements.join(', '), { y: enterY, opacity: 0 });
         
-        const extModels = ['wand', 'bolt', 'shield', 'eyedrop'];
-        const templateModels = ['phone', 'tablet', 'laptop'];
-        const extPositions = [
-          { x: -3.5, y: 1.2, z: 0 },
-          { x: -2.5, y: -0.8, z: 1 },
-          { x: -4, y: 0.2, z: -1 },
-          { x: -3, y: -1.5, z: 0.5 }
-        ];
-        const templatePositions = [
-          { x: 4, y: 0.3, z: 2 },
-          { x: 2.5, y: 0, z: -1 },
-          { x: 4.5, y: -0.8, z: 0 }
-        ];
+        // Hero section needs filter reset (blur was set during intro)
+        if (to === 0) {
+          gsap.set('#hero .panel-tag, #hero h1, #hero p, #hero .hero-ctas', { filter: 'blur(0px)' });
+        }
         
-        // Hero (0) <-> Any other section
+        // Work items setup
+        if (to === 2) {
+          gsap.killTweensOf('.work-grid');
+          gsap.killTweensOf('.work-item');
+          gsap.set('.work-grid', { opacity: 0 });
+          gsap.set('.work-item', { y: enterY, opacity: 0 });
+        }
+        
+        // Process section setup
+        if (to === 3) {
+          gsap.killTweensOf('.process-card-left');
+          gsap.killTweensOf('.process-card-right');
+          gsap.killTweensOf('.process-phone-area');
+          // Use yPercent: -50 to maintain vertical centering, y for animation offset
+          gsap.set('.process-card-left', { yPercent: -50, y: enterY, opacity: 0, visibility: 'hidden' });
+          gsap.set('.process-card-right', { yPercent: -50, y: enterY, opacity: 0, visibility: 'hidden' });
+          gsap.set('.process-phone-area', { y: enterY * 0.5, opacity: 0, visibility: 'hidden' });
+        }
+        
+        // ENTER: Container visible first
+        gsap.to(`${toSection} .panel-content`, {
+          opacity: 1,
+          visibility: 'visible',
+          duration: CINEMA.duration * 0.5,
+          delay: enterDelay,
+          ease: CINEMA.ease
+        });
+        
+        // ENTER: All elements animate TOGETHER with tiny stagger
+        gsap.to(enterElements.join(', '), {
+          y: 0,
+          opacity: 1,
+          visibility: 'visible',
+          duration: CINEMA.duration,
+          delay: enterDelay,
+          ease: CINEMA.ease,
+          stagger: 0.04  // Tiny stagger for organic feel
+        });
+        
+        // Work items enter together
+        if (to === 2) {
+          gsap.to('.work-grid', {
+            opacity: 1,
+            duration: CINEMA.duration * 0.5,
+            delay: enterDelay,
+            ease: CINEMA.ease
+          });
+          gsap.to('.work-item', {
+            y: 0,
+            opacity: 1,
+            duration: CINEMA.duration,
+            delay: enterDelay + 0.1,  // Slight delay after text starts
+            ease: CINEMA.ease,
+            stagger: 0.04  // Tight stagger
+          });
+        }
+        
+        // Process section elements enter together
+        if (to === 3) {
+          // Left card enters first, right card with slight delay
+          // yPercent: -50 maintains vertical centering, y: 0 is the animation target
+          gsap.to('.process-card-left', {
+            yPercent: -50,
+            y: 0,
+            opacity: 1,
+            visibility: 'visible',
+            duration: CINEMA.duration,
+            delay: enterDelay,
+            ease: CINEMA.ease
+          });
+          gsap.to('.process-card-right', {
+            yPercent: -50,
+            y: 0,
+            opacity: 1,
+            visibility: 'visible',
+            duration: CINEMA.duration,
+            delay: enterDelay + 0.15,
+            ease: CINEMA.ease
+          });
+          gsap.to('.process-phone-area', {
+            y: 0,
+            opacity: 1,
+            visibility: 'visible',
+            duration: CINEMA.duration,
+            delay: enterDelay + 0.08,
+            ease: CINEMA.ease
+          });
+        }
+        
+        // ═══════════════════════════════════════════════════════════════
+        // LOGO ANIMATION - Simple up/down with the balls
+        // ═══════════════════════════════════════════════════════════════
+        
         if (MODELS.logo) {
-          // Logo animation should be quick regardless of scroll distance
-          const logoDuration = 1.2;  // Fixed duration for logo - always 1.2s
-          const logoEase = 'power2.inOut';
+          gsap.killTweensOf(MODELS.logo.position);
+          gsap.killTweensOf(MODELS.logo.scale);
+          gsap.killTweensOf(MODELS.logo.rotation);
+          
+          // Reset interaction state
+          logoInteraction.isHovering = false;
+          logoInteraction.velocityX = 0;
+          logoInteraction.velocityY = 0;
+          logoPullTarget.x = 0;
+          logoPullTarget.y = 0;
+          logoPullCurrent.x = 0;
+          logoPullCurrent.y = 0;
           
           if (from === 0 && to > 0) {
-            // Logo flies up to navbar position from Hero to ANY section
-            MODEL_BASE_Y.logo = 1.30;
-            // Kill any existing tweens and smoothly rotate to forward-facing
-            gsap.killTweensOf(MODELS.logo.rotation);
-            gsap.to(MODELS.logo.rotation, { x: 0, y: 0, z: 0, duration: logoDuration * 0.4, ease: logoEase });
-            gsap.to(MODELS.logo.position, { x: -2.5, y: 1.30, z: 6, duration: logoDuration, ease: logoEase });
-            gsap.to(MODELS.logo.scale, { x: 0.1, y: 0.1, z: 0.1, duration: logoDuration, ease: logoEase });
-            // Reset ALL interaction state including pull effect
-            logoInteraction.isHovering = false;
-            logoInteraction.velocityX = 0;
-            logoInteraction.velocityY = 0;
-            logoPullTarget.x = 0;
-            logoPullTarget.y = 0;
-            logoPullCurrent.x = 0;
-            logoPullCurrent.y = 0;
+            // Leaving Hero - logo exits UPWARD (like the balls)
+            gsap.to(MODELS.logo.position, {
+              y: 15,
+              duration: 0.6,
+              ease: 'power2.in',
+              onComplete: () => {
+                MODELS.logo.visible = false;
+              }
+            });
           } else if (from > 0 && to === 0) {
-            // Logo returns to hero center - slower, more cinematic
-            const returnDuration = 2.2;  // Slower return for cinematic feel
-            const returnEase = 'power2.inOut';
-            // Delay = total scroll duration minus logo animation duration
-            const returnDelay = Math.max(0.2, duration - returnDuration);
-            gsap.delayedCall(returnDelay, () => { MODEL_BASE_Y.logo = 0; });
-            gsap.to(MODELS.logo.position, { x: 0, y: 0, z: -5, duration: returnDuration, ease: returnEase, delay: returnDelay });
-            gsap.to(MODELS.logo.rotation, { x: 0, y: 0, z: 0, duration: returnDuration * 0.6, ease: returnEase, delay: returnDelay });
-            gsap.to(MODELS.logo.scale, { x: 3, y: 3, z: 3, duration: returnDuration, ease: returnEase, delay: returnDelay });
+            // Returning to Hero - logo enters from ABOVE
+            MODELS.logo.visible = true;
+            MODELS.logo.position.set(0, 15, -5);
+            MODELS.logo.scale.set(3, 3, 3);
+            MODELS.logo.rotation.set(0, 0, 0);
+            MODEL_BASE_Y.logo = 0;
+            
+            gsap.to(MODELS.logo.position, {
+              y: 0,
+              duration: CINEMA.duration,
+              delay: duration * 0.3,
+              ease: 'power3.out'
+            });
           }
         }
         
-        // Background zoom - dolly camera for real zoom effect
-        // Kill existing tweens to prevent conflicts
+        // ═══════════════════════════════════════════════════════════════
+        // BACKGROUND ZOOM (Sacred - unchanged)
+        // Contact section keeps bgPlane visible for rainbow glow
+        // ═══════════════════════════════════════════════════════════════
+        
+        // 🤖 CONTACT ROBOT - Show/hide when entering/leaving Contact
+        if (contactRobot) {
+          gsap.killTweensOf(contactRobot.position);
+          gsap.killTweensOf(contactRobot.rotation);
+          gsap.killTweensOf(contactRobot.scale);
+          
+          if (to === 4 && from !== 4) {
+            // Entering Contact - robot rises from well below screen
+            contactRobot.visible = true;
+            contactRobot.position.set(0, -20, -5);
+            contactRobot.scale.setScalar(5.4);
+            contactRobot.rotation.set(0, 0, 0);
+            
+            // Reset pull state for fresh interaction
+            robotPullTarget.x = 0;
+            robotPullTarget.y = 0;
+            robotPullCurrent.x = 0;
+            robotPullCurrent.y = 0;
+            
+            gsap.to(contactRobot.position, {
+              y: -4.0,
+              duration: CINEMA.duration * 1.2,
+              delay: enterDelay,
+              ease: CINEMA.ease
+            });
+          } else if (from === 4 && to !== 4) {
+            // Leaving Contact - robot exits well below screen
+            gsap.to(contactRobot.position, {
+              y: -20,
+              duration: CINEMA.duration * 1.2,
+              ease: CINEMA.easeOut,
+              onComplete: () => { contactRobot.visible = false; }
+            });
+          }
+        }
+        
         gsap.killTweensOf(camera.position);
         gsap.killTweensOf(perspGridMaterial.uniforms.uCurve);
         gsap.killTweensOf(bgPlane.scale);
         
         if (from === 0 && to > 0 && to !== 4) {
-          // Leaving hero to non-Contact section - dolly camera back (zoom out)
           gsap.to(camera.position, { z: 9, duration: duration * 1.2, ease: 'power1.inOut' });
         } else if (from === 0 && to === 4) {
-          // Hero directly to Contact - zoom in and flatten
           gsap.to(camera.position, { z: 0.5, duration: duration * 1.2, ease: 'power1.inOut' });
           gsap.to(perspGridMaterial.uniforms.uCurve, { value: 0, duration: duration * 1.2, ease: 'power1.inOut' });
-          // Scale down bgPlane to keep color wave same visual size
-          gsap.to(bgPlane.scale, { x: 0.1, y: 0.1, duration: duration * 1.2, ease: 'power1.inOut' });
+          // Keep bgPlane at full scale for rainbow glow
+          gsap.to(bgPlane.scale, { x: 1, y: 1, duration: duration * 1.2, ease: 'power1.inOut' });
         } else if (from > 0 && to === 0) {
-          // Returning to hero - dolly camera forward (zoom in), restore curve
           gsap.to(camera.position, { z: 3.5, duration: duration * 1.2, ease: 'power1.inOut' });
           gsap.to(perspGridMaterial.uniforms.uCurve, { value: 7, duration: duration * 0.8, ease: 'power1.inOut' });
-          // Restore bgPlane scale if coming from Contact
           if (from === 4) {
             gsap.to(bgPlane.scale, { x: 1, y: 1, duration: duration * 1.2, ease: 'power1.inOut' });
           }
         }
         
-        // Contact section transitions (from other sections, not hero)
         if (to === 4 && from !== 0) {
-          // Entering Contact from middle sections - zoom in and flatten
           gsap.to(camera.position, { z: 0.5, duration: duration, ease: 'power2.inOut' });
           gsap.to(perspGridMaterial.uniforms.uCurve, { value: 0, duration: duration, ease: 'power2.inOut' });
-          // Scale down bgPlane
-          gsap.to(bgPlane.scale, { x: 0.1, y: 0.1, duration: duration, ease: 'power2.inOut' });
+          // Keep bgPlane at full scale for rainbow glow
+          gsap.to(bgPlane.scale, { x: 1, y: 1, duration: duration, ease: 'power2.inOut' });
         } else if (from === 4 && to !== 0) {
-          // Leaving Contact (but not to Hero) - zoom back out and restore curve
           gsap.to(camera.position, { z: 9, duration: duration, ease: 'power2.inOut' });
           gsap.to(perspGridMaterial.uniforms.uCurve, { value: 7, duration: duration, ease: 'power2.inOut' });
-          // Restore bgPlane scale
           gsap.to(bgPlane.scale, { x: 1, y: 1, duration: duration, ease: 'power2.inOut' });
         } else if (from === 4 && to === 0) {
-          // Contact to Hero - restore curve during travel
           gsap.to(perspGridMaterial.uniforms.uCurve, { value: 7, duration: duration * 0.6, ease: 'power2.out' });
-        }
-        
-        // About (1) -> Extensions (2): Logo stays in navbar
-        if (from === 1 && to === 2) {
-          // Logo already in navbar, no change needed
-        }
-        
-        // Extensions (2) -> About (1): Logo stays in navbar
-        if (from === 2 && to === 1) {
-          // Logo already in navbar, no change needed
-        }
-        
-        // Extensions (2) -> Templates (3): Logo stays in navbar
-        if (from === 2 && to === 3) {
-          // Logo already in navbar, no change needed
-        }
-        
-        // Templates (3) -> Extensions (2): Logo stays in navbar
-        if (from === 3 && to === 2) {
-          // Logo already in navbar, no change needed
-        }
-        
-        // Templates (3) -> Contact (4): Logo stays in navbar
-        if (from === 3 && to === 4) {
-          // Logo already in navbar, no change needed
-        }
-        
-        // Contact (4) -> Templates (3): Logo stays in navbar
-        if (from === 4 && to === 3) {
-          // Logo already in navbar, no change needed
         }
       }
       
@@ -3533,24 +5142,13 @@
       gsap.registerPlugin(ScrollTrigger);
       
       const dots = document.querySelectorAll('.progress-dot');
-      const extModels = ['wand', 'bolt', 'shield', 'eyedrop'];
-      const templateModels = ['phone', 'tablet', 'laptop'];
       
       // ─────────────────────────────────────────────────────────────────
       // RESET FUNCTIONS
       // ─────────────────────────────────────────────────────────────────
       
-      function resetLogo() {
-        if (!MODELS.logo) return;
-        MODELS.logo.visible = true;
-        MODELS.logo.position.set(0, 0, -5);
-        MODELS.logo.rotation.set(0, 0, 0);
-        MODELS.logo.scale.setScalar(3);
-        MODEL_BASE_Y.logo = 0;
-      }
-      
       function resetExtModels() {
-        extModels.forEach(name => {
+        ['wand', 'bolt', 'shield', 'eyedrop'].forEach(name => {
           const m = MODELS[name];
           if (m) {
             m.visible = false;
@@ -3562,7 +5160,7 @@
       }
       
       function resetTemplateModels() {
-        templateModels.forEach(name => {
+        ['phone', 'tablet', 'laptop'].forEach(name => {
           const m = MODELS[name];
           if (m) {
             m.visible = false;
@@ -3573,46 +5171,17 @@
         });
       }
       
-      // FIX #6: Now actually used
-      function resetCamera() {
-        camera.position.set(0, 0, 3.5);  // Hero zoom position
-        camera.lookAt(0, 0, 0);
-      }
-      
-      // FIX #12: Handle both h1 and h2
-      function resetPanelContent(id) {
-        gsap.set(`${id} .panel-tag`, { opacity: 0, y: 30 });
-        if (id === '#hero') {
-          gsap.set(`${id} h1`, { opacity: 0, y: 50 });
-          gsap.set(`${id} .hero-ctas`, { opacity: 0, y: 30 });
-        } else {
-          gsap.set(`${id} h2`, { opacity: 0, y: 50 });
-        }
-        gsap.set(`${id} p`, { opacity: 0, y: 40 });
-        // About section glass card needs special handling
-        if (id === '#about') {
-          gsap.set(`${id} .panel-content`, { opacity: 0, visibility: 'hidden', y: 30 });
-        } else {
-          gsap.set(`${id} .panel-content`, { opacity: 1 });
-        }
-        if (id === '#contact') gsap.set(`${id} .cta-btn`, { opacity: 0, y: 30 });
+      function setActiveSection(i) {
+        STATE.section = i;
+        dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
       }
       
       // ─────────────────────────────────────────────────────────────────
-      // PANEL 0: HERO — animations handled by warp intro, skip here
+      // HERO - Parallax effects + DNA early trigger
+      // Text animations handled by warp intro and goToSection()
       // ─────────────────────────────────────────────────────────────────
       
-      // Track last content opacity to avoid gsap.set spam (FIX #11)
-      let lastHeroOpacity = 1;
-      
-      // Store initial positions for hero 3D elements
-      const heroElementsBase = {
-        logoY: 0,
-        logoZ: -5,
-        textY: 0,
-        textZ: -8
-      };
-      
+      const heroElementsBase = { textZ: -8 };
       let dnaTriggered = false;
       let lastHeroProgress = 0;
       
@@ -3626,62 +5195,36 @@
           const p = self.progress;
           const scrollingDown = p > lastHeroProgress;
           
-          // ═══════════════════════════════════════════════════════════════
-          // CINEMATIC HERO ELEMENTS EXIT - Move up and out on scroll
-          // ═══════════════════════════════════════════════════════════════
-          
-          // Hero logo - stay in place, warp transition handles movement to navbar
-          if (heroLogo && STATE.section === 0) {
-            // Just track scroll for rotation, don't move position
-            heroLogo.userData.scrollRotY = p * 1.5;
-          }
-          
-          // ITEREX text - store scroll offset for render loop
+          // Parallax: text plane moves with scroll
           heroScrollOffset.textY = p * 8;
           heroTextPlane.position.z = heroElementsBase.textZ + p * 2;
           
-          // Floating balls animate up with varied speeds for depth
+          // Parallax: floating balls move up with varied speeds
           floatingBalls.forEach((ball, i) => {
-            const d = ball.userData;
             const speedMultiplier = 1 + (i * 0.15);
-            d.scrollOffsetY = p * 10 * speedMultiplier;
+            ball.userData.scrollOffsetY = p * 10 * speedMultiplier;
           });
           
-          // Trigger DNA early - at 60% through Hero scroll (only when scrolling DOWN)
+          // DNA enters early (60% through hero scroll, only when scrolling down)
+          // Enters from BELOW - pure Y translation at full scale for cinematic flow
           if (p > 0.6 && scrollingDown && !dnaTriggered && dnaHelix) {
             dnaTriggered = true;
+            
+            // Kill any existing DNA tweens to prevent conflicts
+            gsap.killTweensOf(dnaHelix.position);
+            gsap.killTweensOf(dnaHelix.scale);
+            
             dnaHelix.visible = true;
             
-            const pathPoints = [
-              new THREE.Vector3(8, -4, 2),      // START CLOSER - already near visible
-              new THREE.Vector3(5, -2, 4),
-              new THREE.Vector3(2, -0.5, 2),
-              new THREE.Vector3(0, -0.35, -4)    // End: center
-            ];
-            const scalePoints = [5.0, 5.5, 5.0, 4.5];
-            const curve = new THREE.CatmullRomCurve3(pathPoints);
+            // Start well below viewport at FULL scale - no zoom, just rise
+            // Position: moved right 0.5 units, final y=-0.1 (10px down)
+            dnaHelix.position.set(-0.5, -12, -8);
+            dnaHelix.scale.setScalar(6.5);  // Slightly smaller
             
-            dnaHelix.position.copy(pathPoints[0]);
-            dnaHelix.scale.setScalar(scalePoints[0]);
-            
-            const progress = { t: 0 };
-            gsap.to(progress, {
-              t: 1,
-              duration: 1.2,  // Faster
-              ease: 'power2.out',
-              onUpdate: () => {
-                const point = curve.getPoint(progress.t);
-                dnaHelix.position.copy(point);
-                
-                const scaleT = progress.t * (scalePoints.length - 1);
-                const scaleIndex = Math.floor(scaleT);
-                const scaleFrac = scaleT - scaleIndex;
-                const s0 = scalePoints[Math.min(scaleIndex, scalePoints.length - 1)];
-                const s1 = scalePoints[Math.min(scaleIndex + 1, scalePoints.length - 1)];
-                dnaHelix.scale.setScalar(s0 + (s1 - s0) * scaleFrac);
-                
-                dnaHelix.rotation.y += 0.005;
-              }
+            gsap.to(dnaHelix.position, {
+              y: -0.1,
+              duration: CINEMA.duration * 1.2,
+              ease: CINEMA.ease
             });
           }
           
@@ -3694,19 +5237,18 @@
         },
         onEnterBack: () => {
           setActiveSection(0);
-          if (MODELS.logo) MODELS.logo.visible = true;
+          // Logo animation handled by goToSection
           resetExtModels();
           resetTemplateModels();
-          dnaTriggered = false;  // Reset so DNA can trigger again on next scroll down
-          lastHeroProgress = 1;  // Start high so scrolling up doesn't trigger DNA
+          dnaTriggered = false;
+          lastHeroProgress = 1;
         }
       });
       
       // ─────────────────────────────────────────────────────────────────
-      // PANEL 1: ABOUT
+      // ABOUT - 3D elements (neurons, DNA)
+      // Animate on Y axis to match text flow - enter from below, exit up
       // ─────────────────────────────────────────────────────────────────
-      
-      let lastAboutOpacity = 1;
       
       ScrollTrigger.create({
         trigger: '#about',
@@ -3716,174 +5258,98 @@
         scrub: true,
         onEnter: () => {
           setActiveSection(1);
-          
-          // Hide floating balls - only visible in Hero
           floatingBalls.forEach(ball => { ball.visible = false; });
           
-          // Logo animation handled by warp transition
-          
-          // Show glass card and animate content (standard fade up like other sections)
-          gsap.to('#about .panel-content', { opacity: 1, visibility: 'visible', y: 0, duration: 0.6 });
-          gsap.to('#about .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
-          gsap.to('#about h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
-          gsap.to('#about p:first-of-type', { opacity: 1, y: 0, duration: 0.6, delay: 0.2 });
-          gsap.to('#about .about-secondary', { opacity: 1, y: 0, duration: 0.6, delay: 0.35 });
-          
-          // Founder card - match text timing
-          gsap.to('.founder-card', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
-          
-          // Animate neurons in from deep in scene
+          // Neurons enter from BELOW (Y axis) at full scale - no zoom, pure slide
           floatingNeurons.forEach((neuron, i) => {
+            // Kill any existing tweens first
+            gsap.killTweensOf(neuron.position);
+            gsap.killTweensOf(neuron.scale);
+            
             neuron.visible = true;
-            neuron.position.x = neuron.userData.baseX;
-            neuron.position.y = neuron.userData.baseY;
-            neuron.position.z = -30;
-            neuron.scale.setScalar(0.01);
+            // Start well below viewport at FULL scale
+            neuron.position.set(neuron.userData.baseX, neuron.userData.baseY - 15, neuron.userData.baseZ);
+            neuron.scale.setScalar(neuron.userData.baseScale);  // Full scale from start
+            
             gsap.to(neuron.position, {
-              z: neuron.userData.baseZ,
-              duration: 0.8,
-              delay: i * 0.05,
-              ease: 'power2.out'
-            });
-            gsap.to(neuron.scale, {
-              x: neuron.userData.baseScale,
-              y: neuron.userData.baseScale,
-              z: neuron.userData.baseScale,
-              duration: 0.8,
-              delay: i * 0.05,
-              ease: 'power2.out'
+              y: neuron.userData.baseY,
+              duration: CINEMA.duration * 1.1,
+              delay: i * 0.04,
+              ease: CINEMA.ease
             });
           });
-        },
-        onUpdate: self => {
-          const p = self.progress;
+          
+          // DNA should already be visible from Hero scroll trigger
         },
         onLeave: () => {
-          // Animate neurons flying toward camera
-          floatingNeurons.forEach((neuron, i) => {
+          // Kill existing tweens to prevent conflicts
+          floatingNeurons.forEach(neuron => {
+            gsap.killTweensOf(neuron.position);
+            gsap.killTweensOf(neuron.scale);
+          });
+          if (dnaHelix) {
+            gsap.killTweensOf(dnaHelix.position);
+            gsap.killTweensOf(dnaHelix.scale);
+          }
+          
+          // Neurons exit UPWARD - smooth like the logo
+          floatingNeurons.forEach((neuron) => {
             gsap.to(neuron.position, {
-              z: 15,
-              duration: 0.4,
-              delay: i * 0.02,
+              y: 20,  // All go to same high Y (off screen top)
+              duration: 0.8,
               ease: 'power2.in',
-              onComplete: () => { neuron.visible = false; }
-            });
-            gsap.to(neuron.scale, {
-              x: neuron.userData.baseScale * 3,
-              y: neuron.userData.baseScale * 3,
-              z: neuron.userData.baseScale * 3,
-              duration: 0.4,
-              delay: i * 0.02,
-              ease: 'power2.in'
+              onComplete: () => {
+                neuron.visible = false;
+              }
             });
           });
           
-          // DNA exits along curved path to top-left (quick exit)
-          if (dnaHelix) {
-            const pathPoints = [
-              new THREE.Vector3(0, -0.35, -4),   // Start: center
-              new THREE.Vector3(-4, 2, 2),       // Quick arc
-              new THREE.Vector3(-10, 6, 0),      // Continue out
-              new THREE.Vector3(-18, 12, -10)    // End: far off screen
-            ];
-            const scalePoints = [4.5, 5.0, 5.5, 4.5];
-            const curve = new THREE.CatmullRomCurve3(pathPoints);
-            
-            const progress = { t: 0 };
-            gsap.to(progress, {
-              t: 1,
+          // DNA exits UPWARD - smooth exit
+          if (dnaHelix && dnaHelix.visible) {
+            gsap.to(dnaHelix.position, {
+              y: 20,
               duration: 0.8,
               ease: 'power2.in',
-              onUpdate: () => {
-                const point = curve.getPoint(progress.t);
-                dnaHelix.position.copy(point);
-                
-                const scaleT = progress.t * (scalePoints.length - 1);
-                const scaleIndex = Math.floor(scaleT);
-                const scaleFrac = scaleT - scaleIndex;
-                const s0 = scalePoints[Math.min(scaleIndex, scalePoints.length - 1)];
-                const s1 = scalePoints[Math.min(scaleIndex + 1, scalePoints.length - 1)];
-                dnaHelix.scale.setScalar(s0 + (s1 - s0) * scaleFrac);
-                
-                dnaHelix.rotation.y += 0.005;  // Continue spinning upright
-              },
-              onComplete: () => { dnaHelix.visible = false; }
+              onComplete: () => {
+                if (dnaHelix) dnaHelix.visible = false;
+              }
             });
           }
         },
         onLeaveBack: () => {
-          // Logo animation handled by warp transition
-          
-          // Show floating balls again - returning to Hero
           floatingBalls.forEach(ball => { ball.visible = true; });
           
-          // Text fades out going DOWN when scrolling back up
-          gsap.killTweensOf('#about .panel-content');
-          gsap.killTweensOf('#about .panel-tag');
-          gsap.killTweensOf('#about h2');
-          gsap.killTweensOf('#about p:first-of-type');
-          gsap.killTweensOf('#about .about-secondary');
-          gsap.killTweensOf('.founder-card');
+          // Kill existing tweens to prevent conflicts
+          floatingNeurons.forEach(neuron => {
+            gsap.killTweensOf(neuron.position);
+            gsap.killTweensOf(neuron.scale);
+          });
+          if (dnaHelix) {
+            gsap.killTweensOf(dnaHelix.position);
+            gsap.killTweensOf(dnaHelix.scale);
+          }
           
-          gsap.to('#about .panel-content', { opacity: 0, y: 30, visibility: 'hidden', duration: 0.3, overwrite: true });
-          gsap.to('#about .panel-tag', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
-          gsap.to('#about h2', { opacity: 0, y: 40, duration: 0.3, overwrite: true });
-          gsap.to('#about p:first-of-type', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
-          gsap.to('#about .about-secondary', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
-          gsap.to('.founder-card', { opacity: 0, y: 40, duration: 0.4, overwrite: true });
-          
-          lastAboutOpacity = 1;
-          
-          // Neurons fly toward camera when going back to hero
-          floatingNeurons.forEach((neuron, i) => {
+          // Neurons exit DOWNWARD - smooth like logo
+          floatingNeurons.forEach((neuron) => {
             gsap.to(neuron.position, {
-              z: 15,
-              duration: 0.4,
-              delay: i * 0.02,
+              y: -15,  // All go to same low Y (off screen bottom)
+              duration: 0.8,
               ease: 'power2.in',
-              onComplete: () => { neuron.visible = false; }
-            });
-            gsap.to(neuron.scale, {
-              x: neuron.userData.baseScale * 3,
-              y: neuron.userData.baseScale * 3,
-              z: neuron.userData.baseScale * 3,
-              duration: 0.4,
-              delay: i * 0.02,
-              ease: 'power2.in'
+              onComplete: () => {
+                neuron.visible = false;
+              }
             });
           });
           
-          // DNA exits back to bottom-right along curved path
-          if (dnaHelix) {
-            const pathPoints = [
-              new THREE.Vector3(0, -0.35, -4),
-              new THREE.Vector3(2, -2, 2),
-              new THREE.Vector3(5, -4, 5),
-              new THREE.Vector3(10, -7, 2),
-              new THREE.Vector3(15, -10, -8)
-            ];
-            const scalePoints = [4.5, 5.0, 6.5, 5.5, 4.5];
-            const curve = new THREE.CatmullRomCurve3(pathPoints);
-            
-            const progress = { t: 0 };
-            gsap.to(progress, {
-              t: 1,
-              duration: 1.0,
-              ease: 'power2.inOut',
-              onUpdate: () => {
-                const point = curve.getPoint(progress.t);
-                dnaHelix.position.copy(point);
-                
-                const scaleT = progress.t * (scalePoints.length - 1);
-                const scaleIndex = Math.floor(scaleT);
-                const scaleFrac = scaleT - scaleIndex;
-                const s0 = scalePoints[Math.min(scaleIndex, scalePoints.length - 1)];
-                const s1 = scalePoints[Math.min(scaleIndex + 1, scalePoints.length - 1)];
-                dnaHelix.scale.setScalar(s0 + (s1 - s0) * scaleFrac);
-                
-                dnaHelix.rotation.y += 0.005;  // Continue spinning upright
-              },
-              onComplete: () => { dnaHelix.visible = false; }
+          // DNA exits DOWNWARD - smooth exit
+          if (dnaHelix && dnaHelix.visible) {
+            gsap.to(dnaHelix.position, {
+              y: -15,
+              duration: 0.8,
+              ease: 'power2.in',
+              onComplete: () => {
+                if (dnaHelix) dnaHelix.visible = false;
+              }
             });
           }
         },
@@ -3891,100 +5357,48 @@
           setActiveSection(1);
           resetExtModels();
           
-          // Logo position handled by warp transition
+          // Kill existing tweens to prevent conflicts
+          if (dnaHelix) {
+            gsap.killTweensOf(dnaHelix.position);
+            gsap.killTweensOf(dnaHelix.scale);
+          }
+          floatingNeurons.forEach(neuron => {
+            gsap.killTweensOf(neuron.position);
+            gsap.killTweensOf(neuron.scale);
+          });
           
-          // Show glass card and animate content from ABOVE (scrolling back up)
-          gsap.set('#about .panel-tag', { y: -30 });
-          gsap.set('#about h2', { y: -40 });
-          gsap.set('#about p:first-of-type', { y: -30 });
-          gsap.set('#about .about-secondary', { y: -30 });
-          gsap.set('.founder-card', { y: -30 });
-          
-          gsap.to('#about .panel-content', { opacity: 1, visibility: 'visible', duration: 0.4 });
-          gsap.to('#about .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.to('#about h2', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.to('#about p:first-of-type', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.to('#about .about-secondary', { opacity: 1, y: 0, duration: 0.4, delay: 0.1 });
-          
-          // Founder card - match text timing
-          gsap.to('.founder-card', { opacity: 1, y: 0, duration: 0.4 });
-          
-          // DNA enters first (from top-left) - only if not already triggered by Extensions
-          if (dnaHelix && !dnaHelix.visible) {
+          // DNA enters from ABOVE (coming back from Work) - no zoom, pure slide
+          if (dnaHelix) {
             dnaHelix.visible = true;
+            dnaHelix.position.set(-0.5, 18, -8);  // Start well above viewport, same x as final
+            dnaHelix.scale.setScalar(6.5);  // Slightly smaller - matches Hero entrance
             
-            const pathPoints = [
-              new THREE.Vector3(-8, 4, 2),      // START CLOSER - already near visible
-              new THREE.Vector3(-5, 2, 4),
-              new THREE.Vector3(-2, 0.5, 2),
-              new THREE.Vector3(0, -0.35, -4)   // End: center
-            ];
-            const scalePoints = [5.0, 5.5, 5.0, 4.5];
-            const curve = new THREE.CatmullRomCurve3(pathPoints);
-            
-            dnaHelix.position.copy(pathPoints[0]);
-            dnaHelix.scale.setScalar(scalePoints[0]);
-            
-            const progress = { t: 0 };
-            gsap.to(progress, {
-              t: 1,
-              duration: 1.2,
-              ease: 'power2.out',
-              onUpdate: () => {
-                const point = curve.getPoint(progress.t);
-                dnaHelix.position.copy(point);
-                
-                const scaleT = progress.t * (scalePoints.length - 1);
-                const scaleIndex = Math.floor(scaleT);
-                const scaleFrac = scaleT - scaleIndex;
-                const s0 = scalePoints[Math.min(scaleIndex, scalePoints.length - 1)];
-                const s1 = scalePoints[Math.min(scaleIndex + 1, scalePoints.length - 1)];
-                dnaHelix.scale.setScalar(s0 + (s1 - s0) * scaleFrac);
-                
-                dnaHelix.rotation.y += 0.005;
-              }
+            gsap.to(dnaHelix.position, {
+              y: -0.1,  // Same final y position
+              duration: CINEMA.duration * 1.1,
+              ease: CINEMA.ease
             });
           }
           
-          // Bring neurons back from deep in scene
+          // Neurons enter from ABOVE (coming back from Work) - no zoom, pure slide
           floatingNeurons.forEach((neuron, i) => {
             neuron.visible = true;
-            neuron.position.x = neuron.userData.baseX;
-            neuron.position.y = neuron.userData.baseY;
-            neuron.position.z = -30;
-            neuron.scale.setScalar(0.01);
+            neuron.position.set(neuron.userData.baseX, neuron.userData.baseY + 20, neuron.userData.baseZ);
+            neuron.scale.setScalar(neuron.userData.baseScale);  // Full scale from start
+            
             gsap.to(neuron.position, {
-              z: neuron.userData.baseZ,
-              duration: 0.6,
-              delay: i * 0.03,
-              ease: 'power2.out'
-            });
-            gsap.to(neuron.scale, {
-              x: neuron.userData.baseScale,
-              y: neuron.userData.baseScale,
-              z: neuron.userData.baseScale,
-              duration: 0.6,
-              delay: i * 0.03,
-              ease: 'power2.out'
+              y: neuron.userData.baseY,
+              duration: CINEMA.duration * 1.1,
+              delay: i * 0.04,
+              ease: CINEMA.ease
             });
           });
         }
       });
       
       // ─────────────────────────────────────────────────────────────────
-      // PANEL 2: EXTENSIONS
+      // WORK (Extensions) - Heat particles animation
       // ─────────────────────────────────────────────────────────────────
-      
-      const extPositions = [
-        { x: -3.5, y: 1.2, z: 0 },
-        { x: -2.5, y: -0.8, z: 1 },
-        { x: -4, y: 0.2, z: -1 },
-        { x: -3, y: -1.5, z: 0.5 }
-      ];
-      
-      let lastExtOpacity = 1;
-      let dnaEntryBackStarted = false;  // For scrolling back up
-      let extLastProgress = 0;  // Track scroll direction
       
       ScrollTrigger.create({
         trigger: '#extensions',
@@ -3994,146 +5408,53 @@
         scrub: true,
         onEnter: () => {
           setActiveSection(2);
-          // Logo stays in navbar
+          // Don't hide neurons here - About's onLeave animation handles it
+          floatingBalls.forEach(b => { b.visible = false; });
           resetExtModels();
-          // Hide neurons from About section
-          neurons.forEach(neuron => { neuron.visible = false; });
-          // Hide floating balls
-          floatingBalls.forEach(ball => { ball.visible = false; });
-          gsap.set('.work-item', { opacity: 0, y: 40 });
-          gsap.to('#extensions .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
-          gsap.to('#extensions h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
-          gsap.to('#extensions p', { opacity: 1, y: 0, duration: 0.6, delay: 0.2 });
-          gsap.to('.work-item', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
-          dnaEntryBackStarted = false;
-          extLastProgress = 0;
-        },
-        onUpdate: self => {
-          const p = self.progress;
           
-          // Trigger DNA early when scrolling BACK UP (progress decreasing below 0.3)
-          const scrollingUp = p < extLastProgress;
-          if (scrollingUp && p < 0.3 && !dnaEntryBackStarted && dnaHelix && !dnaHelix.visible) {
-            dnaEntryBackStarted = true;
-            dnaHelix.visible = true;
-            
-            const pathPoints = [
-              new THREE.Vector3(-8, 4, 2),      // START CLOSER
-              new THREE.Vector3(-5, 2, 4),
-              new THREE.Vector3(-2, 0.5, 2),
-              new THREE.Vector3(0, -0.35, -4)
-            ];
-            const scalePoints = [5.0, 5.5, 5.0, 4.5];
-            const curve = new THREE.CatmullRomCurve3(pathPoints);
-            
-            dnaHelix.position.copy(pathPoints[0]);
-            dnaHelix.scale.setScalar(scalePoints[0]);
-            
-            const progress = { t: 0 };
-            gsap.to(progress, {
-              t: 1,
-              duration: 1.2,
-              ease: 'power2.out',
-              onUpdate: () => {
-                const point = curve.getPoint(progress.t);
-                dnaHelix.position.copy(point);
-                
-                const scaleT = progress.t * (scalePoints.length - 1);
-                const scaleIndex = Math.floor(scaleT);
-                const scaleFrac = scaleT - scaleIndex;
-                const s0 = scalePoints[Math.min(scaleIndex, scalePoints.length - 1)];
-                const s1 = scalePoints[Math.min(scaleIndex + 1, scalePoints.length - 1)];
-                dnaHelix.scale.setScalar(s0 + (s1 - s0) * scaleFrac);
-                
-                dnaHelix.rotation.y += 0.005;
-              }
-            });
-          }
-          
-          // Reset flag when scrolling down past threshold
-          if (p > 0.5) {
-            dnaEntryBackStarted = false;
-          }
-          
-          extLastProgress = p;
-          
-          extModels.forEach((name, i) => {
-            const m = MODELS[name];
-            if (!m) return;
-            
-            const startAt = i * 0.15;
-            if (p >= startAt) {
-              m.visible = true;
-              const localP = Math.min((p - startAt) / 0.3, 1);
-              const ease = 1 - Math.pow(1 - localP, 3);
-              const target = extPositions[i];
-              m.position.x = 8 - (8 - target.x) * ease;
-              MODEL_BASE_Y[name] = target.y;
-              m.position.y = target.y;
-              m.position.z = target.z;
-              m.rotation.y = (1 - ease) * 2;
-            } else {
-              m.visible = false;
-            }
+          // Show heat particles and fade in
+          heatParticles.visible = true;
+          gsap.to(heatParticleMaterial.uniforms.uOpacity, {
+            value: 1,
+            duration: 1.2,
+            ease: 'power2.out'
           });
         },
         onLeave: () => {
-          extModels.forEach(name => { if (MODELS[name]) MODELS[name].visible = false; });
+          // Fade out heat particles
+          gsap.to(heatParticleMaterial.uniforms.uOpacity, {
+            value: 0,
+            duration: 0.6,
+            ease: 'power2.in',
+            onComplete: () => { heatParticles.visible = false; }
+          });
         },
         onLeaveBack: () => {
-          // Text fades out going DOWN when scrolling back up
-          gsap.killTweensOf('.work-item');
-          gsap.killTweensOf('#extensions .panel-tag');
-          gsap.killTweensOf('#extensions h2');
-          gsap.killTweensOf('#extensions p');
-          
-          gsap.to('.work-item', { opacity: 0, y: 40, duration: 0.4, overwrite: true });
-          gsap.to('#extensions .panel-tag', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
-          gsap.to('#extensions h2', { opacity: 0, y: 40, duration: 0.3, overwrite: true });
-          gsap.to('#extensions p', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
-          
-          resetExtModels();
-          // Keep floating balls hidden - only visible in Hero
-          // Logo stays in navbar
-          lastExtOpacity = 1;
+          // Fade out heat particles
+          gsap.to(heatParticleMaterial.uniforms.uOpacity, {
+            value: 0,
+            duration: 0.6,
+            ease: 'power2.in',
+            onComplete: () => { heatParticles.visible = false; }
+          });
         },
         onEnterBack: () => {
           setActiveSection(2);
-          // Logo stays in navbar
           resetTemplateModels();
-          extModels.forEach((name, i) => {
-            const m = MODELS[name];
-            if (m) {
-              m.visible = true;
-              m.position.set(extPositions[i].x, extPositions[i].y, extPositions[i].z);
-              MODEL_BASE_Y[name] = extPositions[i].y;
-              m.rotation.y = 0;
-            }
-          });
-          // Animate from ABOVE (scrolling back up)
-          gsap.set('#extensions .panel-tag', { y: -30 });
-          gsap.set('#extensions h2', { y: -40 });
-          gsap.set('#extensions p', { y: -30 });
-          gsap.set('.work-item', { opacity: 0, y: -40 });
           
-          gsap.to('#extensions .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.to('#extensions h2', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.to('#extensions p', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.to('.work-item', { opacity: 1, y: 0, duration: 0.4 });
+          // Show heat particles and fade in
+          heatParticles.visible = true;
+          gsap.to(heatParticleMaterial.uniforms.uOpacity, {
+            value: 1,
+            duration: 1.2,
+            ease: 'power2.out'
+          });
         }
       });
       
       // ─────────────────────────────────────────────────────────────────
-      // PANEL 3: TEMPLATES
+      // PROCESS (Templates) - Phone model animation
       // ─────────────────────────────────────────────────────────────────
-      
-      const templatePositions = [
-        { x: 4, y: 0.3, z: 2, rx: 0.05, ry: -0.4 },
-        { x: 2.5, y: 0, z: -1, rx: -0.05, ry: -0.3 },
-        { x: 4.5, y: -0.8, z: 0, rx: 0.15, ry: -0.5 }
-      ];
-      
-      let lastTemplateOpacity = 1;
       
       ScrollTrigger.create({
         trigger: '#templates',
@@ -4143,82 +5464,326 @@
         scrub: true,
         onEnter: () => {
           setActiveSection(3);
+          floatingBalls.forEach(b => { b.visible = false; });
           resetExtModels();
           resetTemplateModels();
-          // Keep floating balls hidden
-          floatingBalls.forEach(ball => { ball.visible = false; });
-          gsap.to('#templates .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
-          gsap.to('#templates h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
-          gsap.to('#templates p', { opacity: 1, y: 0, duration: 0.6, delay: 0.2 });
-        },
-        onUpdate: self => {
-          const p = self.progress;
           
-          templateModels.forEach((name, i) => {
-            const m = MODELS[name];
-            if (!m) return;
+          // ─────────────────────────────────────────────────────────────────
+          // CLEAN PROCESS SECTION - Code bracket + animated timeline
+          // ─────────────────────────────────────────────────────────────────
+          
+          // Code bracket enters from BELOW with slow spin
+          if (codeBracket) {
+            gsap.killTweensOf(codeBracket.position);
+            gsap.killTweensOf(codeBracket.rotation);
             
-            const startAt = i * 0.2;
-            if (p >= startAt) {
-              m.visible = true;
-              const localP = Math.min((p - startAt) / 0.35, 1);
-              const ease = 1 - Math.pow(1 - localP, 3);
-              const t = templatePositions[i];
-              m.position.x = 10 - (10 - t.x) * ease;
-              MODEL_BASE_Y[name] = t.y;
-              m.position.y = t.y;
-              m.position.z = t.z;
-              m.rotation.x = t.rx;
-              m.rotation.y = t.ry + (1 - ease) * 1.5;
-            } else {
-              m.visible = false;
-            }
+            codeBracket.visible = true;
+            codeBracket.position.set(0, -10, -5);
+            codeBracket.scale.setScalar(4.0);
+            codeBracket.rotation.set(0, 0, 0);
+            
+            // Enter animation - rise into position
+            gsap.to(codeBracket.position, {
+              y: 3.95,
+              duration: CINEMA.duration * 1.2,
+              ease: CINEMA.ease
+            });
+            
+            // Slow 360 spin (20 seconds for full rotation)
+            gsap.to(codeBracket.rotation, {
+              y: Math.PI * 2,
+              duration: 20,
+              ease: 'none',
+              repeat: -1
+            });
+          }
+          
+          // Phone disabled
+          if (processPhone) {
+            gsap.killTweensOf(processPhone.position);
+            gsap.killTweensOf(processPhone.scale);
+            
+            processPhone.visible = true;
+            processPhone.position.set(1.25, -15, -5);
+            processPhone.scale.setScalar(4.8);
+            
+            gsap.to(processPhone.position, {
+              y: 0.2,
+              duration: CINEMA.duration * 1.2,
+              ease: CINEMA.ease
+            });
+          }
+          
+          // Reset timeline state
+          gsap.set('.timeline-line-container', { opacity: 1 }); // Show container
+          gsap.set('.timeline-line', { width: '0%', opacity: 0 });
+          document.querySelectorAll('.process-step').forEach(step => {
+            step.classList.remove('dot-active');
+          });
+          
+          // Timeline labels fade in first
+          gsap.to('.process-step', {
+            opacity: 1, 
+            visibility: 'visible', 
+            y: 0,
+            duration: 0.6, 
+            delay: 0.4,
+            stagger: 0.1,
+            ease: 'power2.out'
+          });
+          
+          // Animate line and dots progressively
+          const timelineTl = gsap.timeline({ delay: 0.6 });
+          
+          // First dot glows immediately
+          timelineTl.call(() => {
+            document.querySelector('.step-discovery')?.classList.add('dot-active');
+          });
+          
+          // Line grows to 33% (reaches second dot)
+          timelineTl.to('.timeline-line', {
+            width: '33%',
+            opacity: 1,
+            duration: 0.5,
+            ease: 'power2.inOut'
+          });
+          timelineTl.call(() => {
+            document.querySelector('.step-design')?.classList.add('dot-active');
+          });
+          
+          // Line grows to 66% (reaches third dot)
+          timelineTl.to('.timeline-line', {
+            width: '66%',
+            duration: 0.5,
+            ease: 'power2.inOut'
+          });
+          timelineTl.call(() => {
+            document.querySelector('.step-develop')?.classList.add('dot-active');
+          });
+          
+          // Line grows to 100% (reaches fourth dot)
+          timelineTl.to('.timeline-line', {
+            width: '100%',
+            duration: 0.5,
+            ease: 'power2.inOut'
+          });
+          timelineTl.call(() => {
+            document.querySelector('.step-deploy')?.classList.add('dot-active');
           });
         },
         onLeave: () => {
-          templateModels.forEach(name => { if (MODELS[name]) MODELS[name].visible = false; });
-          // Don't zoom here - let Contact section handle it smoothly
+          // Code bracket exits UPWARD when going to Contact
+          if (codeBracket && codeBracket.visible) {
+            gsap.killTweensOf(codeBracket.position);
+            gsap.killTweensOf(codeBracket.rotation);
+            gsap.to(codeBracket.position, {
+              y: 20,
+              duration: 0.8,
+              ease: 'power2.in',
+              onComplete: () => { codeBracket.visible = false; }
+            });
+          }
+          
+          // Phone exits UPWARD when going to Contact
+          if (processPhone && processPhone.visible) {
+            gsap.killTweensOf(processPhone.position);
+            gsap.to(processPhone.position, {
+              y: 20,
+              duration: 0.8,
+              ease: 'power2.in',
+              onComplete: () => { processPhone.visible = false; }
+            });
+          }
+          
+          // GIF area exits UPWARD
+          gsap.to('.process-phone-area', {
+            y: -80,
+            opacity: 0,
+            duration: CINEMA.duration * 0.6,
+            ease: 'power2.in'
+          });
+          
+          // Cards exit UPWARD together
+          gsap.to('.process-card-left, .process-card-right', {
+            y: -80,
+            opacity: 0,
+            duration: CINEMA.duration * 0.6,
+            ease: 'power2.in'
+          });
+          
+          // Hide step labels and reset timeline IMMEDIATELY
+          gsap.set('.timeline-line-container', { opacity: 0 });
+          gsap.to('.process-step', {
+            opacity: 0, visibility: 'hidden', y: -20,
+            duration: 0.4, stagger: 0.05
+          });
+          gsap.to('.timeline-line', { width: '0%', duration: 0.3 });
+          document.querySelectorAll('.process-step').forEach(step => {
+            step.classList.remove('dot-active');
+          });
         },
         onLeaveBack: () => {
-          // Text fades out going DOWN when scrolling back up
-          gsap.killTweensOf('#templates .panel-tag');
-          gsap.killTweensOf('#templates h2');
-          gsap.killTweensOf('#templates p');
+          // Code bracket exits DOWNWARD when going back to Work
+          if (codeBracket && codeBracket.visible) {
+            gsap.killTweensOf(codeBracket.position);
+            gsap.killTweensOf(codeBracket.rotation);
+            gsap.to(codeBracket.position, {
+              y: -15,
+              duration: 0.8,
+              ease: 'power2.in',
+              onComplete: () => { codeBracket.visible = false; }
+            });
+          }
           
-          gsap.to('#templates .panel-tag', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
-          gsap.to('#templates h2', { opacity: 0, y: 40, duration: 0.3, overwrite: true });
-          gsap.to('#templates p', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
+          // Phone exits DOWNWARD when going back to Work
+          if (processPhone && processPhone.visible) {
+            gsap.killTweensOf(processPhone.position);
+            gsap.to(processPhone.position, {
+              y: -15,
+              duration: 0.8,
+              ease: 'power2.in',
+              onComplete: () => { processPhone.visible = false; }
+            });
+          }
           
-          resetTemplateModels();
-          lastTemplateOpacity = 1;
+          // Hide step labels and reset timeline IMMEDIATELY
+          gsap.set('.timeline-line-container', { opacity: 0 });
+          gsap.to('.process-step', {
+            opacity: 0, visibility: 'hidden', y: 20,
+            duration: 0.4, stagger: 0.05
+          });
+          gsap.to('.timeline-line', { width: '0%', duration: 0.3 });
+          document.querySelectorAll('.process-step').forEach(step => {
+            step.classList.remove('dot-active');
+          });
         },
         onEnterBack: () => {
           setActiveSection(3);
-          // Logo stays in navbar
-          // Restore template models to final positions
-          templateModels.forEach((name, i) => {
-            const m = MODELS[name];
-            if (m) {
-              const t = templatePositions[i];
-              m.visible = true;
-              m.position.set(t.x, t.y, t.z);
-              MODEL_BASE_Y[name] = t.y;
-              m.rotation.set(t.rx, t.ry, 0);
-            }
-          });
-          // Animate from ABOVE (scrolling back up)
-          gsap.set('#templates .panel-tag', { y: -30 });
-          gsap.set('#templates h2', { y: -40 });
-          gsap.set('#templates p', { y: -30 });
           
-          gsap.to('#templates .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.to('#templates h2', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.to('#templates p', { opacity: 1, y: 0, duration: 0.4 });
+          // ─────────────────────────────────────────────────────────────────
+          // ENTER FROM ABOVE (coming back from Contact)
+          // ─────────────────────────────────────────────────────────────────
+          
+          // 🌈 Disable rainbow glow when coming back from Contact - match enter timing (reversed)
+          gsap.killTweensOf(bgPlaneMaterial.uniforms.uGlowIntensity);
+          gsap.killTweensOf(bgPlaneMaterial.uniforms.uRainbowMode);
+          // Rainbow mode fades first (reverse of enter where it fades in after intensity)
+          gsap.to(bgPlaneMaterial.uniforms.uRainbowMode, {
+            value: 0.0,
+            duration: CINEMA.duration * 0.8,
+            ease: CINEMA.easeOut
+          });
+          // Intensity fades slightly after
+          gsap.to(bgPlaneMaterial.uniforms.uGlowIntensity, {
+            value: 0.0,
+            duration: CINEMA.duration,
+            ease: CINEMA.easeOut
+          });
+          
+          // Code bracket enters from above with slow spin
+          if (codeBracket) {
+            gsap.killTweensOf(codeBracket.position);
+            gsap.killTweensOf(codeBracket.rotation);
+            
+            codeBracket.visible = true;
+            codeBracket.position.set(0, 20, -5);
+            codeBracket.scale.setScalar(4.0);
+            codeBracket.rotation.set(0, 0, 0);
+            
+            // Enter animation - drop into position
+            gsap.to(codeBracket.position, {
+              y: 3.95,
+              duration: CINEMA.duration * 1.2,
+              ease: 'power2.out'
+            });
+            
+            // Slow 360 spin (20 seconds for full rotation)
+            gsap.to(codeBracket.rotation, {
+              y: Math.PI * 2,
+              duration: 20,
+              ease: 'none',
+              repeat: -1
+            });
+          }
+          
+          // Phone enters from above on right side
+          if (processPhone) {
+            gsap.killTweensOf(processPhone.position);
+            gsap.killTweensOf(processPhone.scale);
+            
+            processPhone.visible = true;
+            processPhone.position.set(1.25, 20, -5);
+            processPhone.scale.setScalar(4.8);
+            
+            gsap.to(processPhone.position, {
+              y: 0.2,
+              duration: CINEMA.duration * 1.2,
+              ease: CINEMA.ease
+            });
+          }
+          
+          // Reset timeline state
+          gsap.set('.timeline-line-container', { opacity: 1 }); // Show container
+          gsap.set('.timeline-line', { width: '0%', opacity: 0 });
+          document.querySelectorAll('.process-step').forEach(step => {
+            step.classList.remove('dot-active');
+          });
+          
+          // Timeline labels fade in first
+          gsap.to('.process-step', {
+            opacity: 1, 
+            visibility: 'visible', 
+            y: 0,
+            duration: 0.6, 
+            delay: 0.3,
+            stagger: 0.1,
+            ease: 'power2.out'
+          });
+          
+          // Animate line and dots progressively
+          const timelineTl = gsap.timeline({ delay: 0.5 });
+          
+          // First dot glows immediately
+          timelineTl.call(() => {
+            document.querySelector('.step-discovery')?.classList.add('dot-active');
+          });
+          
+          // Line grows to 33%
+          timelineTl.to('.timeline-line', {
+            width: '33%',
+            opacity: 1,
+            duration: 0.5,
+            ease: 'power2.inOut'
+          });
+          timelineTl.call(() => {
+            document.querySelector('.step-design')?.classList.add('dot-active');
+          });
+          
+          // Line grows to 66%
+          timelineTl.to('.timeline-line', {
+            width: '66%',
+            duration: 0.5,
+            ease: 'power2.inOut'
+          });
+          timelineTl.call(() => {
+            document.querySelector('.step-develop')?.classList.add('dot-active');
+          });
+          
+          // Line grows to 100%
+          timelineTl.to('.timeline-line', {
+            width: '100%',
+            duration: 0.5,
+            ease: 'power2.inOut'
+          });
+          timelineTl.call(() => {
+            document.querySelector('.step-deploy')?.classList.add('dot-active');
+          });
         }
       });
       
       // ─────────────────────────────────────────────────────────────────
-      // PANEL 4: CONTACT
+      // CONTACT - Robot model + rainbow glow + pinning
+      // Text + camera animations handled by goToSection()
       // ─────────────────────────────────────────────────────────────────
       
       ScrollTrigger.create({
@@ -4229,84 +5794,90 @@
         scrub: true,
         onEnter: () => {
           setActiveSection(4);
+          floatingBalls.forEach(b => { b.visible = false; });
           resetTemplateModels();
-          // Logo stays in navbar
-          // Keep floating balls hidden
-          floatingBalls.forEach(ball => { ball.visible = false; });
-          gsap.to('#contact .panel-tag', { opacity: 1, y: 0, duration: 0.6 });
-          gsap.to('#contact h2', { opacity: 1, y: 0, duration: 0.8, delay: 0.1 });
-          gsap.to('#contact p', { opacity: 1, y: 0, duration: 0.6, delay: 0.2 });
-          gsap.to('#contact .cta-btn', { opacity: 1, y: 0, duration: 0.6, delay: 0.5 });
-          // ONE smooth zoom - kill any existing camera tweens first
-          gsap.killTweensOf(camera.position);
-          gsap.killTweensOf(perspGridMaterial.uniforms.uCurve);
-          gsap.killTweensOf(bgPlane.scale);
-          gsap.to(camera.position, { z: 0.5, duration: 2.5, ease: 'power2.inOut' });
-          gsap.to(perspGridMaterial.uniforms.uCurve, { value: 0, duration: 2.5, ease: 'power2.inOut' });
-          // Scale down bgPlane to keep color wave same visual size
-          gsap.to(bgPlane.scale, { x: 0.1, y: 0.1, duration: 2.5, ease: 'power2.inOut' });
-        },
-        onUpdate: self => {
-          // Logo stays static in navbar, no rotation
+          
+          // Footer bubble slides up from bottom
+          gsap.killTweensOf('.footer-glass-bubble');
+          gsap.set('.footer-glass-bubble', { y: 80, opacity: 0 });
+          gsap.to('.footer-glass-bubble', {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            ease: 'power2.out',
+            onComplete: () => {
+              document.querySelector('.footer-glass-bubble')?.classList.add('visible');
+            }
+          });
+          
+          // 🌈 Enable rainbow background glow - smooth transition
+          gsap.killTweensOf(bgPlaneMaterial.uniforms.uGlowIntensity);
+          gsap.killTweensOf(bgPlaneMaterial.uniforms.uRainbowMode);
+          gsap.to(bgPlaneMaterial.uniforms.uGlowIntensity, {
+            value: 1.0,
+            duration: CINEMA.duration,
+            ease: CINEMA.ease
+          });
+          gsap.to(bgPlaneMaterial.uniforms.uRainbowMode, {
+            value: 1.0,
+            duration: CINEMA.duration * 0.8,
+            ease: CINEMA.ease
+          });
+          
+          // Robot handled by goToSection to avoid conflicts
         },
         onLeaveBack: () => {
-          // Text fades out going DOWN when scrolling back up
-          // Kill existing tweens to prevent conflicts
-          gsap.killTweensOf('#contact .panel-tag');
-          gsap.killTweensOf('#contact h2');
-          gsap.killTweensOf('#contact p');
-          gsap.killTweensOf('#contact .cta-btn');
+          // Footer bubble slides down
+          gsap.killTweensOf('.footer-glass-bubble');
+          gsap.to('.footer-glass-bubble', {
+            y: 80,
+            opacity: 0,
+            duration: 0.4,
+            ease: 'power2.in',
+            onComplete: () => {
+              document.querySelector('.footer-glass-bubble')?.classList.remove('visible');
+            }
+          });
           
-          gsap.to('#contact .panel-tag', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
-          gsap.to('#contact h2', { opacity: 0, y: 40, duration: 0.3, overwrite: true });
-          gsap.to('#contact p', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
-          gsap.to('#contact .cta-btn', { opacity: 0, y: 30, duration: 0.3, overwrite: true });
-          
-          // Logo stays in navbar
-          // ZOOM OUT and RESTORE curve when leaving Contact - kill existing tweens first
-          gsap.killTweensOf(camera.position);
-          gsap.killTweensOf(perspGridMaterial.uniforms.uCurve);
-          gsap.killTweensOf(bgPlane.scale);
-          gsap.to(camera.position, { z: 9, duration: 1.5, ease: 'power2.inOut' });
-          gsap.to(perspGridMaterial.uniforms.uCurve, { value: 7, duration: 1.5, ease: 'power2.inOut' });
-          // Restore bgPlane scale
-          gsap.to(bgPlane.scale, { x: 1, y: 1, duration: 1.5, ease: 'power2.inOut' });
+          // Rainbow glow handled by Process section's onEnterBack to avoid conflicts
+          // Robot handled by goToSection to avoid conflicts
         },
         onEnterBack: () => {
           setActiveSection(4);
-          // Logo stays in navbar
-          // Animate from ABOVE (scrolling back up)
-          gsap.set('#contact .panel-tag', { y: -30 });
-          gsap.set('#contact h2', { y: -40 });
-          gsap.set('#contact p', { y: -30 });
-          gsap.set('#contact .cta-btn', { y: -30 });
           
-          gsap.to('#contact .panel-tag', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.to('#contact h2', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.to('#contact p', { opacity: 1, y: 0, duration: 0.4 });
-          gsap.to('#contact .cta-btn', { opacity: 1, y: 0, duration: 0.4 });
-          // ZOOM IN and FLATTEN grid - kill existing tweens first
-          gsap.killTweensOf(camera.position);
-          gsap.killTweensOf(perspGridMaterial.uniforms.uCurve);
-          gsap.killTweensOf(bgPlane.scale);
-          gsap.to(camera.position, { z: 0.5, duration: 2, ease: 'power2.inOut' });
-          gsap.to(perspGridMaterial.uniforms.uCurve, { value: 0, duration: 2, ease: 'power2.inOut' });
-          // Scale down bgPlane to keep color wave same visual size
-          gsap.to(bgPlane.scale, { x: 0.1, y: 0.1, duration: 2, ease: 'power2.inOut' });
+          // Footer bubble slides up from bottom
+          gsap.killTweensOf('.footer-glass-bubble');
+          gsap.set('.footer-glass-bubble', { y: 80, opacity: 0 });
+          gsap.to('.footer-glass-bubble', {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            ease: 'power2.out',
+            onComplete: () => {
+              document.querySelector('.footer-glass-bubble')?.classList.add('visible');
+            }
+          });
+          
+          // 🌈 Re-enable rainbow glow - smooth transition
+          gsap.killTweensOf(bgPlaneMaterial.uniforms.uGlowIntensity);
+          gsap.killTweensOf(bgPlaneMaterial.uniforms.uRainbowMode);
+          gsap.to(bgPlaneMaterial.uniforms.uGlowIntensity, {
+            value: 1.0,
+            duration: CINEMA.duration,
+            ease: CINEMA.ease
+          });
+          gsap.to(bgPlaneMaterial.uniforms.uRainbowMode, {
+            value: 1.0,
+            duration: CINEMA.duration * 0.8,
+            ease: CINEMA.ease
+          });
+          
+          // Robot handled by goToSection to avoid conflicts
         }
       });
       
       // ─────────────────────────────────────────────────────────────────
-      // SECTION INDICATOR
-      // ─────────────────────────────────────────────────────────────────
-      
-      function setActiveSection(i) {
-        STATE.section = i;
-        dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
-      }
-      
-      // ─────────────────────────────────────────────────────────────────
-      // NAV CLICK HANDLERS - Use SectionScroller for proper model transitions
+      // NAV CLICK HANDLERS
       // ─────────────────────────────────────────────────────────────────
       
       const sectionMap = {
@@ -4328,36 +5899,29 @@
         });
       });
       
-      // NAVBAR LOGO - Back to top (disabled from Contact section due to camera conflict)
       document.querySelector('nav .logo').addEventListener('click', () => {
         if (scroller && scroller.currentSection !== 4) {
           scroller.goToSection(0);
         }
       });
       
-      // CTA CLICK HANDLERS - Use event delegation for reliability
-      // ─────────────────────────────────────────────────────────────────
-      
+      // CTA click handlers
       document.addEventListener('click', (e) => {
-        // Check if clicked element is a hero CTA
         const heroCta = e.target.closest('.hero-ctas .cta-btn');
         if (heroCta && scroller) {
           e.preventDefault();
           e.stopPropagation();
           const target = heroCta.getAttribute('href');
           const sectionIndex = sectionMap[target];
-          console.log('Hero CTA clicked:', target, '-> section', sectionIndex);
           if (sectionIndex !== undefined) {
             scroller.goToSection(sectionIndex);
           }
           return;
         }
         
-        // Check if clicked element is contact CTA
         const contactCta = e.target.closest('#contact .cta-btn');
         if (contactCta) {
           const href = contactCta.getAttribute('href');
-          // Let email links work normally
           if (href.includes('email-protection') || href.includes('mailto')) {
             return;
           }
@@ -4448,6 +6012,30 @@
     });
     
     // ═══════════════════════════════════════════════════════════════════
+    // 3D PARALLAX TILT EFFECT FOR WORK ITEMS
+    // ═══════════════════════════════════════════════════════════════════
+    
+    document.querySelectorAll('.work-item').forEach(card => {
+      const maxTilt = 12; // Max rotation in degrees
+      
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Calculate rotation based on mouse position (-1 to 1)
+        const rotateY = ((x / rect.width) - 0.5) * 2 * maxTilt;
+        const rotateX = ((y / rect.height) - 0.5) * -2 * maxTilt;
+        
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+      });
+    });
+    
+    // ═══════════════════════════════════════════════════════════════════
     // PERFORMANCE MONITORING
     // ═══════════════════════════════════════════════════════════════════
     let frameCount = 0;
@@ -4474,8 +6062,19 @@
     let time = 0;
     let loggedComposerStart = false;
     
-    function animate() {
+    // Frame limiter - cap at 60fps to reduce CPU/GPU load
+    let lastFrameTime = 0;
+    const targetFPS = 60;
+    const frameInterval = 1000 / targetFPS;
+    
+    function animate(currentTime) {
       requestAnimationFrame(animate);
+      
+      // Skip frame if not enough time has passed
+      const deltaTime = currentTime - lastFrameTime;
+      if (deltaTime < frameInterval) return;
+      lastFrameTime = currentTime - (deltaTime % frameInterval);
+      
       updateFPS();
       time += 0.016;
       
@@ -4483,12 +6082,26 @@
       if (!isLoadingMode) {
         holoUniforms.uTime.value = time;
         holoUniforms.uMouse.value.set(STATE.mouse.x * 0.5 + 0.5, STATE.mouse.y * 0.5 + 0.5);
+        
+        // Update rainbow robot material (only when visible)
+        if (contactRobot && contactRobot.visible && contactRobot.userData.rainbowMat) {
+          contactRobot.userData.rainbowMat.uniforms.uTime.value = time;
+        }
+        
+        // Update heat particles (only when visible in Work section)
+        if (heatParticles && heatParticles.visible) {
+          heatParticleMaterial.uniforms.uTime.value = time;
+        }
       }
       
       // Update background - skip during loading for performance
       if (!isLoadingMode) {
         perspGridMaterial.uniforms.uTime.value = time;
-        perspGridMaterial.uniforms.uMouse.value.lerp(new THREE.Vector2(STATE.mouse.x, STATE.mouse.y), 0.04);
+        // Lerp toward mouse without creating new Vector2 every frame
+        const targetX = STATE.mouse.x;
+        const targetY = STATE.mouse.y;
+        perspGridMaterial.uniforms.uMouse.value.x += (targetX - perspGridMaterial.uniforms.uMouse.value.x) * 0.04;
+        perspGridMaterial.uniforms.uMouse.value.y += (targetY - perspGridMaterial.uniforms.uMouse.value.y) * 0.04;
         bgPlaneMaterial.uniforms.uTime.value = time;
       }
       
@@ -4512,9 +6125,9 @@
         brainGlow.material.opacity = 0.8 + Math.sin(time * 2) * 0.2;
       }
       
-      // Render background to refraction texture (hide logo first)
-      // Skip during loading - not visible anyway
-      if (!isLoadingMode && heroLogo) {
+      // Render background to refraction texture (for logo glass material)
+      // ONLY run in Hero section - not needed elsewhere and causes robot flicker
+      if (!isLoadingMode && heroLogo && STATE.section === 0) {
         // Hide logo and glow for background capture
         heroLogo.visible = false;
         if (heroLogo.userData.glow) heroLogo.userData.glow.visible = false;
@@ -4544,6 +6157,21 @@
         heroLogo.rotation.y = logoPullCurrent.y;
       }
       
+      // Contact robot - same pull effect as logo
+      if (!isLoadingMode && contactRobot && contactRobot.visible && STATE.section === 4 && !STATE.isAnimating && !STATE.isScrolling) {
+        // Pull effect - robot tilts toward mouse position
+        robotPullTarget.x = -robotMouse.y * robotPullStrength;
+        robotPullTarget.y = robotMouse.x * robotPullStrength;
+        
+        // Smoothly lerp current toward target with friction
+        robotPullCurrent.x += (robotPullTarget.x - robotPullCurrent.x) * robotPullFriction;
+        robotPullCurrent.y += (robotPullTarget.y - robotPullCurrent.y) * robotPullFriction;
+        
+        // Apply smooth pull rotation
+        contactRobot.rotation.x = robotPullCurrent.x;
+        contactRobot.rotation.y = robotPullCurrent.y;
+      }
+      
       // Animate the glow shader (color wave) - runs in all sections
       if (!isLoadingMode && heroLogo && heroLogo.userData.glowMaterial) {
         // Track scroll velocity
@@ -4567,6 +6195,35 @@
         
         // Apply speed multiplier to glow time
         heroLogo.userData.glowMaterial.uniforms.uTime.value += 0.016 * STATE.glowSpeed;
+        
+        // 🔥❄️ FIRE/ICE THEME BLEND based on scroll section
+        // Sections: 0=Hero(fire), 1=About(ice), 2=Work(fire), 3=Process(ice), 4=Contact(fire)
+        if (scroller) {
+          // Use targetSection for immediate response when animation starts
+          const section = scroller.targetSection;
+          // Target: 0 for fire sections (0, 2, 4), 1 for ice sections (1, 3)
+          const targetBlend = (section === 1 || section === 3) ? 1.0 : 0.0;
+          
+          // Smooth lerp over ~2 seconds to match scroll animation
+          const currentBlend = heroLogo.userData.glowMaterial.uniforms.uThemeBlend.value;
+          heroLogo.userData.glowMaterial.uniforms.uThemeBlend.value += (targetBlend - currentBlend) * 0.025;
+          
+          // Toggle status dot color
+          const statusDot = document.querySelector('.status-dot');
+          if (statusDot) {
+            // Remove all state classes first
+            statusDot.classList.remove('ice', 'rainbow');
+            
+            if (section === 4) {
+              // Contact section - rainbow
+              statusDot.classList.add('rainbow');
+            } else if (section === 1 || section === 3) {
+              // Ice sections (About, Process)
+              statusDot.classList.add('ice');
+            }
+            // Fire sections (Hero, Work) - no class, uses default orange
+          }
+        }
       }
       
       // Hero text parallax - slower, it's behind the balls
@@ -4618,6 +6275,13 @@
             dnaHelix.rotation.y += dnaInteraction.velocityY + dnaInteraction.currentAutoSpeed;
           }
         }
+        
+        // Update timeline connecting lines (Process section)
+        if (timelineLines.length > 0) {
+          updateTimelineLines();
+        }
+        
+        // Laptop stays static - no spin or bounce, just faces forward
       }
       
       // Only render loader to texture during warp (not during loading mode)
@@ -4659,23 +6323,33 @@
         }
         
         // ═══════════════════════════════════════════════════════════════
-        // DOF RENDERING - Blur distant balls, keep close balls sharp
+        // DOF RENDERING - When floating balls, neurons, or process timeline are visible
         // ═══════════════════════════════════════════════════════════════
         
-        // Render small/distant balls with heavy blur (layer 2)
-        camera.layers.set(2);
-        heavyBlurComposer.render();
-        warpPass.uniforms.tBlurHeavy.value = heavyBlurRT.texture;
+        // Check if any DOF objects are visible
+        const ballsVisible = floatingBalls.some(ball => ball.visible);
+        const neuronsVisible = floatingNeurons.some(neuron => neuron.visible);
+        const processClaudeVisible = (processClaude1 && processClaude1.visible) || 
+                                     (processClaude2 && processClaude2.visible) || 
+                                     (processClaude3 && processClaude3.visible) ||
+                                     (processClaude4 && processClaude4.visible);
         
-        // Render medium balls with light blur (layer 1)
-        camera.layers.set(1);
-        lightBlurComposer.render();
-        warpPass.uniforms.tBlurLight.value = lightBlurRT.texture;
-        
-        // Render large balls with minimal blur (layer 3)
-        camera.layers.set(3);
-        minBlurComposer.render();
-        warpPass.uniforms.tBlurMin.value = minBlurRT.texture;
+        if (ballsVisible || neuronsVisible || processClaudeVisible) {
+          // Render small/distant objects with heavy blur (layer 2)
+          camera.layers.set(2);
+          heavyBlurComposer.render();
+          warpPass.uniforms.tBlurHeavy.value = heavyBlurRT.texture;
+          
+          // Render medium objects with light blur (layer 1)
+          camera.layers.set(1);
+          lightBlurComposer.render();
+          warpPass.uniforms.tBlurLight.value = lightBlurRT.texture;
+          
+          // Render large objects with minimal blur (layer 3)
+          camera.layers.set(3);
+          minBlurComposer.render();
+          warpPass.uniforms.tBlurMin.value = minBlurRT.texture;
+        }
         
         // Main render: layer 0 only (everything else)
         camera.layers.set(0);
@@ -4777,5 +6451,6 @@
     }, 5000);
     
   </script>
+  
 </body>
 </html>
