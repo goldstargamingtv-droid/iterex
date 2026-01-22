@@ -43,7 +43,7 @@
     "@type": "Organization",
     "name": "Iterex",
     "url": "https://iterex.dev",
-    "logo": "https://iterex.dev/logo.png",
+    "logo": "https://iterex.dev/og-image.png",
     "description": "AI-accelerated web development studio",
     "slogan": "Iterate. Execute. Ship."
   }
@@ -1146,24 +1146,323 @@
     ═══════════════════════════════════════════════════════════════════ */
     
     @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .panel-content { padding: 0 24px; }
-      .progress { right: 16px; }
-      .panel.right { justify-content: flex-start; }
-      .panel.right .panel-content { text-align: left; }
-      .cursor { display: none; }
+      /* Hide desktop-only elements */
+      .cursor, .cursor-trail { display: none !important; }
       body { cursor: auto; }
       .corner-bl, .corner-br { display: none; }
-      
-      /* Mobile: About glass card */
-      #about .panel-content {
-        position: relative;
-        right: auto;
-        top: auto;
-        transform: none;
-        margin: 20px;
-        max-width: none;
+      .nav-links { display: none; }
+      .progress { 
+        /* Move to bottom center on mobile */
+        right: auto !important;
+        left: 50% !important;
+        top: auto !important;
+        bottom: 20px !important;
+        transform: translateX(-50%) !important;
+        flex-direction: row !important;
+        gap: 10px !important;
       }
+      
+      /* ═══════════════════════════════════════════════════════════════
+         JUNNI-STYLE: Viewport-based scaling
+         Everything scales proportionally with screen width
+      ═══════════════════════════════════════════════════════════════ */
+      
+      /* Root scaling - all rem/em units will scale */
+      html {
+        font-size: calc(10px + 0.5vw);
+      }
+      
+      /* Typography scales with viewport */
+      h1 { font-size: clamp(32px, 10vw, 72px) !important; }
+      h2 { font-size: clamp(26px, 8vw, 56px) !important; }
+      p { font-size: clamp(11px, 3vw, 16px) !important; line-height: 1.5 !important; }
+      .panel-tag { font-size: clamp(8px, 2vw, 11px) !important; }
+      
+      /* Panels remain full viewport, content scales inside */
+      .panel-content {
+        padding: 0 5vw !important;
+        max-width: 90vw !important;
+      }
+      
+      /* Hero section - center the content block */
+      #hero {
+        justify-content: center !important;
+        align-items: center !important;
+      }
+      
+      #hero .panel-content {
+        padding: 0 20px !important;
+        text-align: left; /* Keep text left-aligned */
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center the block itself */
+      }
+      
+      #hero .panel-tag,
+      #hero h1,
+      #hero p {
+        width: 100%;
+        text-align: left;
+      }
+      
+      .hero-ctas {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+      }
+      
+      .hero-ctas .cta-btn {
+        padding: 14px 24px !important;
+        font-size: 11px !important;
+        text-align: center !important; /* Center button text */
+        justify-content: center !important;
+      }
+      
+      /* About section - stack vertically, centered on screen */
+      #about {
+        flex-direction: column !important;
+        justify-content: center !important;  /* Center vertically */
+        align-items: center !important;
+        padding: 60px 0 !important;
+      }
+      
+      .founder-card {
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        transform: none !important;
+        margin-bottom: 20px;
+      }
+      
+      .founder-image {
+        width: 100px !important;
+        height: 100px !important;
+      }
+      
+      .founder-name { font-size: 14px !important; }
+      .founder-title { font-size: 8px !important; }
+      .founder-quote { font-size: 9px !important; }
+      
+      #about .panel-content {
+        position: relative !important;
+        right: auto !important;
+        left: auto !important;
+        top: auto !important;
+        transform: none !important;
+        max-width: 90vw !important;
+        padding: 20px !important;
+        text-align: left;
+      }
+      
+      /* Hide secondary paragraph on mobile - too much text */
+      #about .about-secondary {
+        display: none !important;
+      }
+      
+      /* Work section - centered app-icon grid */
+      #extensions {
+        justify-content: center !important;
+        align-items: center !important;
+      }
+      
+      #extensions .panel-content {
+        max-width: 95vw !important;
+        text-align: center !important;
+      }
+      
+      .work-container {
+        align-items: center !important;
+        width: 100% !important;
+      }
+      
+      .work-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 90px) !important;
+        gap: 20px 15px !important;
+        justify-content: center !important;
+        align-items: start !important;
+        max-width: 100% !important;
+        padding: 10px 0 !important;
+      }
+      
+      .work-item {
+        width: 90px !important;
+        height: auto !important;
+        aspect-ratio: unset !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 0 !important;
+        gap: 8px !important;
+        background: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+      }
+      
+      .work-item::before,
+      .work-item::after {
+        display: none !important;
+      }
+      
+      .work-logo {
+        width: 90px !important;
+        height: 90px !important;
+        border-radius: 20px !important;
+        overflow: hidden !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      }
+      
+      .work-logo img {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        object-fit: contain !important;
+        padding: 12px !important;
+      }
+      
+      .work-btn {
+        font-size: 8px !important;
+        letter-spacing: 0.5px !important;
+        color: rgba(255, 255, 255, 0.6) !important;
+        max-width: 90px !important;
+        text-align: center !important;
+        white-space: normal !important;
+        line-height: 1.3 !important;
+      }
+      
+      .work-warning {
+        text-align: center !important;
+        width: 100% !important;
+        margin-top: 0 !important;
+      }
+      
+      /* Process section cards - match about section glassmorphism exactly */
+      .process-card {
+        max-width: 90vw !important;
+        padding: 20px 24px !important;
+        /* Keep same glassmorphism as About - no overrides needed */
+      }
+      
+      .process-card h2 {
+        /* Use global h2 size - same as About section */
+        margin-bottom: 16px !important;
+      }
+      
+      .process-card p {
+        font-size: 13px !important;
+        line-height: 1.6 !important;
+      }
+      
+      .process-card .panel-tag {
+        margin-bottom: 12px !important;
+      }
+      
+      .process-phone-area {
+        transform: scale(0.5);
+      }
+      
+      .process-steps {
+        position: absolute !important;
+        bottom: 40px !important;
+        left: 0 !important;
+        right: 0 !important;
+        gap: 0 !important;
+        padding: 0 5% !important;
+        justify-content: space-between !important;
+        margin-top: 0 !important;
+      }
+      
+      .process-step {
+        min-width: auto !important;
+        width: 70px !important;
+        position: relative !important;
+      }
+      
+      .step-number { font-size: 9px !important; letter-spacing: 1px !important; }
+      .step-title { font-size: 10px !important; }
+      .step-desc { display: none !important; }
+      
+      /* Hide timeline line and dots on mobile */
+      .timeline-line-container {
+        display: none !important;
+      }
+      
+      .process-step::before {
+        display: none !important;
+      }
+      
+      /* Contact section */
+      .contact-glass-bubble {
+        padding: 20px 16px !important;
+        max-width: 85vw !important;
+      }
+      
+      .contact-glass-bubble h2 {
+        font-size: clamp(24px, 7vw, 40px) !important;
+      }
+      
+      .contact-cta-rainbow {
+        padding: 12px 28px !important;
+        font-size: 11px !important;
+      }
+      
+      /* Footer */
+      .footer-glass-bubble {
+        padding: 12px 20px !important;
+        flex-wrap: nowrap !important;
+        gap: 16px !important;
+        width: calc(100% - 40px) !important;
+        max-width: none !important;
+        bottom: 16px !important;
+        border-radius: 16px !important;
+      }
+      
+      .footer-left { gap: 10px !important; }
+      .footer-right { gap: 12px !important; }
+      .footer-links { gap: 12px !important; }
+      .footer-logo { font-size: 12px !important; }
+      .footer-copy { font-size: 7px !important; }
+      .footer-links span { font-size: 8px !important; }
+      
+      /* ═══════════════════════════════════════════════════════════════
+         ADDITIONAL MOBILE FIXES
+      ═══════════════════════════════════════════════════════════════ */
+      
+      /* Loader - reduce margin to center better on mobile */
+      .loader-content {
+        margin-top: 80px !important;
+      }
+      
+      /* Process section - stack cards vertically like about section */
+      .process-card-left,
+      .process-card-right {
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        transform: none !important;
+        margin: 8px auto !important;
+      }
+      
+      #templates {
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        padding-top: 60px !important;
+        padding-bottom: 120px !important;
+        gap: 8px;
+      }
+      
+      .process-phone-area {
+        display: none !important;
+      }
+      
+      /* process-steps positioned at bottom via earlier rule */
     }
     
     /* ═══════════════════════════════════════════════════════════════════
@@ -1645,7 +1944,7 @@
         <h2>Let's build<br>something.</h2>
         <p>Ready to ship your next project at impossible speed?</p>
       </div>
-      <a href="/cdn-cgi/l/email-protection#ee868b828281ae879a8b9c8b96c08a8b98" class="cta-btn contact-cta-rainbow">Get In Touch</a>
+      <a href="mailto:build@iterex.dev" class="cta-btn contact-cta-rainbow">Get In Touch</a>
     </div>
   </section>
 
@@ -1694,6 +1993,15 @@
       'background: linear-gradient(135deg, #ff6432, #ff9632); color: #0a0a0f; font-weight: bold; padding: 8px 12px; border-radius: 4px 0 0 4px; font-family: "Syne", sans-serif;',
       'background: #0a0a0f; color: #888; padding: 8px 12px; border-radius: 0 4px 4px 0; font-family: "Space Mono", monospace; font-size: 10px;'
     );
+
+    // ═══════════════════════════════════════════════════════════════════
+    // MOBILE DETECTION
+    // ═══════════════════════════════════════════════════════════════════
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      console.log('%c📱 Mobile Device Detected', 'color: #ff6432; font-weight: bold;');
+    }
 
     // ═══════════════════════════════════════════════════════════════════
     // BLUR SHADERS FOR LARGE ACCENT ORBS
@@ -2000,13 +2308,17 @@
     scene.add(bgPlane);
     
     // --- SPHERICAL GRID (Perfect squares with curved lines like Alche) ---
+    // Mobile scale factor for grid - makes grid cells proportionally smaller
+    const gridScale = isMobile ? 0.55 : 1.0;
+    
     const perspGridMaterial = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
         uMouse: { value: new THREE.Vector2(0, 0) },
         uCurve: { value: 7.0 },  // Grid curve strength - animate to 0 for flat
-        uOpacity: { value: 1.0 } // Global opacity for hiding in certain sections
+        uOpacity: { value: 1.0 }, // Global opacity for hiding in certain sections
+        uScale: { value: gridScale }  // Scale factor for mobile
       },
       vertexShader: `
         varying vec2 vUv;
@@ -2024,6 +2336,7 @@
         uniform vec2 uMouse;
         uniform float uCurve;
         uniform float uOpacity;
+        uniform float uScale;
         varying vec2 vUv;
         varying vec2 vWorldXY;
         
@@ -2035,7 +2348,8 @@
         void main() {
           // World position for grid (keeps squares square)
           // Offset by mouse for parallax effect - slower than objects for depth
-          vec2 worldPos = vWorldXY + uMouse * 0.15;
+          // Scale by uScale for mobile (smaller = denser grid relative to screen)
+          vec2 worldPos = (vWorldXY + uMouse * 0.15) / uScale;
           
           // Fade at edges (used by all layers)
           float fade = 1.0 - smoothstep(0.35, 0.8, length(vUv - 0.5));
@@ -2719,8 +3033,13 @@
             child.material = refractionMat();
           }
         });
-        heroLogo.scale.setScalar(3);
-        heroLogo.position.set(0, 0, -5);
+        // Mobile: smaller logo, CENTERED
+        // Desktop: larger centered logo
+        const logoScale = isMobile ? 1.6 : 3;
+        const logoX = 0;  // Centered on both
+        const logoY = isMobile ? 0.5 : 0;  // Slight up on mobile to not overlap text
+        heroLogo.scale.setScalar(logoScale);
+        heroLogo.position.set(logoX, logoY, -5);
         heroLogo.renderOrder = 0;  // Render behind DNA/neurons
         heroLogo.traverse((child) => {
           if (child.isMesh) child.renderOrder = 0;
@@ -2906,28 +3225,32 @@
     const floatingBalls = [];
     const ballCount = 17;  // 13 original + 4 larger accent balls
     
+    // Mobile scale factor - shrink everything proportionally
+    const mobileScale = isMobile ? 0.5 : 1;
+    
     // Fixed positions for balls - first 7 smaller, next 6 bigger, last 4 large accent orbs
+    // Positions and scales are multiplied by mobileScale for mobile devices
     const ballPositions = [
       // Smaller balls
-      { x: -8, y: -3, z: -6, scale: 0.09 },
-      { x: 10, y: 4, z: -8, scale: 0.075 },
-      { x: -6, y: 5, z: -12, scale: 0.105 },
-      { x: 8, y: -4, z: -10, scale: 0.06 },
-      { x: -11, y: 2, z: -15, scale: 0.09 },
-      { x: 5, y: -2, z: -5, scale: 0.075 },
-      { x: -3, y: 6, z: -18, scale: 0.105 },
+      { x: -8 * mobileScale, y: -3 * mobileScale, z: -6, scale: 0.09 * mobileScale },
+      { x: 10 * mobileScale, y: 4 * mobileScale, z: -8, scale: 0.075 * mobileScale },
+      { x: -6 * mobileScale, y: 5 * mobileScale, z: -12, scale: 0.105 * mobileScale },
+      { x: 8 * mobileScale, y: -4 * mobileScale, z: -10, scale: 0.06 * mobileScale },
+      { x: -11 * mobileScale, y: 2 * mobileScale, z: -15, scale: 0.09 * mobileScale },
+      { x: 5 * mobileScale, y: -2 * mobileScale, z: -5, scale: 0.075 * mobileScale },
+      { x: -3 * mobileScale, y: 6 * mobileScale, z: -18, scale: 0.105 * mobileScale },
       // Bigger balls
-      { x: 12, y: -5, z: -7, scale: 0.27 },
-      { x: -10, y: -4, z: -9, scale: 0.33 },
-      { x: 7, y: 3, z: -14, scale: 0.24 },
-      { x: -5, y: -6, z: -11, scale: 0.30 },
-      { x: 9, y: 5, z: -16, scale: 0.255 },
-      { x: -12, y: 4, z: -13, scale: 0.285 },
+      { x: 12 * mobileScale, y: -5 * mobileScale, z: -7, scale: 0.27 * mobileScale },
+      { x: -10 * mobileScale, y: -4 * mobileScale, z: -9, scale: 0.33 * mobileScale },
+      { x: 7 * mobileScale, y: 3 * mobileScale, z: -14, scale: 0.24 * mobileScale },
+      { x: -5 * mobileScale, y: -6 * mobileScale, z: -11, scale: 0.30 * mobileScale },
+      { x: 9 * mobileScale, y: 5 * mobileScale, z: -16, scale: 0.255 * mobileScale },
+      { x: -12 * mobileScale, y: 4 * mobileScale, z: -13, scale: 0.285 * mobileScale },
       // Large accent orbs - more color, closer
-      { x: -7, y: -2, z: -3, scale: 0.525 },   // Left side, close
-      { x: 8, y: 3, z: -4, scale: 0.45 },     // Right side, close
-      { x: -4, y: 5, z: -6, scale: 0.42 },    // Upper left
-      { x: 6, y: -4, z: -5, scale: 0.48 }     // Lower right
+      { x: -7 * mobileScale, y: -2 * mobileScale, z: -3, scale: 0.525 * mobileScale },   // Left side, close
+      { x: 8 * mobileScale, y: 3 * mobileScale, z: -4, scale: 0.45 * mobileScale },     // Right side, close
+      { x: -4 * mobileScale, y: 5 * mobileScale, z: -6, scale: 0.42 * mobileScale },    // Upper left
+      { x: 6 * mobileScale, y: -4 * mobileScale, z: -5, scale: 0.48 * mobileScale }     // Lower right
     ];
     
     gltfLoader.load('assets/ball.glb',
@@ -2948,12 +3271,16 @@
           ball.visible = false;
           
           // DOF layers: small=heavy blur (layer 2), medium=light blur (layer 1), large=minimal blur (layer 3)
+          // On mobile: use layer 0 (no blur passes, render with main scene)
           // 0-6 = small (7), 7-12 = medium (6), 13-16 = large (4)
-          let blurLayer = 3;  // Default: minimal blur (large orbs)
-          if (i < 7) {
-            blurLayer = 2;  // Small balls - heavy blur
-          } else if (i < 13) {
-            blurLayer = 1;  // Medium balls - light blur
+          let blurLayer = 0;  // Mobile: render with main scene
+          if (!isMobile) {
+            blurLayer = 3;  // Default: minimal blur (large orbs)
+            if (i < 7) {
+              blurLayer = 2;  // Small balls - heavy blur
+            } else if (i < 13) {
+              blurLayer = 1;  // Medium balls - light blur
+            }
           }
           
           ball.layers.set(blurLayer);
@@ -2988,20 +3315,22 @@
     // ═══════════════════════════════════════════════════════════════════
     
     const floatingNeurons = [];
+    // Neuron positions - scale down positions for mobile
+    const neuronScale = isMobile ? 0.55 : 1;
     const neuronPositions = [
       // Small neurons
-      { x: 9, y: 8, z: -10, scale: 0.6 },
-      { x: 7, y: -4, z: -7, scale: 0.55 },    // Bottom right small
+      { x: 9 * neuronScale, y: 8 * neuronScale, z: -10, scale: 0.6 * neuronScale },
+      { x: 7 * neuronScale, y: -4 * neuronScale, z: -7, scale: 0.55 * neuronScale },    // Bottom right small
       // Medium neurons  
-      { x: -11, y: 2, z: -6, scale: 1.1 },
-      { x: -9, y: -7, z: -6, scale: 0.95 },   // Below founder, partially off-screen
-      { x: 12, y: 6, z: -7, scale: 1.0 },     // Top right corner
+      { x: -11 * neuronScale, y: 2 * neuronScale, z: -6, scale: 1.1 * neuronScale },
+      { x: -9 * neuronScale, y: -7 * neuronScale, z: -6, scale: 0.95 * neuronScale },   // Below founder, partially off-screen
+      { x: 12 * neuronScale, y: 6 * neuronScale, z: -7, scale: 1.0 * neuronScale },     // Top right corner
       // Large neurons
-      { x: -5, y: 6.5, z: -4, scale: 1.8 },   // Moved UP - halfway off screen
-      { x: 11, y: -5, z: -3, scale: 1.6 },    // Bottom right, large
+      { x: -5 * neuronScale, y: 6.5 * neuronScale, z: -4, scale: 1.8 * neuronScale },   // Moved UP - halfway off screen
+      { x: 11 * neuronScale, y: -5 * neuronScale, z: -3, scale: 1.6 * neuronScale },    // Bottom right, large
       // Near DNA - 2 small
-      { x: -5, y: -3, z: -5, scale: 0.55 },   // Small, bottom left of DNA
-      { x: 4, y: 3.5, z: -5, scale: 0.6 }    // Small, upper right of DNA
+      { x: -5 * neuronScale, y: -3 * neuronScale, z: -5, scale: 0.55 * neuronScale },   // Small, bottom left of DNA
+      { x: 4 * neuronScale, y: 3.5 * neuronScale, z: -5, scale: 0.6 * neuronScale }    // Small, upper right of DNA
     ];
     
     gltfLoader.load('assets/neuron.glb',
@@ -3022,12 +3351,16 @@
           neuron.visible = false;
           
           // DOF layers: small=heavy blur (layer 2), medium=light blur (layer 1), large=minimal blur (layer 3)
+          // On mobile: use layer 0 (no blur passes, render with main scene)
           // 0,1 = small, 2,3,4 = medium, 5,6 = large, 7,8 = near-DNA small
-          let blurLayer = 2;  // Default: heavy blur (small)
-          if (i >= 2 && i <= 4) {
-            blurLayer = 1;  // Medium neurons - light blur
-          } else if (i === 5 || i === 6) {
-            blurLayer = 3;  // Large neurons - minimal blur
+          let blurLayer = 0;  // Mobile: render with main scene
+          if (!isMobile) {
+            blurLayer = 2;  // Default: heavy blur (small)
+            if (i >= 2 && i <= 4) {
+              blurLayer = 1;  // Medium neurons - light blur
+            } else if (i === 5 || i === 6) {
+              blurLayer = 3;  // Large neurons - minimal blur
+            }
           }
           
           // Apply DOF blur layers (same system as floating balls)
@@ -3143,8 +3476,9 @@
           }
         });
         
-        // DNA helix setup
-        dnaHelix.scale.setScalar(4.0);
+        // DNA helix setup - scale down for mobile
+        const dnaScale = isMobile ? 2.5 : 4.0;
+        dnaHelix.scale.setScalar(dnaScale);
         dnaHelix.position.set(12, -10, -2);  // Start position for bezier entry
         dnaHelix.rotation.x = 0.3;
         dnaHelix.rotation.z = 0.175;  // 10 degree tilt
@@ -3346,9 +3680,10 @@
         contactRobot.userData.rainbowMat = robotMaterial;
         
         // Start hidden, positioned below viewport
+        // Mobile: Scale down significantly to not overwhelm the screen
         contactRobot.visible = false;
-        contactRobot.scale.setScalar(5.4);
-        contactRobot.position.set(0, -20, -5);
+        contactRobot.scale.setScalar(isMobile ? 1.8 : 5.4);
+        contactRobot.position.set(0, isMobile ? -5 : -20, isMobile ? 4 : -5);
         contactRobot.rotation.set(0, 0, 0);
         contactRobot.renderOrder = 100;
         
@@ -3838,7 +4173,8 @@
       ctx.fillText('ITEREX', cx, textY);
       
       // Loading bar - techy segmented data blocks
-      const barWidth = 200 * scale;
+      // Narrower on mobile to fit the percentage text
+      const barWidth = isMobile ? 140 * scale : 200 * scale;
       const barHeight = 6 * scale;
       const barX = cx - barWidth/2;
       const barY = cy + 110 * scale;
@@ -3963,78 +4299,83 @@
     
     
     // ═══════════════════════════════════════════════════════════════════
-    // DOF BLUR COMPOSERS - Heavy blur for small balls, light blur for medium
+    // DOF BLUR COMPOSERS - Fixed ping-pong to prevent feedback loop
+    // Let EffectComposer manage its own render targets internally
     // ═══════════════════════════════════════════════════════════════════
     
-    // Heavy blur for small/distant balls (layer 2)
-    const heavyBlurRT = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      format: THREE.RGBAFormat
-    });
+    // Create dummy transparent texture (prevents shader errors)
+    const dummyTexture = new THREE.DataTexture(
+      new Uint8Array([0, 0, 0, 0]), 1, 1, THREE.RGBAFormat
+    );
+    dummyTexture.needsUpdate = true;
     
-    const heavyBlurComposer = new EffectComposer(renderer, heavyBlurRT);
-    const heavyBlurRenderPass = new RenderPass(scene, camera);
-    heavyBlurComposer.addPass(heavyBlurRenderPass);
+    // Set dummy textures immediately to prevent any shader errors
+    warpPass.uniforms.tBlurHeavy.value = dummyTexture;
+    warpPass.uniforms.tBlurLight.value = dummyTexture;
+    warpPass.uniforms.tBlurMin.value = dummyTexture;
     
-    // 2 passes for moderate blur (reduced from 3)
-    const hBlurHeavy1 = new ShaderPass(HorizontalBlurShader);
-    hBlurHeavy1.uniforms.h.value = 0.5 / window.innerWidth;
-    heavyBlurComposer.addPass(hBlurHeavy1);
+    // Only create blur composers on desktop
+    let heavyBlurComposer;
+    let lightBlurComposer;
+    let minBlurComposer;
     
-    const vBlurHeavy1 = new ShaderPass(VerticalBlurShader);
-    vBlurHeavy1.uniforms.v.value = 0.5 / window.innerHeight;
-    heavyBlurComposer.addPass(vBlurHeavy1);
-    
-    const hBlurHeavy2 = new ShaderPass(HorizontalBlurShader);
-    hBlurHeavy2.uniforms.h.value = 0.5 / window.innerWidth;
-    heavyBlurComposer.addPass(hBlurHeavy2);
-    
-    const vBlurHeavy2 = new ShaderPass(VerticalBlurShader);
-    vBlurHeavy2.uniforms.v.value = 0.5 / window.innerHeight;
-    vBlurHeavy2.renderToScreen = false;
-    heavyBlurComposer.addPass(vBlurHeavy2);
-    
-    // Light blur for medium balls (layer 1)
-    const lightBlurRT = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      format: THREE.RGBAFormat
-    });
-    
-    const lightBlurComposer = new EffectComposer(renderer, lightBlurRT);
-    const lightBlurRenderPass = new RenderPass(scene, camera);
-    lightBlurComposer.addPass(lightBlurRenderPass);
-    
-    // 1 pass for medium balls
-    const hBlurLight = new ShaderPass(HorizontalBlurShader);
-    hBlurLight.uniforms.h.value = 0.7 / window.innerWidth;
-    lightBlurComposer.addPass(hBlurLight);
-    
-    const vBlurLight = new ShaderPass(VerticalBlurShader);
-    vBlurLight.uniforms.v.value = 0.7 / window.innerHeight;
-    vBlurLight.renderToScreen = false;
-    lightBlurComposer.addPass(vBlurLight);
-    
-    // Minimal blur for large/close balls (layer 3)
-    const minBlurRT = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      format: THREE.RGBAFormat
-    });
-    
-    const minBlurComposer = new EffectComposer(renderer, minBlurRT);
-    const minBlurRenderPass = new RenderPass(scene, camera);
-    minBlurComposer.addPass(minBlurRenderPass);
-    
-    const hBlurMin = new ShaderPass(HorizontalBlurShader);
-    hBlurMin.uniforms.h.value = 0.25 / window.innerWidth;
-    minBlurComposer.addPass(hBlurMin);
-    
-    const vBlurMin = new ShaderPass(VerticalBlurShader);
-    vBlurMin.uniforms.v.value = 0.25 / window.innerHeight;
-    vBlurMin.renderToScreen = false;
-    minBlurComposer.addPass(vBlurMin);
+    if (!isMobile) {
+      // Heavy blur for small/distant balls (layer 2)
+      // Don't pass render target - let EffectComposer manage its own ping-pong
+      heavyBlurComposer = new EffectComposer(renderer);
+      heavyBlurComposer.setSize(window.innerWidth, window.innerHeight);
+      const heavyBlurRenderPass = new RenderPass(scene, camera);
+      heavyBlurComposer.addPass(heavyBlurRenderPass);
+      
+      // 2 passes for moderate blur
+      const hBlurHeavy1 = new ShaderPass(HorizontalBlurShader);
+      hBlurHeavy1.uniforms.h.value = 0.5 / window.innerWidth;
+      heavyBlurComposer.addPass(hBlurHeavy1);
+      
+      const vBlurHeavy1 = new ShaderPass(VerticalBlurShader);
+      vBlurHeavy1.uniforms.v.value = 0.5 / window.innerHeight;
+      heavyBlurComposer.addPass(vBlurHeavy1);
+      
+      const hBlurHeavy2 = new ShaderPass(HorizontalBlurShader);
+      hBlurHeavy2.uniforms.h.value = 0.5 / window.innerWidth;
+      heavyBlurComposer.addPass(hBlurHeavy2);
+      
+      const vBlurHeavy2 = new ShaderPass(VerticalBlurShader);
+      vBlurHeavy2.uniforms.v.value = 0.5 / window.innerHeight;
+      vBlurHeavy2.renderToScreen = false;
+      heavyBlurComposer.addPass(vBlurHeavy2);
+      
+      // Light blur for medium balls (layer 1)
+      lightBlurComposer = new EffectComposer(renderer);
+      lightBlurComposer.setSize(window.innerWidth, window.innerHeight);
+      const lightBlurRenderPass = new RenderPass(scene, camera);
+      lightBlurComposer.addPass(lightBlurRenderPass);
+      
+      // 1 pass for medium balls
+      const hBlurLight = new ShaderPass(HorizontalBlurShader);
+      hBlurLight.uniforms.h.value = 0.7 / window.innerWidth;
+      lightBlurComposer.addPass(hBlurLight);
+      
+      const vBlurLight = new ShaderPass(VerticalBlurShader);
+      vBlurLight.uniforms.v.value = 0.7 / window.innerHeight;
+      vBlurLight.renderToScreen = false;
+      lightBlurComposer.addPass(vBlurLight);
+      
+      // Minimal blur for large/close balls (layer 3)
+      minBlurComposer = new EffectComposer(renderer);
+      minBlurComposer.setSize(window.innerWidth, window.innerHeight);
+      const minBlurRenderPass = new RenderPass(scene, camera);
+      minBlurComposer.addPass(minBlurRenderPass);
+      
+      const hBlurMin = new ShaderPass(HorizontalBlurShader);
+      hBlurMin.uniforms.h.value = 0.25 / window.innerWidth;
+      minBlurComposer.addPass(hBlurMin);
+      
+      const vBlurMin = new ShaderPass(VerticalBlurShader);
+      vBlurMin.uniforms.v.value = 0.25 / window.innerHeight;
+      vBlurMin.renderToScreen = false;
+      minBlurComposer.addPass(vBlurMin);
+    }
     
     
     // SHADER WARMUP - render one frame with composer to pre-compile shaders
@@ -4075,8 +4416,10 @@
         const origVisible = dnaHelix.visible;
         
         // Position DNA where it will be in About section
+        // Use mobile-aware scale for pre-warming
+        const dnaWarmScale = isMobile ? 2.8 : 4.5;
         dnaHelix.position.set(0, -0.35, -4);
-        dnaHelix.scale.setScalar(4.5);
+        dnaHelix.scale.setScalar(dnaWarmScale);
         dnaHelix.visible = true;
         
         // Force render
@@ -4657,13 +5000,15 @@
           });
         }
         
-        // Container fades
-        gsap.to(`${fromSection} .panel-content`, {
-          opacity: 0,
-          visibility: 'hidden',
-          duration: CINEMA.duration * 0.8,
-          ease: CINEMA.easeOut
-        });
+        // Container fades - skip for #templates (no .panel-content)
+        if (fromSection !== '#templates') {
+          gsap.to(`${fromSection} .panel-content`, {
+            opacity: 0,
+            visibility: 'hidden',
+            duration: CINEMA.duration * 0.8,
+            ease: CINEMA.easeOut
+          });
+        }
         
         // ─────────────────────────────────────────────────────────────────
         // ENTER NEW SECTION - Everything arrives TOGETHER
@@ -4712,8 +5057,10 @@
           });
         }
         
-        // Set starting positions
-        gsap.set(`${toSection} .panel-content`, { opacity: 0 });
+        // Set starting positions - skip for #templates (no .panel-content)
+        if (toSection !== '#templates') {
+          gsap.set(`${toSection} .panel-content`, { opacity: 0 });
+        }
         gsap.set(enterElements.join(', '), { y: enterY, opacity: 0 });
         
         // Hero section needs filter reset (blur was set during intro)
@@ -4740,14 +5087,16 @@
           gsap.set('.process-phone-area', { y: enterY * 0.5, opacity: 0, visibility: 'hidden' });
         }
         
-        // ENTER: Container visible first
-        gsap.to(`${toSection} .panel-content`, {
-          opacity: 1,
-          visibility: 'visible',
-          duration: CINEMA.duration * 0.5,
-          delay: enterDelay,
-          ease: CINEMA.ease
-        });
+        // ENTER: Container visible first - skip for #templates (no .panel-content)
+        if (toSection !== '#templates') {
+          gsap.to(`${toSection} .panel-content`, {
+            opacity: 1,
+            visibility: 'visible',
+            duration: CINEMA.duration * 0.5,
+            delay: enterDelay,
+            ease: CINEMA.ease
+          });
+        }
         
         // ENTER: All elements animate TOGETHER with tiny stagger
         gsap.to(enterElements.join(', '), {
@@ -4840,14 +5189,18 @@
             });
           } else if (from > 0 && to === 0) {
             // Returning to Hero - logo enters from ABOVE
+            // Use mobile-aware scale and position
+            const logoScale = isMobile ? 1.6 : 3;
+            const logoY = isMobile ? 0.5 : 0;
+            
             MODELS.logo.visible = true;
             MODELS.logo.position.set(0, 15, -5);
-            MODELS.logo.scale.set(3, 3, 3);
+            MODELS.logo.scale.setScalar(logoScale);
             MODELS.logo.rotation.set(0, 0, 0);
-            MODEL_BASE_Y.logo = 0;
+            MODEL_BASE_Y.logo = logoY;
             
             gsap.to(MODELS.logo.position, {
-              y: 0,
+              y: logoY,
               duration: CINEMA.duration,
               delay: duration * 0.3,
               ease: 'power3.out'
@@ -5029,8 +5382,10 @@
             
             // Start well below viewport at FULL scale - no zoom, just rise
             // Position: moved right 0.5 units, final y=-0.1 (10px down)
+            // Mobile: use smaller scale
+            const dnaAnimScale = isMobile ? 4.0 : 6.5;
             dnaHelix.position.set(-0.5, -12, -8);
-            dnaHelix.scale.setScalar(6.5);  // Slightly smaller
+            dnaHelix.scale.setScalar(dnaAnimScale);
             
             gsap.to(dnaHelix.position, {
               y: -0.1,
@@ -5180,9 +5535,10 @@
           
           // DNA enters from ABOVE (coming back from Work) - no zoom, pure slide
           if (dnaHelix) {
+            const dnaAnimScale = isMobile ? 4.0 : 6.5;
             dnaHelix.visible = true;
             dnaHelix.position.set(-0.5, 18, -8);  // Start well above viewport, same x as final
-            dnaHelix.scale.setScalar(6.5);  // Slightly smaller - matches Hero entrance
+            dnaHelix.scale.setScalar(dnaAnimScale);  // Mobile-aware scale
             
             gsap.to(dnaHelix.position, {
               y: -0.1,  // Same final y position
@@ -5281,6 +5637,7 @@
           
           // ─────────────────────────────────────────────────────────────────
           // CLEAN PROCESS SECTION - Code bracket + animated timeline
+          // On mobile: Show code bracket scaled down for nice glass effect
           // ─────────────────────────────────────────────────────────────────
           
           // Code bracket enters from BELOW with slow spin
@@ -5290,12 +5647,14 @@
             
             codeBracket.visible = true;
             codeBracket.position.set(0, -10, -5);
-            codeBracket.scale.setScalar(4.0);
+            // Smaller on mobile
+            codeBracket.scale.setScalar(isMobile ? 2.5 : 4.0);
             codeBracket.rotation.set(0, 0, 0);
             
             // Enter animation - rise into position
+            // Mobile: slightly above center (y=0.25), Desktop: above center (y=3.95)
             gsap.to(codeBracket.position, {
-              y: 3.95,
+              y: isMobile ? 0.16 : 3.95,
               duration: CINEMA.duration * 1.2,
               ease: CINEMA.ease
             });
@@ -5460,12 +5819,13 @@
             
             codeBracket.visible = true;
             codeBracket.position.set(0, 20, -5);
-            codeBracket.scale.setScalar(4.0);
+            codeBracket.scale.setScalar(isMobile ? 2.5 : 4.0);
             codeBracket.rotation.set(0, 0, 0);
             
             // Enter animation - drop into position
+            // Mobile: slightly above center (y=0.25), Desktop: above center (y=3.95)
             gsap.to(codeBracket.position, {
-              y: 3.95,
+              y: isMobile ? 0.16 : 3.95,
               duration: CINEMA.duration * 1.2,
               ease: 'power2.out'
             });
@@ -5883,7 +6243,7 @@
       
       // Render background to refraction texture (for logo glass material)
       // ONLY run in Hero section - not needed elsewhere and causes robot flicker
-      if (!isLoadingMode && heroLogo && STATE.section === 0) {
+      if (!isLoadingMode && heroLogo && STATE.section === 0 && !isMobile) {
         // Hide logo and glow for background capture
         heroLogo.visible = false;
         if (heroLogo.userData.glow) heroLogo.userData.glow.visible = false;
@@ -6070,27 +6430,31 @@
         
         // ═══════════════════════════════════════════════════════════════
         // DOF RENDERING - When floating balls, neurons, or process timeline are visible
+        // Skip on mobile - fixes WebGL feedback loop and improves performance
         // ═══════════════════════════════════════════════════════════════
         
         // Check if any DOF objects are visible
         const ballsVisible = floatingBalls.some(ball => ball.visible);
         const neuronsVisible = floatingNeurons.some(neuron => neuron.visible);
         
-        if (ballsVisible || neuronsVisible) {
+        // Only run expensive blur passes on desktop
+        if ((ballsVisible || neuronsVisible) && !isMobile && heavyBlurComposer) {
           // Render small/distant objects with heavy blur (layer 2)
           camera.layers.set(2);
           heavyBlurComposer.render();
-          warpPass.uniforms.tBlurHeavy.value = heavyBlurRT.texture;
           
           // Render medium objects with light blur (layer 1)
           camera.layers.set(1);
           lightBlurComposer.render();
-          warpPass.uniforms.tBlurLight.value = lightBlurRT.texture;
           
           // Render large objects with minimal blur (layer 3)
           camera.layers.set(3);
           minBlurComposer.render();
-          warpPass.uniforms.tBlurMin.value = minBlurRT.texture;
+          
+          // Read from EffectComposer's internal readBuffer (proper ping-pong result)
+          warpPass.uniforms.tBlurHeavy.value = heavyBlurComposer.readBuffer.texture;
+          warpPass.uniforms.tBlurLight.value = lightBlurComposer.readBuffer.texture;
+          warpPass.uniforms.tBlurMin.value = minBlurComposer.readBuffer.texture;
         }
         
         // Main render: layer 0 only (everything else)
