@@ -1,0 +1,8 @@
+# Iterex Robots.txt
+# https://iterex.dev
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://iterex.dev/sitemap.xml
