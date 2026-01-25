@@ -2907,6 +2907,7 @@
     // Set up Draco decoder for compressed models
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    dracoLoader.preload(); // Pre-load decoder early to avoid mid-load jank
     gltfLoader.setDRACOLoader(dracoLoader);
     
     
@@ -4663,16 +4664,49 @@
         });
       }
       
-      // 3. Pre-warm Work section DOM - force layout/paint
+      // 3. Pre-warm Work section DOM - force paint/composite (not just layout)
+      // This triggers backdrop-filter blur setup which is expensive on first render
       const workItems = document.querySelectorAll('.work-item');
       const workGrid = document.querySelector('.work-grid');
       if (workGrid && workItems.length) {
-        // Force layout calculation
+        // Store original styles
+        const origGridOpacity = workGrid.style.opacity;
+        const origItemStyles = Array.from(workItems).map(item => ({
+          opacity: item.style.opacity,
+          visibility: item.style.visibility
+        }));
+
+        // Briefly make visible to force paint/composite of backdrop-filter
+        workGrid.style.opacity = '0.01';
+        workItems.forEach(item => {
+          item.style.opacity = '0.01';
+          item.style.visibility = 'visible';
+        });
+
+        // Force layout AND paint
         workGrid.offsetHeight;
-        workItems.forEach(item => item.offsetHeight);
+        workItems.forEach(item => item.getBoundingClientRect());
+
+        // Request animation frame to ensure paint happens
+        requestAnimationFrame(() => {
+          // Restore original styles
+          workGrid.style.opacity = origGridOpacity;
+          workItems.forEach((item, i) => {
+            item.style.opacity = origItemStyles[i].opacity;
+            item.style.visibility = origItemStyles[i].visibility;
+          });
+        });
       }
-      
-      // 4. One more composer render to warm everything together
+
+      // 4. Pre-warm heat particles (compile shader before first scroll to Work)
+      if (heatParticles) {
+        const origVisible = heatParticles.visible;
+        heatParticles.visible = true;
+        renderer.render(scene, camera);
+        heatParticles.visible = origVisible;
+      }
+
+      // 5. One more composer render to warm everything together
       composer.render();
       
       // ═══════════════════════════════════════════════════════════════════
